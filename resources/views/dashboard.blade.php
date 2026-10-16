@@ -81,7 +81,7 @@
                         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
                             <span>{{ $run->period?->name }}</span><span class="muted">{{ peso($run->net_total) }}</span>
                         </div>
-                        <div style="background:var(--sidebar-2);border-radius:6px;height:10px;overflow:hidden">
+                        <div style="background:#edeae3;border-radius:6px;height:10px;overflow:hidden">
                             <div style="height:100%;width:{{ max(2, round($run->net_total / $trendMax * 100)) }}%;background:var(--primary)"></div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
                         <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
                             <span>{{ $label }}</span><span class="muted">{{ number_format($attendance[$key] ?? 0) }}</span>
                         </div>
-                        <div style="background:var(--sidebar-2);border-radius:6px;height:10px;overflow:hidden">
+                        <div style="background:#edeae3;border-radius:6px;height:10px;overflow:hidden">
                             <div style="height:100%;width:{{ max(2, round(($attendance[$key] ?? 0) / $attendanceMax * 100)) }}%;background:var(--primary)"></div>
                         </div>
                     </div>

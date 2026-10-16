@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') · {{ config('app.name') }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('app.css') }}">
 </head>
 <body>
@@ -21,6 +24,7 @@
     <aside class="sidebar">
         <div class="brand"><span class="dot"></span> {{ config('app.name') }}</div>
 
+        <nav class="nav-scroll">
         <div class="nav-group">
             <div class="label">Overview</div>
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><span class="ico">▦</span> Dashboard</a>
@@ -108,11 +112,12 @@
             </div>
         @endif
 
-        <div style="flex:1"></div>
-        <div class="nav-group" style="padding-bottom:18px">
+        </nav>
+
+        <div class="sidebar-foot">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn" style="width:100%;justify-content:center;background:var(--sidebar-2);border-color:transparent;color:var(--sidebar-ink-strong)">Sign out</button>
+                <button type="submit" class="btn signout">Sign out</button>
             </form>
         </div>
     </aside>
@@ -151,5 +156,20 @@
         </main>
     </div>
 </div>
+<script>
+    (function () {
+        var nav = document.querySelector('.nav-scroll');
+        if (!nav) return;
+        var key = 'hris.sidebar.scroll';
+        var saved = sessionStorage.getItem(key);
+        if (saved) nav.scrollTop = parseInt(saved, 10) || 0;
+        var timer;
+        nav.addEventListener('scroll', function () {
+            clearTimeout(timer);
+            timer = setTimeout(function () { sessionStorage.setItem(key, nav.scrollTop); }, 120);
+        });
+        window.addEventListener('pagehide', function () { sessionStorage.setItem(key, nav.scrollTop); });
+    })();
+</script>
 </body>
 </html>
