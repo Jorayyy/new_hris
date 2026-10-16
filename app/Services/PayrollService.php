@@ -64,6 +64,11 @@ class PayrollService
                 'net_total' => $run->payslips()->sum('net_pay'),
                 'processed_by' => auth()->id(),
                 'processed_at' => now(),
+                'approved_by' => null,
+                'approved_at' => null,
+                'voided_by' => null,
+                'voided_at' => null,
+                'void_reason' => null,
             ]);
 
             $period->update(['status' => 'processed']);
@@ -74,7 +79,23 @@ class PayrollService
 
     public function deleteRun(PayrollRun $run): void
     {
+        $this->loans->clearRun($run);
         $run->delete();
+    }
+
+    /** Void a run: reverse its loan postings and flag it for reprocessing. */
+    public function voidRun(PayrollRun $run, string $reason, ?int $userId = null): void
+    {
+        DB::transaction(function () use ($run, $reason, $userId) {
+            $this->loans->clearRun($run);
+
+            $run->update([
+                'status' => PayrollRun::STATUS_VOIDED,
+                'voided_by' => $userId,
+                'voided_at' => now(),
+                'void_reason' => $reason,
+            ]);
+        });
     }
 
     public function computePayslip(Employee $employee, PayrollPeriod $period): array

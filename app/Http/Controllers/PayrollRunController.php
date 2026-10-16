@@ -57,10 +57,35 @@ class PayrollRunController extends Controller
 
     public function process(PayrollRun $run): RedirectResponse
     {
+        abort_unless(in_array($run->status, [PayrollRun::STATUS_DRAFT, PayrollRun::STATUS_VOIDED], true), 403, 'Only draft or voided runs can be processed.');
+
         $this->payroll->processRun($run);
         AuditLog::record('process', 'Processed payroll run #'.$run->id.' ('.$run->period?->name.')', $run);
 
-        return redirect()->route('payroll.runs.show', $run)->with('ok', 'Payroll processed.');
+        return redirect()->route('payroll.runs.show', $run)->with('ok', 'Payroll processed. Awaiting checker approval.');
+    }
+
+    public function approve(PayrollRun $run): RedirectResponse
+    {
+        abort_unless($run->status === PayrollRun::STATUS_PROCESSED, 403, 'Only processed runs can be approved.');
+        abort_if($run->processed_by === auth()->id(), 403, 'The approver must be different from the preparer.');
+
+        $run->update(['status' => PayrollRun::STATUS_APPROVED, 'approved_by' => auth()->id(), 'approved_at' => now()]);
+        AuditLog::record('approve', 'Approved payroll run #'.$run->id.' ('.$run->period?->name.')', $run);
+
+        return redirect()->route('payroll.runs.show', $run)->with('ok', 'Payroll run approved.');
+    }
+
+    public function void(Request $request, PayrollRun $run): RedirectResponse
+    {
+        abort_unless(in_array($run->status, [PayrollRun::STATUS_PROCESSED, PayrollRun::STATUS_APPROVED], true), 403, 'Only processed or approved runs can be voided.');
+
+        $data = $request->validate(['void_reason' => ['required', 'string', 'max:500']]);
+
+        $this->payroll->voidRun($run, $data['void_reason'], auth()->id());
+        AuditLog::record('void', 'Voided payroll run #'.$run->id.' ('.$run->period?->name.')', $run);
+
+        return redirect()->route('payroll.runs.show', $run)->with('ok', 'Payroll run voided. It can be reprocessed.');
     }
 
     public function destroy(PayrollRun $run): RedirectResponse
@@ -110,6 +135,39 @@ class PayrollRunController extends Controller
             ];
         }
 
+        return $this->csv($rows, 'payroll-run-'.$run->id.'.csv');
+    }
+
+    /** Bank payout file (account name, number, bank, amount) for an approved run. */
+    public function bankFile(PayrollRun $run): Response
+    {
+        abort_unless($run->status === PayrollRun::STATUS_APPROVED, 403, 'Only approved runs can be released for payout.');
+
+        $run->load(['payslips.employee']);
+
+        $rows = [['Account Name', 'Account Number', 'Bank', 'Amount']];
+        foreach ($run->payslips as $payslip) {
+            $employee = $payslip->employee;
+            if (! $employee?->bank_account_no) {
+                continue;
+            }
+
+            $rows[] = [
+                $employee->full_name,
+                $employee->bank_account_no,
+                $employee->bank_name,
+                number_format((float) $payslip->net_pay, 2, '.', ''),
+            ];
+        }
+
+        AuditLog::record('export', 'Downloaded bank payout file for run #'.$run->id, $run);
+
+        return $this->csv($rows, 'bank-payout-run-'.$run->id.'.csv');
+    }
+
+    /** @param  array<int, array<int, mixed>>  $rows */
+    private function csv(array $rows, string $filename): Response
+    {
         $csv = '';
         foreach ($rows as $row) {
             $csv .= implode(',', array_map(fn ($value) => '"'.str_replace('"', '""', (string) $value).'"', $row))."\r\n";
@@ -117,7 +175,7 @@ class PayrollRunController extends Controller
 
         return response($csv, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="payroll-run-'.$run->id.'.csv"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 

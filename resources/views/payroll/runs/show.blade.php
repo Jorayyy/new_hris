@@ -7,15 +7,35 @@
             <div>
                 <h2>{{ $run->period?->name }}</h2>
                 <div class="muted small">{{ $run->branch?->name ?? 'All branches' }} · {{ ucfirst($run->status) }}</div>
+                @if($run->void_reason)
+                    <div class="muted small">Voided: {{ $run->void_reason }}</div>
+                @endif
             </div>
             <div class="btn-row">
-                @if($run->status !== 'processed')
+                @if(in_array($run->status, ['draft', 'voided']))
                     <form method="POST" action="{{ route('payroll.runs.process', $run) }}">
                         @csrf
-                        <button class="btn primary">Process payroll</button>
+                        <button class="btn primary">{{ $run->status === 'voided' ? 'Re-run payroll' : 'Process payroll' }}</button>
                     </form>
-                @else
+                @endif
+                @if($run->status === 'processed')
                     <span class="badge green">Processed {{ $run->processed_at?->format('M d, Y h:i A') }}</span>
+                    @if($run->processed_by !== auth()->id())
+                        <form method="POST" action="{{ route('payroll.runs.approve', $run) }}">@csrf<button class="btn primary">Approve</button></form>
+                    @else
+                        <span class="badge gray">Awaiting a second approver</span>
+                    @endif
+                @endif
+                @if($run->status === 'approved')
+                    <span class="badge green">Approved {{ $run->approved_at?->format('M d, Y h:i A') }}</span>
+                    <a class="btn primary" href="{{ route('payroll.runs.bank-file', $run) }}">Bank payout file</a>
+                @endif
+                @if(in_array($run->status, ['processed', 'approved']))
+                    <form method="POST" action="{{ route('payroll.runs.void', $run) }}" onsubmit="this.void_reason.value=prompt('Reason for voiding this run?'); return this.void_reason.value">
+                        @csrf
+                        <input type="hidden" name="void_reason">
+                        <button class="btn danger">Void</button>
+                    </form>
                 @endif
                 @if($run->payslips->count())
                     <a class="btn" href="{{ route('payroll.runs.export', $run) }}">Export CSV</a>

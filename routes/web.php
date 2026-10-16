@@ -102,7 +102,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('payroll/periods', PayrollPeriodController::class)->except('show')->names('payroll.periods');
         Route::resource('payroll/runs', PayrollRunController::class)->except(['edit', 'update'])->names('payroll.runs');
         Route::post('payroll/runs/{run}/process', [PayrollRunController::class, 'process'])->name('payroll.runs.process');
+        Route::post('payroll/runs/{run}/approve', [PayrollRunController::class, 'approve'])->name('payroll.runs.approve');
+        Route::post('payroll/runs/{run}/void', [PayrollRunController::class, 'void'])->name('payroll.runs.void');
         Route::get('payroll/runs/{run}/export', [PayrollRunController::class, 'export'])->name('payroll.runs.export');
+        Route::get('payroll/runs/{run}/bank-file', [PayrollRunController::class, 'bankFile'])->name('payroll.runs.bank-file');
         Route::get('payroll/runs/{run}/payslips-zip', [PayrollRunController::class, 'payslipsZip'])->name('payroll.runs.payslips-zip');
         Route::get('payroll/thirteenth-month', [PayrollRunController::class, 'thirteenthMonth'])->name('payroll.thirteenth');
         Route::get('payroll/final-pay', [FinalPayController::class, 'index'])->name('payroll.final-pay');
