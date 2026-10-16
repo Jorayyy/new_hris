@@ -29,7 +29,7 @@ class HttpSmokeTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
         ]);
 
-        foreach (['/', '/employees', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/users', '/audit-log', '/time-clock/access', '/leave-balances', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
+        foreach (['/', '/employees', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/loans', '/loan-types', '/users', '/audit-log', '/time-clock/access', '/leave-balances', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
             $this->actingAs($admin)->get($path)->assertOk();
         }
     }

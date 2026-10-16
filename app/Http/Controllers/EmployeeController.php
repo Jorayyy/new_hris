@@ -165,12 +165,16 @@ class EmployeeController extends Controller
             'daily_rate' => ['nullable', 'numeric', 'min:0'],
             'tax_status' => ['required', 'string', 'max:10'],
             'dependents_count' => ['nullable', 'integer', 'min:0', 'max:20'],
+            'rest_days' => ['nullable', 'array'],
+            'rest_days.*' => ['integer', 'between:0,6'],
             'is_active' => ['boolean'],
         ]);
 
         if (empty($data['pin'])) {
             unset($data['pin']);
         }
+
+        $data['rest_days'] = array_values(array_unique(array_map('intval', (array) $request->input('rest_days', []))));
 
         return $data + [
             'is_active' => $request->boolean('is_active'),

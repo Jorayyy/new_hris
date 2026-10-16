@@ -12,21 +12,17 @@ use App\Models\Payslip;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Builds payslips for a payroll run. Uses DtrService for attendance figures and
+ * Builds payslips for a payroll run. Uses DtrService for attendance figures,
+ * PremiumPayService for DOLE premium/overtime/night-differential pay, and
  * PhContributionService for statutory contributions and tax.
- *
- * Simplifications (documented on purpose): OT is flat 125%, night differential 10%,
- * holiday premium = multiplier - 1 on top of basic, 13th month = basic pay / 12.
  */
 class PayrollService
 {
-    public const OVERTIME_RATE = 1.25;
-
-    public const NIGHT_DIFF_RATE = 0.10;
-
     public function __construct(
         private readonly DtrService $dtr = new DtrService,
         private readonly PhContributionService $ph = new PhContributionService,
+        private readonly PremiumPayService $premium = new PremiumPayService,
+        private readonly LoanService $loans = new LoanService,
     ) {}
 
     public function processRun(PayrollRun $run): PayrollRun
@@ -35,13 +31,17 @@ class PayrollService
 
         abort_if($period->status === 'closed', 403, 'This pay period is closed and cannot be processed.');
 
+        $divisor = ($period->frequency ?? 'semi_monthly') === 'monthly' ? 1 : 2;
+
         $employees = Employee::query()
             ->where('is_active', true)
             ->when($run->branch_id, fn ($q) => $q->where('branch_id', $run->branch_id))
             ->with(['allowances', 'deductions'])
             ->get();
 
-        return DB::transaction(function () use ($run, $period, $employees) {
+        return DB::transaction(function () use ($run, $period, $employees, $divisor) {
+            $this->loans->clearRun($run);
+
             foreach ($employees as $employee) {
                 $data = $this->computePayslip($employee, $period);
                 $payslip = Payslip::updateOrCreate(
@@ -52,6 +52,8 @@ class PayrollService
                 foreach ($data['items'] as $item) {
                     $payslip->items()->create($item);
                 }
+
+                $this->loans->applyForRun($employee, $run, $divisor);
             }
 
             $run->update([
@@ -87,32 +89,43 @@ class PayrollService
         $daily = $employee->dailyRate();
         $hourly = $employee->hourlyRate();
 
-        $basicPay = round($daily * $summary['days_worked'], 2);
-        $overtimePay = round($summary['overtime_hours'] * $hourly * self::OVERTIME_RATE, 2);
-        $nightDiffPay = round($summary['night_diff_hours'] * $hourly * self::NIGHT_DIFF_RATE, 2);
-        $holidayPay = $this->holidayPay($employee, $period, $daily);
+        $premium = $this->premium->summarize(
+            Attendance::query()->where('employee_id', $employee->id)->whereBetween('work_date', [$from, $to])->get(),
+            $this->periodHolidays($employee, $period),
+            array_map('intval', $employee->rest_days ?? []),
+            $daily,
+            $hourly,
+        );
+
+        $basicPay = $premium['basic'];
+        $restDayPay = $premium['rest_day'];
+        $holidayPay = $premium['holiday'];
+        $overtimePay = $premium['overtime'];
+        $nightDiffPay = $premium['night_diff'];
         $leavePay = $this->leavePay($employee, $from, $to, $daily, $divisor);
 
         $allowances = $employee->allowances;
         $allowancesTotal = round($allowances->sum(fn ($a) => (float) $a->amount) / $divisor, 2);
         $nonTaxableAllowances = round($allowances->where('is_taxable', false)->sum(fn ($a) => (float) $a->amount) / $divisor, 2);
 
-        $grossPay = round($basicPay + $overtimePay + $nightDiffPay + $holidayPay + $leavePay + $allowancesTotal, 2);
+        $grossPay = round($basicPay + $restDayPay + $holidayPay + $overtimePay + $nightDiffPay + $leavePay + $allowancesTotal, 2);
 
         $statutory = $this->ph->employeePeriodShares($employee, $frequency);
         $lateUndertime = round(($summary['late_minutes'] + $summary['undertime_minutes']) / 60 * $hourly, 2);
 
         $otherDeductions = round($employee->deductions->sum(fn ($d) => (float) $d->amount) / $divisor, 2);
+        $loanDeductions = $this->loans->totalFor($employee, $divisor);
 
         $taxableIncome = max(0, $grossPay - $statutory['sss'] - $statutory['philhealth'] - $statutory['pagibig'] - $nonTaxableAllowances - $lateUndertime);
         $tax = $this->ph->withholdingTax($taxableIncome, $frequency);
 
-        $totalDeductions = round($statutory['sss'] + $statutory['philhealth'] + $statutory['pagibig'] + $tax + $lateUndertime + $otherDeductions, 2);
+        $totalDeductions = round($statutory['sss'] + $statutory['philhealth'] + $statutory['pagibig'] + $tax + $lateUndertime + $otherDeductions + $loanDeductions, 2);
         $netPay = round($grossPay - $totalDeductions, 2);
 
         $items = [];
         $earnings = [
             'Basic pay' => $basicPay,
+            'Rest day premium' => $restDayPay,
             'Overtime pay' => $overtimePay,
             'Night differential' => $nightDiffPay,
             'Holiday pay' => $holidayPay,
@@ -133,6 +146,7 @@ class PayrollService
             'Withholding tax' => $tax,
             'Late / undertime' => $lateUndertime,
             'Other deductions' => $otherDeductions,
+            'Loan payments' => $loanDeductions,
         ];
         foreach ($deductions as $label => $amount) {
             if ($amount == 0.0) {
@@ -146,6 +160,7 @@ class PayrollService
                 'days_worked' => $summary['days_worked'],
                 'hours_worked' => round($summary['hours_worked'], 2),
                 'basic_pay' => $basicPay,
+                'rest_day_pay' => $restDayPay,
                 'overtime_pay' => $overtimePay,
                 'night_diff_pay' => $nightDiffPay,
                 'holiday_pay' => $holidayPay,
@@ -158,6 +173,7 @@ class PayrollService
                 'tax_withheld' => $tax,
                 'late_undertime_deduction' => $lateUndertime,
                 'other_deductions_total' => $otherDeductions,
+                'loan_deductions_total' => $loanDeductions,
                 'total_deductions' => $totalDeductions,
                 'net_pay' => $netPay,
             ],
@@ -165,30 +181,15 @@ class PayrollService
         ];
     }
 
-    private function holidayPay(Employee $employee, PayrollPeriod $period, float $daily): float
+    /** @return array<string, string> date (Y-m-d) => holiday type, scoped to the employee's branch */
+    private function periodHolidays(Employee $employee, PayrollPeriod $period): array
     {
-        $holidays = Holiday::query()
+        return Holiday::query()
             ->whereBetween('date', [$period->date_from->toDateString(), $period->date_to->toDateString()])
             ->where(fn ($q) => $q->whereNull('branch_id')->orWhere('branch_id', $employee->branch_id))
-            ->get();
-
-        $pay = 0.0;
-        foreach ($holidays as $holiday) {
-            $worked = Attendance::query()
-                ->where('employee_id', $employee->id)
-                ->whereDate('work_date', $holiday->date)
-                ->where('status', Attendance::STATUS_PRESENT)
-                ->exists();
-
-            $multiplier = (float) $holiday->rate_multiplier;
-            if ($worked) {
-                $pay += ($multiplier - 1) * $daily;
-            } elseif ($holiday->type === 'regular') {
-                $pay += $daily;
-            }
-        }
-
-        return round($pay, 2);
+            ->get()
+            ->mapWithKeys(fn ($holiday) => [$holiday->date->toDateString() => $holiday->type])
+            ->all();
     }
 
     private function leavePay(Employee $employee, string $from, string $to, float $daily, int $divisor): float

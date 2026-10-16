@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             GovernmentTableSeeder::class,
             OrganizationSeeder::class,
+            LoanTypeSeeder::class,
             LeaveSeeder::class,
             UserSeeder::class,
             EmployeeSeeder::class,

@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\EmployeeLoan;
+use App\Models\LoanType;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Models\Shift;
@@ -89,6 +91,26 @@ class PayrollServiceTest extends TestCase
         $this->assertGreaterThan(0, (float) $totals['late_undertime_deduction']);
     }
 
+    public function test_rest_day_premium_flows_into_payslip(): void
+    {
+        $employee = $this->employee(22000);
+        $employee->update(['rest_days' => [1]]);
+        $period = $this->makePeriod();
+
+        Attendance::create([
+            'employee_id' => $employee->id,
+            'work_date' => '2026-01-05',
+            'hours_worked' => 8,
+            'status' => Attendance::STATUS_PRESENT,
+        ]);
+
+        $totals = (new PayrollService)->computePayslip($employee->fresh(), $period)['totals'];
+
+        $dailyRate = round(22000 / 22, 4);
+        $this->assertSame(round(0.30 * $dailyRate, 2), (float) $totals['rest_day_pay']);
+        $this->assertSame(round($dailyRate, 2), (float) $totals['basic_pay']);
+    }
+
     public function test_thirteenth_month_is_basic_over_twelve(): void
     {
         $this->assertGreaterThanOrEqual(0, (new PayrollService)->thirteenthMonth($this->employee(), (int) date('Y')));
@@ -120,6 +142,54 @@ class PayrollServiceTest extends TestCase
 
         $this->expectException(HttpException::class);
         (new PayrollService)->processRun($run);
+    }
+
+    public function test_loan_deduction_flows_into_payslip(): void
+    {
+        $employee = $this->employee(22000);
+        $type = LoanType::create(['name' => 'Company Loan', 'interest_rate' => 0, 'is_active' => true]);
+        EmployeeLoan::create([
+            'employee_id' => $employee->id, 'loan_type_id' => $type->id,
+            'principal' => 6000, 'monthly_amortization' => 1000,
+            'balance' => 6000, 'status' => EmployeeLoan::STATUS_ACTIVE,
+        ]);
+        $period = $this->makePeriod();
+
+        Attendance::create([
+            'employee_id' => $employee->id,
+            'work_date' => '2026-01-05',
+            'hours_worked' => 8,
+            'status' => Attendance::STATUS_PRESENT,
+        ]);
+
+        $totals = (new PayrollService)->computePayslip($employee->fresh(), $period)['totals'];
+
+        $this->assertSame(500.0, (float) $totals['loan_deductions_total']);
+    }
+
+    public function test_processing_run_posts_loan_payment(): void
+    {
+        $employee = $this->employee(22000);
+        $type = LoanType::create(['name' => 'Company Loan', 'interest_rate' => 0, 'is_active' => true]);
+        $loan = EmployeeLoan::create([
+            'employee_id' => $employee->id, 'loan_type_id' => $type->id,
+            'principal' => 6000, 'monthly_amortization' => 1000,
+            'balance' => 6000, 'status' => EmployeeLoan::STATUS_ACTIVE,
+        ]);
+        $period = $this->makePeriod();
+        $run = PayrollRun::create(['payroll_period_id' => $period->id, 'status' => 'draft']);
+
+        Attendance::create([
+            'employee_id' => $employee->id,
+            'work_date' => '2026-01-05',
+            'hours_worked' => 8,
+            'status' => Attendance::STATUS_PRESENT,
+        ]);
+
+        (new PayrollService)->processRun($run);
+
+        $this->assertSame(1, $loan->payments()->count());
+        $this->assertSame(5500.0, (float) $loan->fresh()->balance);
     }
 
     private function makePeriod(array $overrides = []): PayrollPeriod

@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['branch_id', 'date', 'name', 'type', 'rate_multiplier'])]
 class Holiday extends Model
 {
+    public const TYPE_REGULAR = 'regular';
+
+    public const TYPE_SPECIAL = 'special';
+
     protected function casts(): array
     {
         return ['date' => 'date', 'rate_multiplier' => 'decimal:2'];

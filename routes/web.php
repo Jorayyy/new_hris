@@ -10,11 +10,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
+use App\Http\Controllers\EmployeeLoanController;
 use App\Http\Controllers\GovernmentTableController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveBalanceController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\LoanTypeController;
 use App\Http\Controllers\PayrollPeriodController;
 use App\Http\Controllers\PayrollRunController;
 use App\Http\Controllers\PayslipController;
@@ -90,6 +92,9 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_PAYROLL]))->group(function () {
         Route::resource('leave-types', LeaveTypeController::class)->except('show');
+
+        Route::resource('loan-types', LoanTypeController::class)->except('show');
+        Route::resource('loans', EmployeeLoanController::class)->only(['index', 'store', 'destroy']);
     });
 
     Route::middleware('role:'.implode(',', User::PAYROLL_ROLES))->group(function () {

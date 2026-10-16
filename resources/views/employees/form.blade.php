@@ -76,6 +76,13 @@
                         </select>
                     </div>
                     <div class="field"><label># of dependents</label><input type="number" name="dependents_count" min="0" max="20" value="{{ old('dependents_count', $employee->dependents_count ?? 0) }}"></div>
+                    <div class="field full"><label>Rest days</label>
+                        <div class="btn-row" style="gap:16px">
+                            @foreach(['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] as $i => $day)
+                                <label style="display:flex;align-items:center;gap:6px;font-weight:500"><input type="checkbox" name="rest_days[]" value="{{ $i }}" style="width:auto" @checked(in_array($i, array_map('intval', old('rest_days', $employee->rest_days ?? [])), true))> {{ $day }}</label>
+                            @endforeach
+                        </div>
+                    </div>
                     <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="is_active" value="1" style="width:auto" @checked(old('is_active', $employee->is_active ?? true))> Active</label></div>
                 </div>
             </div>

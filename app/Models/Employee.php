@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'first_name', 'middle_name', 'last_name', 'suffix', 'birth_date', 'gender',
     'civil_status', 'nationality', 'address', 'contact_no', 'personal_email',
     'date_hired', 'date_regularized', 'date_separated', 'employment_status', 'separation_reason',
+    'rest_days',
     'sss_no', 'philhealth_no', 'pagibig_no', 'tin',
     'bank_name', 'bank_account_no',
     'basic_salary', 'monthly_allowance', 'daily_rate', 'hourly_rate',
@@ -32,6 +33,7 @@ class Employee extends Model
             'hourly_rate' => 'decimal:2',
             'is_active' => 'boolean',
             'pin' => 'hashed',
+            'rest_days' => 'array',
         ];
     }
 
@@ -78,6 +80,11 @@ class Employee extends Model
     public function deductions(): HasMany
     {
         return $this->hasMany(EmployeeDeduction::class);
+    }
+
+    public function loans(): HasMany
+    {
+        return $this->hasMany(EmployeeLoan::class);
     }
 
     public function attendances(): HasMany

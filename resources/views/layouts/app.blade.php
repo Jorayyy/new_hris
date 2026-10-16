@@ -107,6 +107,14 @@
             </div>
         @endif
 
+        @if($isHr || $isPayroll)
+            <div class="nav-group">
+                <div class="label">Loans</div>
+                <a href="{{ route('loans.index') }}" class="{{ request()->routeIs('loans.*') ? 'active' : '' }}"><span class="ico">₱</span> Employee Loans</a>
+                <a href="{{ route('loan-types.index') }}" class="{{ request()->routeIs('loan-types.*') ? 'active' : '' }}"><span class="ico">≡</span> Loan Types</a>
+            </div>
+        @endif
+
         @if($u->hasRole([\App\Models\User::ROLE_SUPER_ADMIN, \App\Models\User::ROLE_ADMIN]))
             <div class="nav-group">
                 <div class="label">Admin</div>
@@ -145,6 +153,9 @@
         <main class="content">
             @if(session('ok'))
                 <div class="alert ok">{{ session('ok') }}</div>
+            @endif
+            @if(session('error'))
+                <div class="alert err">{{ session('error') }}</div>
             @endif
             @if($errors->any())
                 <div class="alert err">
