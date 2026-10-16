@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('payroll/periods', PayrollPeriodController::class)->except('show')->names('payroll.periods');
         Route::resource('payroll/runs', PayrollRunController::class)->except(['edit', 'update'])->names('payroll.runs');
         Route::post('payroll/runs/{run}/process', [PayrollRunController::class, 'process'])->name('payroll.runs.process');
+        Route::get('payroll/runs/{run}/export', [PayrollRunController::class, 'export'])->name('payroll.runs.export');
         Route::get('payroll/thirteenth-month', [PayrollRunController::class, 'thirteenthMonth'])->name('payroll.thirteenth');
 
         Route::get('payslips/{payslip}', [PayslipController::class, 'show'])->name('payslips.show');

@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\EmployeeLoan;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
+use App\Models\LoanPayment;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Models\Payslip;
@@ -33,13 +34,20 @@ class PayrollService
     public function processRun(PayrollRun $run): PayrollRun
     {
         $period = $run->period;
+
+        abort_if($period->status === 'closed', 403, 'This pay period is closed and cannot be processed.');
+
         $employees = Employee::query()
             ->where('is_active', true)
             ->when($run->branch_id, fn ($q) => $q->where('branch_id', $run->branch_id))
-            ->with(['allowances', 'deductions', 'activeLoans'])
+            ->with(['allowances', 'deductions'])
             ->get();
 
         return DB::transaction(function () use ($run, $period, $employees) {
+            foreach ($run->payslips()->get() as $existing) {
+                $this->reverseLoanPayments($existing);
+            }
+
             foreach ($employees as $employee) {
                 $data = $this->computePayslip($employee, $period);
                 $payslip = Payslip::updateOrCreate(
@@ -50,6 +58,7 @@ class PayrollService
                 foreach ($data['items'] as $item) {
                     $payslip->items()->create($item);
                 }
+                $this->applyLoanPayments($payslip, $employee, $period);
             }
 
             $run->update([
@@ -62,8 +71,63 @@ class PayrollService
                 'processed_at' => now(),
             ]);
 
+            $period->update(['status' => 'processed']);
+
             return $run->fresh(['payslips.employee', 'period', 'branch']);
         });
+    }
+
+    public function deleteRun(PayrollRun $run): void
+    {
+        DB::transaction(function () use ($run) {
+            foreach ($run->payslips()->get() as $payslip) {
+                $this->reverseLoanPayments($payslip);
+            }
+
+            $run->delete();
+        });
+    }
+
+    /** Records each active loan's amortization against the payslip and pays the loan down. */
+    private function applyLoanPayments(Payslip $payslip, Employee $employee, PayrollPeriod $period): void
+    {
+        $divisor = $period->frequency === 'monthly' ? 1 : 2;
+
+        foreach ($employee->activeLoans as $loan) {
+            $loan->refresh();
+            $balance = (float) $loan->balance;
+
+            if ($balance <= 0) {
+                continue;
+            }
+
+            $amount = min(round((float) $loan->monthly_amortization / $divisor, 2), $balance);
+
+            LoanPayment::create([
+                'employee_loan_id' => $loan->id,
+                'payslip_id' => $payslip->id,
+                'amount' => $amount,
+                'paid_at' => $period->pay_date->toDateString(),
+            ]);
+
+            $remaining = round($balance - $amount, 2);
+            $loan->update(['balance' => $remaining, 'status' => $remaining <= 0 ? 'paid' : 'active']);
+        }
+    }
+
+    /** Undoes loan payments tied to a payslip so the run can be reprocessed or deleted cleanly. */
+    private function reverseLoanPayments(Payslip $payslip): void
+    {
+        foreach (LoanPayment::query()->where('payslip_id', $payslip->id)->with('loan')->get() as $payment) {
+            if ($loan = $payment->loan) {
+                $loan->update([
+                    'balance' => round((float) $loan->balance + (float) $payment->amount, 2),
+                    'status' => 'active',
+                ]);
+            }
+
+            $payment->delete();
+        }
     }
 
     public function computePayslip(Employee $employee, PayrollPeriod $period): array

@@ -3,14 +3,49 @@
 @section('title', 'Government Remittances')
 @section('content')
     <div class="grid cols-4" style="margin-bottom:20px">
-        <div class="stat"><div class="k">SSS</div><div class="v">{{ peso($totals['sss']) }}</div></div>
-        <div class="stat"><div class="k">PhilHealth</div><div class="v">{{ peso($totals['philhealth']) }}</div></div>
-        <div class="stat"><div class="k">Pag-IBIG</div><div class="v">{{ peso($totals['pagibig']) }}</div></div>
+        <div class="stat"><div class="k">SSS total</div><div class="v">{{ peso($totals['sss'] + $totals['sss_employer']) }}</div></div>
+        <div class="stat"><div class="k">PhilHealth total</div><div class="v">{{ peso($totals['philhealth'] + $totals['philhealth_employer']) }}</div></div>
+        <div class="stat"><div class="k">Pag-IBIG total</div><div class="v">{{ peso($totals['pagibig'] + $totals['pagibig_employer']) }}</div></div>
         <div class="stat"><div class="k">Withholding tax</div><div class="v">{{ peso($totals['tax']) }}</div></div>
     </div>
 
     <div class="card">
-        <div class="card-head"><h2>Remittances</h2></div>
+        <div class="card-head"><h2>Remittance summary</h2></div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Agency</th><th class="num">Employee share</th><th class="num">Employer share</th><th class="num">Total to remit</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight:600">SSS</td>
+                        <td class="num">{{ peso($totals['sss']) }}</td>
+                        <td class="num">{{ peso($totals['sss_employer']) }}</td>
+                        <td class="num" style="font-weight:600">{{ peso($totals['sss'] + $totals['sss_employer']) }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:600">PhilHealth</td>
+                        <td class="num">{{ peso($totals['philhealth']) }}</td>
+                        <td class="num">{{ peso($totals['philhealth_employer']) }}</td>
+                        <td class="num" style="font-weight:600">{{ peso($totals['philhealth'] + $totals['philhealth_employer']) }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:600">Pag-IBIG</td>
+                        <td class="num">{{ peso($totals['pagibig']) }}</td>
+                        <td class="num">{{ peso($totals['pagibig_employer']) }}</td>
+                        <td class="num" style="font-weight:600">{{ peso($totals['pagibig'] + $totals['pagibig_employer']) }}</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight:600">Withholding tax</td>
+                        <td class="num">{{ peso($totals['tax']) }}</td>
+                        <td class="num">{{ peso(0) }}</td>
+                        <td class="num" style="font-weight:600">{{ peso($totals['tax']) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head"><h2>Employee contributions</h2></div>
         <div class="table-wrap">
             <table>
                 <thead><tr><th>Employee</th><th class="num">SSS</th><th class="num">PhilHealth</th><th class="num">Pag-IBIG</th><th class="num">Tax</th></tr></thead>

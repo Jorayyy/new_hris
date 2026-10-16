@@ -34,6 +34,7 @@ body {
     color: var(--text);
     font-size: 14px;
     line-height: 1.5;
+    overflow-x: hidden;
 }
 
 a { color: var(--primary); text-decoration: none; }
@@ -206,3 +207,67 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary-sof
 
 .progress { height: 8px; background: #eef1f6; border-radius: 999px; overflow: hidden; }
 .progress > span { display: block; height: 100%; background: var(--primary); }
+
+.nav-toggle, .nav-burger, .nav-overlay { display: none; }
+
+@media (max-width: 900px) {
+    .layout { display: block; }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 264px;
+        max-width: 85vw;
+        flex: none;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+        z-index: 60;
+    }
+    .nav-toggle:checked ~ .sidebar { transform: translateX(0); box-shadow: 0 20px 60px -20px rgba(0, 0, 0, .6); }
+
+    .nav-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 14, 24, .5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .25s ease;
+        z-index: 55;
+    }
+    .nav-toggle:checked ~ .nav-overlay { opacity: 1; pointer-events: auto; }
+
+    .nav-burger {
+        display: inline-grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        flex: none;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--surface);
+        cursor: pointer;
+        font-size: 17px;
+        line-height: 1;
+    }
+
+    .topbar { gap: 12px; justify-content: flex-start; padding: 0 16px; }
+    .topbar h1 { flex: 1; font-size: 16px; }
+    .content { padding: 16px; }
+    .card .card-head { flex-wrap: wrap; }
+}
+
+@media (max-width: 640px) {
+    .topbar .who > div:first-child { display: none; }
+    .content { padding: 12px; }
+    .card .card-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .card .card-head .btn-row { width: 100%; }
+    .stat .v { font-size: 21px; }
+    .card .card-body { padding: 16px; }
+    .kv { grid-template-columns: 1fr; gap: 2px 0; }
+    .kv dd { margin-bottom: 10px; }
+    .tabs { overflow-x: auto; }
+    .filters .field { min-width: 0; }
+}

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\PayrollPeriod;
+use App\Models\PayrollRun;
 use App\Models\User;
 use Database\Seeders\GovernmentTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -26,7 +28,7 @@ class HttpSmokeTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
         ]);
 
-        foreach (['/', '/employees', '/attendance', '/government', '/payroll/periods', '/payroll/runs', '/users'] as $path) {
+        foreach (['/', '/employees', '/attendance', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/users'] as $path) {
             $this->actingAs($admin)->get($path)->assertOk();
         }
     }
@@ -40,5 +42,24 @@ class HttpSmokeTest extends TestCase
 
         $this->actingAs($employee)->get('/payroll/periods')->assertForbidden();
         $this->actingAs($employee)->get('/employees')->assertForbidden();
+    }
+
+    public function test_payroll_run_csv_export(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin', 'email' => 'admin@test.local',
+            'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
+        ]);
+
+        $period = PayrollPeriod::create([
+            'name' => 'Jan 1-15', 'date_from' => '2026-01-01', 'date_to' => '2026-01-15',
+            'pay_date' => '2026-01-20', 'frequency' => 'semi_monthly', 'status' => 'open',
+        ]);
+        $run = PayrollRun::create(['payroll_period_id' => $period->id, 'status' => 'draft']);
+
+        $this->actingAs($admin)
+            ->get('/payroll/runs/'.$run->id.'/export')
+            ->assertOk()
+            ->assertHeader('content-type', 'text/csv; charset=utf-8');
     }
 }

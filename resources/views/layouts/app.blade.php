@@ -10,6 +10,7 @@
 <body>
 @php($u = auth()->user())
 <div class="layout">
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden>
     <aside class="sidebar">
         <div class="brand"><span class="dot"></span> {{ config('app.name') }}</div>
 
@@ -94,8 +95,11 @@
         </div>
     </aside>
 
+    <label for="nav-toggle" class="nav-overlay" aria-hidden="true"></label>
+
     <div class="main">
         <header class="topbar">
+            <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">☰</label>
             <h1>@yield('title', 'Dashboard')</h1>
             <div class="who">
                 <div style="text-align:right">

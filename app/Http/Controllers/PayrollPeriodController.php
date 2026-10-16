@@ -42,6 +42,8 @@ class PayrollPeriodController extends Controller
 
     public function update(Request $request, PayrollPeriod $period): RedirectResponse
     {
+        abort_if($period->status === 'closed', 403, 'This pay period is closed and cannot be edited.');
+
         $period->update($this->validated($request));
 
         return redirect()->route('payroll.periods.index')->with('ok', 'Pay period updated.');
@@ -49,6 +51,8 @@ class PayrollPeriodController extends Controller
 
     public function destroy(PayrollPeriod $period): RedirectResponse
     {
+        abort_if($period->runs()->exists(), 403, 'This pay period has payroll runs and cannot be deleted.');
+
         $period->delete();
 
         return back()->with('ok', 'Pay period deleted.');

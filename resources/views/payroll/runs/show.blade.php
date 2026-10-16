@@ -17,6 +17,9 @@
                 @else
                     <span class="badge green">Processed {{ $run->processed_at?->format('M d, Y h:i A') }}</span>
                 @endif
+                @if($run->payslips->count())
+                    <a class="btn" href="{{ route('payroll.runs.export', $run) }}">Export CSV</a>
+                @endif
                 <form method="POST" action="{{ route('payroll.runs.destroy', $run) }}" onsubmit="return confirm('Delete this run and its payslips?')">@csrf @method('DELETE')<button class="btn danger">Delete</button></form>
             </div>
         </div>

@@ -9,6 +9,7 @@ use App\Models\PayrollRun;
 use App\Services\PayrollService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class PayrollRunController extends Controller
@@ -58,9 +59,37 @@ class PayrollRunController extends Controller
 
     public function destroy(PayrollRun $run): RedirectResponse
     {
-        $run->delete();
+        $this->payroll->deleteRun($run);
 
         return redirect()->route('payroll.runs.index')->with('ok', 'Payroll run deleted.');
+    }
+
+    public function export(PayrollRun $run): Response
+    {
+        $run->load(['payslips.employee']);
+
+        $rows = [['Employee No', 'Name', 'Bank', 'Account No', 'Gross Pay', 'Total Deductions', 'Net Pay']];
+        foreach ($run->payslips as $payslip) {
+            $rows[] = [
+                $payslip->employee?->employee_no,
+                $payslip->employee?->full_name,
+                $payslip->employee?->bank_name,
+                $payslip->employee?->bank_account_no,
+                number_format((float) $payslip->gross_pay, 2, '.', ''),
+                number_format((float) $payslip->total_deductions, 2, '.', ''),
+                number_format((float) $payslip->net_pay, 2, '.', ''),
+            ];
+        }
+
+        $csv = '';
+        foreach ($rows as $row) {
+            $csv .= implode(',', array_map(fn ($value) => '"'.str_replace('"', '""', (string) $value).'"', $row))."\r\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="payroll-run-'.$run->id.'.csv"',
+        ]);
     }
 
     public function thirteenthMonth(Request $request): View
