@@ -104,6 +104,7 @@
                 <a href="{{ route('payroll.periods.index') }}" class="{{ request()->routeIs('payroll.periods.*') ? 'active' : '' }}"><span class="ico">▦</span> Pay Periods</a>
                 <a href="{{ route('payroll.runs.index') }}" class="{{ request()->routeIs('payroll.runs.*') ? 'active' : '' }}"><span class="ico">▷</span> Payroll Runs</a>
                 <a href="{{ route('payroll.thirteenth') }}" class="{{ request()->routeIs('payroll.thirteenth') ? 'active' : '' }}"><span class="ico">13</span> 13th Month</a>
+                <a href="{{ route('payroll.final-pay') }}" class="{{ request()->routeIs('payroll.final-pay') ? 'active' : '' }}"><span class="ico">⌫</span> Final Pay</a>
             </div>
         @endif
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\EmployeeLoanController;
+use App\Http\Controllers\FinalPayController;
 use App\Http\Controllers\GovernmentTableController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveBalanceController;
@@ -104,6 +105,7 @@ Route::middleware('auth')->group(function () {
         Route::get('payroll/runs/{run}/export', [PayrollRunController::class, 'export'])->name('payroll.runs.export');
         Route::get('payroll/runs/{run}/payslips-zip', [PayrollRunController::class, 'payslipsZip'])->name('payroll.runs.payslips-zip');
         Route::get('payroll/thirteenth-month', [PayrollRunController::class, 'thirteenthMonth'])->name('payroll.thirteenth');
+        Route::get('payroll/final-pay', [FinalPayController::class, 'index'])->name('payroll.final-pay');
 
         Route::get('payslips/{payslip}', [PayslipController::class, 'show'])->name('payslips.show');
         Route::get('payslips/{payslip}/pdf', [PayslipController::class, 'pdf'])->name('payslips.pdf');
