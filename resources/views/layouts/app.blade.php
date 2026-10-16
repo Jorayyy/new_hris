@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('app.css') }}">
+    <script>try{var t=localStorage.getItem('hris.theme');if(t){document.documentElement.dataset.theme=t;}}catch(e){}</script>
 </head>
 <body>
 @php
@@ -34,6 +35,7 @@
             <div class="nav-group">
                 <div class="label">My Space</div>
                 <a href="{{ route('me.dtr') }}" class="{{ request()->routeIs('me.dtr') ? 'active' : '' }}"><span class="ico">⏱</span> My DTR</a>
+                <a href="{{ route('me.tk') }}" class="{{ request()->routeIs('me.tk*') ? 'active' : '' }}"><span class="ico">⌚</span> Timekeeping</a>
                 <a href="{{ route('me.payslips') }}" class="{{ request()->routeIs('me.payslips*') ? 'active' : '' }}"><span class="ico">₱</span> My Payslips</a>
                 <a href="{{ route('me.leave') }}" class="{{ request()->routeIs('me.leave') ? 'active' : '' }}"><span class="ico">☖</span> My Leave</a>
                 <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
@@ -59,6 +61,7 @@
                 <div class="label">Time &amp; Attendance</div>
                 <a href="{{ route('attendance.index') }}" class="{{ request()->routeIs('attendance.index', 'attendance.edit') ? 'active' : '' }}"><span class="ico">⏱</span> Attendance / DTR</a>
                 @if($isHr)
+                    <a href="{{ route('attendance.corrections.index') }}" class="{{ request()->routeIs('attendance.corrections.*') ? 'active' : '' }}"><span class="ico">⚑</span> Corrections</a>
                     <a href="{{ route('attendance.import.form') }}" class="{{ request()->routeIs('attendance.import*') ? 'active' : '' }}"><span class="ico">↥</span> Import Biometrics</a>
                     <a href="{{ route('shifts.index') }}" class="{{ request()->routeIs('shifts.*') ? 'active' : '' }}"><span class="ico">◔</span> Shifts</a>
                     <a href="{{ route('holidays.index') }}" class="{{ request()->routeIs('holidays.*') ? 'active' : '' }}"><span class="ico">✷</span> Holidays</a>
@@ -109,6 +112,7 @@
                 <div class="label">Admin</div>
                 <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}"><span class="ico">⚙</span> User Accounts</a>
                 <a href="{{ route('audit.index') }}" class="{{ request()->routeIs('audit.*') ? 'active' : '' }}"><span class="ico">▤</span> Audit Log</a>
+                <a href="{{ route('time-clock.ips.index') }}" class="{{ request()->routeIs('time-clock.ips.*') ? 'active' : '' }}"><span class="ico">⇉</span> Kiosk Access</a>
             </div>
         @endif
 
@@ -129,6 +133,7 @@
             <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">☰</label>
             <h1>@yield('title', 'Dashboard')</h1>
             <div class="who">
+                <button type="button" class="btn sm" id="theme-toggle" aria-label="Toggle dark mode">Dark</button>
                 <div style="text-align:right">
                     <div style="font-weight:600;color:var(--text)">{{ $u->name }}</div>
                     <div class="small">{{ $u->role_label }}{{ $u->branch ? ' · '.$u->branch->name : '' }}</div>
@@ -169,6 +174,20 @@
             timer = setTimeout(function () { sessionStorage.setItem(key, nav.scrollTop); }, 120);
         });
         window.addEventListener('pagehide', function () { sessionStorage.setItem(key, nav.scrollTop); });
+    })();
+
+    (function () {
+        var root = document.documentElement;
+        var btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        function sync() { btn.textContent = root.dataset.theme === 'dark' ? 'Light' : 'Dark'; }
+        sync();
+        btn.addEventListener('click', function () {
+            var dark = root.dataset.theme === 'dark';
+            root.dataset.theme = dark ? 'light' : 'dark';
+            try { localStorage.setItem('hris.theme', root.dataset.theme); } catch (e) {}
+            sync();
+        });
     })();
 </script>
 </body>

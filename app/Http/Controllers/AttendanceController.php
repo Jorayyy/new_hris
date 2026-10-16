@@ -14,6 +14,12 @@ use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
+    /** Punch columns, in punch order, edited as time-of-day on the work date. */
+    private const PUNCH_FIELDS = [
+        'time_in', 'break1_out', 'break1_in', 'lunch_out',
+        'lunch_in', 'break2_out', 'break2_in', 'time_out',
+    ];
+
     public function __construct(private readonly DtrService $dtr) {}
 
     public function index(Request $request): View
@@ -21,14 +27,25 @@ class AttendanceController extends Controller
         $from = $request->date('from') ?? now()->startOfMonth();
         $to = $request->date('to') ?? now();
 
-        $attendances = Attendance::query()
-            ->with(['employee', 'shift'])
+        $base = Attendance::query()
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
             ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
-            ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()])
+            ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()]);
+
+        $attendances = (clone $base)
+            ->with(['employee', 'shift'])
             ->orderByDesc('work_date')
             ->paginate(25)
             ->withQueryString();
+
+        $totals = [
+            'present' => (clone $base)->where('status', Attendance::STATUS_PRESENT)->count(),
+            'hours' => (float) (clone $base)->sum('hours_worked'),
+            'late' => (int) (clone $base)->sum('late_minutes'),
+            'undertime' => (int) (clone $base)->sum('undertime_minutes'),
+            'overtime' => (float) (clone $base)->sum('overtime_hours'),
+            'night' => (float) (clone $base)->sum('night_diff_hours'),
+        ];
 
         return view('attendance.index', [
             'attendances' => $attendances,
@@ -36,6 +53,7 @@ class AttendanceController extends Controller
             'branches' => Branch::orderBy('name')->get(),
             'from' => $from,
             'to' => $to,
+            'totals' => $totals,
         ]);
     }
 
@@ -169,14 +187,23 @@ class AttendanceController extends Controller
 
     private function validated(Request $request): array
     {
-        return $request->validate([
+        $rules = [
             'employee_id' => ['required', 'exists:employees,id'],
             'branch_id' => ['nullable', 'exists:branches,id'],
             'work_date' => ['required', 'date'],
-            'time_in' => ['nullable', 'date'],
-            'time_out' => ['nullable', 'date'],
             'status' => ['required', 'in:present,absent,leave,holiday'],
             'remarks' => ['nullable', 'string', 'max:255'],
-        ]) + ['is_manual' => true, 'source' => 'manual'];
+        ];
+        foreach (self::PUNCH_FIELDS as $field) {
+            $rules[$field] = ['nullable', 'date_format:H:i'];
+        }
+
+        $data = $request->validate($rules);
+
+        foreach (self::PUNCH_FIELDS as $field) {
+            $data[$field] = empty($data[$field]) ? null : Carbon::parse($data['work_date'].' '.$data[$field]);
+        }
+
+        return $data + ['is_manual' => true, 'source' => 'manual'];
     }
 }

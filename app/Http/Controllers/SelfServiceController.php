@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use Carbon\Carbon;
@@ -20,11 +21,21 @@ class SelfServiceController extends Controller
         $to = $request->date('to') ?? now();
 
         $attendances = $employee->attendances()
+            ->with('shift')
             ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()])
             ->orderByDesc('work_date')
             ->get();
 
-        return view('me.dtr', compact('employee', 'attendances', 'from', 'to'));
+        $totals = [
+            'present' => $attendances->where('status', Attendance::STATUS_PRESENT)->count(),
+            'hours' => (float) $attendances->sum('hours_worked'),
+            'late' => (int) $attendances->sum('late_minutes'),
+            'undertime' => (int) $attendances->sum('undertime_minutes'),
+            'overtime' => (float) $attendances->sum('overtime_hours'),
+            'night' => (float) $attendances->sum('night_diff_hours'),
+        ];
+
+        return view('me.dtr', compact('employee', 'attendances', 'from', 'to', 'totals'));
     }
 
     public function payslips(Request $request): View

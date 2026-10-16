@@ -8,6 +8,7 @@
             <form method="POST" action="{{ $attendance->exists ? route('attendance.update', $attendance) : route('attendance.store') }}">
                 @csrf
                 @if($attendance->exists) @method('PUT') @endif
+
                 <div class="form-grid">
                     <div class="field"><label>Employee</label>
                         <select name="employee_id" required>
@@ -30,11 +31,29 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="field"><label>Time in</label><input type="datetime-local" name="time_in" value="{{ old('time_in', optional($attendance->time_in)->format('Y-m-d\TH:i')) }}"></div>
-                    <div class="field"><label>Time out</label><input type="datetime-local" name="time_out" value="{{ old('time_out', optional($attendance->time_out)->format('Y-m-d\TH:i')) }}"></div>
-                    <div class="field full"><label>Remarks</label><input type="text" name="remarks" value="{{ old('remarks', $attendance->remarks) }}"></div>
                 </div>
-                <p class="muted small">Late, undertime, overtime and night differential are computed automatically from the employee's assigned shift.</p>
+
+                <div class="label" style="margin:6px 0 10px">Punches</div>
+                <div class="form-grid">
+                    @foreach([
+                        'time_in' => 'Time in',
+                        'break1_out' => 'Break 1 out',
+                        'break1_in' => 'Break 1 in',
+                        'lunch_out' => 'Lunch out',
+                        'lunch_in' => 'Lunch in',
+                        'break2_out' => 'Break 2 out',
+                        'break2_in' => 'Break 2 in',
+                        'time_out' => 'Time out',
+                    ] as $field => $label)
+                        <div class="field"><label>{{ $label }}</label>
+                            <input type="time" name="{{ $field }}" value="{{ old($field, optional($attendance->{$field})->format('H:i')) }}">
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="field full"><label>Remarks</label><input type="text" name="remarks" value="{{ old('remarks', $attendance->remarks) }}"></div>
+
+                <p class="muted small">Late, undertime, overtime and night differential are computed automatically from the employee's assigned shift. Leave a punch blank if it did not happen.</p>
                 <div class="btn-row">
                     <button class="btn primary">Save &amp; compute</button>
                     <a class="btn" href="{{ route('attendance.index') }}">Cancel</a>

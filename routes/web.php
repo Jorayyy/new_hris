@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendanceCorrectionController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BranchController;
@@ -22,9 +23,16 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SelfServiceController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\TimeClockController;
+use App\Http\Controllers\TimeClockIpController;
+use App\Http\Controllers\TimekeepingController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
+
+Route::post('time-clock/punch', [TimeClockController::class, 'punch'])
+    ->middleware('throttle:20,1')
+    ->name('time-clock.punch');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -37,6 +45,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:'.User::ROLE_EMPLOYEE)->group(function () {
         Route::get('me/dtr', [SelfServiceController::class, 'dtr'])->name('me.dtr');
+        Route::get('me/tk', [TimekeepingController::class, 'index'])->name('me.tk');
+        Route::post('me/tk', [TimekeepingController::class, 'store'])->name('me.tk.store');
         Route::get('me/payslips', [SelfServiceController::class, 'payslips'])->name('me.payslips');
         Route::get('me/payslips/{payslip}', [SelfServiceController::class, 'payslip'])->name('me.payslips.show');
         Route::get('me/leave', [SelfServiceController::class, 'leave'])->name('me.leave');
@@ -57,6 +67,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('announcements', AnnouncementController::class)->except('show');
         Route::resource('shifts', ShiftController::class)->except('show');
         Route::resource('holidays', HolidayController::class)->except('show');
+
+        Route::get('attendance/corrections', [AttendanceCorrectionController::class, 'index'])->name('attendance.corrections.index');
+        Route::post('attendance/corrections/{correction}/decide', [AttendanceCorrectionController::class, 'decide'])->name('attendance.corrections.decide');
 
         Route::get('leave-balances', [LeaveBalanceController::class, 'index'])->name('leave-balances.index');
         Route::post('leave-balances', [LeaveBalanceController::class, 'store'])->name('leave-balances.store');
@@ -103,5 +116,10 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN)->group(function () {
         Route::resource('users', UserController::class)->except('show');
         Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit.index');
+
+        Route::get('time-clock/access', [TimeClockIpController::class, 'index'])->name('time-clock.ips.index');
+        Route::post('time-clock/access', [TimeClockIpController::class, 'store'])->name('time-clock.ips.store');
+        Route::put('time-clock/access/{ip}', [TimeClockIpController::class, 'update'])->name('time-clock.ips.update');
+        Route::delete('time-clock/access/{ip}', [TimeClockIpController::class, 'destroy'])->name('time-clock.ips.destroy');
     });
 });

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'employee_no', 'user_id', 'branch_id', 'department_id', 'position_id',
+    'employee_no', 'pin', 'user_id', 'branch_id', 'department_id', 'position_id',
     'first_name', 'middle_name', 'last_name', 'suffix', 'birth_date', 'gender',
     'civil_status', 'nationality', 'address', 'contact_no', 'personal_email',
     'date_hired', 'date_regularized', 'date_separated', 'employment_status', 'separation_reason',
@@ -31,6 +31,7 @@ class Employee extends Model
             'daily_rate' => 'decimal:2',
             'hourly_rate' => 'decimal:2',
             'is_active' => 'boolean',
+            'pin' => 'hashed',
         ];
     }
 
@@ -82,6 +83,11 @@ class Employee extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function attendanceCorrections(): HasMany
+    {
+        return $this->hasMany(AttendanceCorrection::class);
     }
 
     public function leaveRequests(): HasMany

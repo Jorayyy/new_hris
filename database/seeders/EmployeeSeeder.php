@@ -48,6 +48,7 @@ class EmployeeSeeder extends Seeder
 
             $employee = Employee::create([
                 'employee_no' => 'EMP'.str_pad((string) ($index + 1), 4, '0', STR_PAD_LEFT),
+                'pin' => '1234',
                 'branch_id' => $branch->id,
                 'department_id' => $department->id,
                 'position_id' => $position?->id,

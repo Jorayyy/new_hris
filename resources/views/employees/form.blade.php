@@ -11,6 +11,7 @@
             <div class="card-body">
                 <div class="form-grid">
                     <div class="field"><label>Employee No.</label><input type="text" name="employee_no" value="{{ old('employee_no', $employee->employee_no) }}" required></div>
+                    <div class="field"><label>Time-clock PIN (4 digits{{ $employee->exists && $employee->pin ? ', blank = keep current' : '' }})</label><input type="text" name="pin" inputmode="numeric" maxlength="4" pattern="\d{4}" value="{{ old('pin') }}" placeholder="••••"></div>
                     <div class="field"><label>Date hired</label><input type="date" name="date_hired" value="{{ old('date_hired', optional($employee->date_hired)->format('Y-m-d')) }}"></div>
                     <div class="field"><label>First name</label><input type="text" name="first_name" value="{{ old('first_name', $employee->first_name) }}" required></div>
                     <div class="field"><label>Middle name</label><input type="text" name="middle_name" value="{{ old('middle_name', $employee->middle_name) }}"></div>

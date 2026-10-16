@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'employee_id', 'branch_id', 'shift_id', 'work_date', 'time_in', 'time_out',
+    'break1_out', 'break1_in', 'lunch_out', 'lunch_in', 'break2_out', 'break2_in',
     'hours_worked', 'late_minutes', 'undertime_minutes', 'overtime_hours',
     'night_diff_hours', 'status', 'source', 'is_manual', 'remarks',
 ])]
@@ -27,6 +28,12 @@ class Attendance extends Model
             'work_date' => 'date',
             'time_in' => 'datetime',
             'time_out' => 'datetime',
+            'break1_out' => 'datetime',
+            'break1_in' => 'datetime',
+            'lunch_out' => 'datetime',
+            'lunch_in' => 'datetime',
+            'break2_out' => 'datetime',
+            'break2_in' => 'datetime',
             'hours_worked' => 'decimal:2',
             'overtime_hours' => 'decimal:2',
             'night_diff_hours' => 'decimal:2',

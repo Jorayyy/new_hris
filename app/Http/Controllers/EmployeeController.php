@@ -135,8 +135,9 @@ class EmployeeController extends Controller
 
     private function validated(Request $request, ?Employee $employee = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'employee_no' => ['required', 'string', 'max:50', 'unique:employees,employee_no'.($employee ? ','.$employee->id : '')],
+            'pin' => ['nullable', 'digits:4'],
             'first_name' => ['required', 'string', 'max:100'],
             'middle_name' => ['nullable', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
@@ -165,7 +166,13 @@ class EmployeeController extends Controller
             'tax_status' => ['required', 'string', 'max:10'],
             'dependents_count' => ['nullable', 'integer', 'min:0', 'max:20'],
             'is_active' => ['boolean'],
-        ]) + [
+        ]);
+
+        if (empty($data['pin'])) {
+            unset($data['pin']);
+        }
+
+        return $data + [
             'is_active' => $request->boolean('is_active'),
             'monthly_allowance' => $request->input('monthly_allowance', 0),
             'daily_rate' => $request->input('daily_rate', 0),

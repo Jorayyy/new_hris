@@ -29,7 +29,7 @@ class HttpSmokeTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
         ]);
 
-        foreach (['/', '/employees', '/attendance', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/users', '/audit-log', '/leave-balances', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
+        foreach (['/', '/employees', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/users', '/audit-log', '/time-clock/access', '/leave-balances', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
             $this->actingAs($admin)->get($path)->assertOk();
         }
     }
@@ -61,6 +61,20 @@ class HttpSmokeTest extends TestCase
         ])->assertRedirect();
 
         $this->assertTrue(Hash::check('new-secret-123', $employee->fresh()->password));
+    }
+
+    public function test_role_dashboards_render(): void
+    {
+        $this->seed(GovernmentTableSeeder::class);
+
+        foreach ([User::ROLE_EMPLOYEE, User::ROLE_HR, User::ROLE_PAYROLL, User::ROLE_MANAGER] as $role) {
+            $user = User::create([
+                'name' => ucfirst($role), 'email' => $role.'@test.local',
+                'password' => 'password', 'role' => $role, 'is_active' => true,
+            ]);
+
+            $this->actingAs($user)->get('/')->assertOk();
+        }
     }
 
     public function test_employee_cannot_reach_payroll(): void
