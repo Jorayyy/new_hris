@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\PayrollPeriod;
 use Illuminate\Http\RedirectResponse;
@@ -27,7 +28,8 @@ class PayrollPeriodController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        PayrollPeriod::create($this->validated($request));
+        $period = PayrollPeriod::create($this->validated($request));
+        AuditLog::record('create', 'Created pay period '.$period->name, $period);
 
         return redirect()->route('payroll.periods.index')->with('ok', 'Pay period created.');
     }
@@ -45,6 +47,7 @@ class PayrollPeriodController extends Controller
         abort_if($period->status === 'closed', 403, 'This pay period is closed and cannot be edited.');
 
         $period->update($this->validated($request));
+        AuditLog::record('update', 'Updated pay period '.$period->name, $period);
 
         return redirect()->route('payroll.periods.index')->with('ok', 'Pay period updated.');
     }
@@ -53,6 +56,7 @@ class PayrollPeriodController extends Controller
     {
         abort_if($period->runs()->exists(), 403, 'This pay period has payroll runs and cannot be deleted.');
 
+        AuditLog::record('delete', 'Deleted pay period '.$period->name, $period);
         $period->delete();
 
         return back()->with('ok', 'Pay period deleted.');

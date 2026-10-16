@@ -7,6 +7,7 @@ use App\Models\PayrollRun;
 use App\Models\User;
 use Database\Seeders\GovernmentTableSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class HttpSmokeTest extends TestCase
@@ -28,9 +29,38 @@ class HttpSmokeTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
         ]);
 
-        foreach (['/', '/employees', '/attendance', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/users'] as $path) {
+        foreach (['/', '/employees', '/attendance', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/users', '/audit-log', '/leave-balances', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
             $this->actingAs($admin)->get($path)->assertOk();
         }
+    }
+
+    public function test_exports_and_self_service_pages(): void
+    {
+        $this->seed(GovernmentTableSeeder::class);
+
+        $admin = User::create([
+            'name' => 'Admin', 'email' => 'admin@test.local',
+            'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
+        ]);
+
+        foreach (['/employees/export', '/attendance/export', '/leave-requests/export', '/reports/bir-1601c?csv=1'] as $path) {
+            $this->actingAs($admin)->get($path)->assertOk()->assertHeader('content-type', 'text/csv; charset=utf-8');
+        }
+
+        $employee = User::create([
+            'name' => 'Emp', 'email' => 'emp@test.local',
+            'password' => 'password', 'role' => User::ROLE_EMPLOYEE, 'is_active' => true,
+        ]);
+
+        $this->actingAs($employee)->get('/me/profile')->assertOk()->assertSee('Change password');
+
+        $this->actingAs($employee)->put('/me/password', [
+            'current_password' => 'password',
+            'password' => 'new-secret-123',
+            'password_confirmation' => 'new-secret-123',
+        ])->assertRedirect();
+
+        $this->assertTrue(Hash::check('new-secret-123', $employee->fresh()->password));
     }
 
     public function test_employee_cannot_reach_payroll(): void

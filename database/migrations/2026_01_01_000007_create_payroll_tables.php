@@ -57,7 +57,6 @@ return new class extends Migration
             $table->decimal('pagibig_contribution', 12, 2)->default(0);
             $table->decimal('tax_withheld', 12, 2)->default(0);
             $table->decimal('late_undertime_deduction', 12, 2)->default(0);
-            $table->decimal('loans_total', 12, 2)->default(0);
             $table->decimal('other_deductions_total', 12, 2)->default(0);
 
             $table->decimal('total_deductions', 12, 2)->default(0);

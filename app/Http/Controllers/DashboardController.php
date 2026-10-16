@@ -31,7 +31,16 @@ class DashboardController extends Controller
         $recentPayroll = PayrollRun::with('period')->latest()->take(5)->get();
         $openPeriods = PayrollPeriod::where('status', 'open')->orderBy('date_from')->take(5)->get();
 
-        return view('dashboard', compact('stats', 'recentPayroll', 'openPeriods'));
+        $trend = PayrollRun::with('period')->where('status', 'processed')
+            ->latest('processed_at')->take(6)->get()->reverse()->values();
+        $trendMax = max(1, (float) $trend->max('net_total'));
+
+        $attendance = Attendance::query()
+            ->whereBetween('work_date', [now()->startOfMonth()->toDateString(), now()->endOfMonth()->toDateString()])
+            ->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+        $attendanceMax = max(1, (int) $attendance->max());
+
+        return view('dashboard', compact('stats', 'recentPayroll', 'openPeriods', 'trend', 'trendMax', 'attendance', 'attendanceMax'));
     }
 
     private function employeeDashboard($user): View

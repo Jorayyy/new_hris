@@ -9,6 +9,7 @@ use App\Services\DtrService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
@@ -41,6 +42,47 @@ class AttendanceController extends Controller
     public function create(): View
     {
         return view('attendance.form', $this->formData(new Attendance(['work_date' => now(), 'status' => 'present', 'source' => 'manual', 'is_manual' => true])));
+    }
+
+    public function export(Request $request): Response
+    {
+        $from = $request->date('from') ?? now()->startOfMonth();
+        $to = $request->date('to') ?? now();
+
+        $attendances = Attendance::query()
+            ->with(['employee', 'shift'])
+            ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
+            ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
+            ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()])
+            ->orderByDesc('work_date')
+            ->get();
+
+        $rows = [['Employee No', 'Employee', 'Date', 'Status', 'Time In', 'Time Out', 'Hours', 'Late (min)', 'Undertime (min)', 'OT (hrs)', 'Night diff (hrs)']];
+        foreach ($attendances as $attendance) {
+            $rows[] = [
+                $attendance->employee?->employee_no,
+                $attendance->employee?->full_name,
+                optional($attendance->work_date)->toDateString(),
+                $attendance->status,
+                optional($attendance->time_in)->format('H:i'),
+                optional($attendance->time_out)->format('H:i'),
+                number_format((float) $attendance->hours_worked, 2, '.', ''),
+                $attendance->late_minutes,
+                $attendance->undertime_minutes,
+                number_format((float) $attendance->overtime_hours, 2, '.', ''),
+                number_format((float) $attendance->night_diff_hours, 2, '.', ''),
+            ];
+        }
+
+        $csv = '';
+        foreach ($rows as $row) {
+            $csv .= implode(',', array_map(fn ($value) => '"'.str_replace('"', '""', (string) $value).'"', $row))."\r\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="attendance.csv"',
+        ]);
     }
 
     public function store(Request $request): RedirectResponse

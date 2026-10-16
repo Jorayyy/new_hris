@@ -94,16 +94,6 @@ class Employee extends Model
         return $this->hasMany(LeaveBalance::class);
     }
 
-    public function loans(): HasMany
-    {
-        return $this->hasMany(EmployeeLoan::class);
-    }
-
-    public function activeLoans(): HasMany
-    {
-        return $this->loans()->where('status', 'active');
-    }
-
     public function payslips(): HasMany
     {
         return $this->hasMany(Payslip::class);

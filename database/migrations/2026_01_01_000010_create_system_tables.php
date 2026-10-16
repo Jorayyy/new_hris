@@ -8,19 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('audit_logs', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->string('action');
-            $table->string('entity');
-            $table->unsignedBigInteger('entity_id')->nullable();
-            $table->json('old_values')->nullable();
-            $table->json('new_values')->nullable();
-            $table->string('ip_address', 45)->nullable();
-            $table->timestamps();
-            $table->index(['entity', 'entity_id']);
-        });
-
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->nullable()->constrained()->nullOnDelete();
@@ -35,6 +22,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('announcements');
-        Schema::dropIfExists('audit_logs');
     }
 };

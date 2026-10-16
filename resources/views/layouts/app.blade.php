@@ -8,7 +8,14 @@
     <link rel="stylesheet" href="{{ asset('app.css') }}">
 </head>
 <body>
-@php($u = auth()->user())
+@php
+    $u = auth()->user();
+    $isEmployee = $u->hasRole(\App\Models\User::ROLE_EMPLOYEE);
+    $isHr = $u->hasRole(\App\Models\User::HR_ROLES);
+    $isPayroll = $u->hasRole(\App\Models\User::PAYROLL_ROLES);
+    $isManager = $u->hasRole(\App\Models\User::ROLE_MANAGER);
+    $isAdmin = $u->hasRole([\App\Models\User::ROLE_SUPER_ADMIN, \App\Models\User::ROLE_ADMIN]);
+@endphp
 <div class="layout">
     <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden>
     <aside class="sidebar">
@@ -19,13 +26,15 @@
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><span class="ico">▦</span> Dashboard</a>
         </div>
 
-        <div class="nav-group">
-            <div class="label">My Space</div>
-            <a href="{{ route('me.dtr') }}" class="{{ request()->routeIs('me.dtr') ? 'active' : '' }}"><span class="ico">⏱</span> My DTR</a>
-            <a href="{{ route('me.payslips') }}" class="{{ request()->routeIs('me.payslips*') ? 'active' : '' }}"><span class="ico">₱</span> My Payslips</a>
-            <a href="{{ route('me.leave') }}" class="{{ request()->routeIs('me.leave') ? 'active' : '' }}"><span class="ico">☖</span> My Leave</a>
-            <a href="{{ route('me.loans') }}" class="{{ request()->routeIs('me.loans') ? 'active' : '' }}"><span class="ico">◷</span> My Loans</a>
-        </div>
+        @if($isEmployee)
+            <div class="nav-group">
+                <div class="label">My Space</div>
+                <a href="{{ route('me.dtr') }}" class="{{ request()->routeIs('me.dtr') ? 'active' : '' }}"><span class="ico">⏱</span> My DTR</a>
+                <a href="{{ route('me.payslips') }}" class="{{ request()->routeIs('me.payslips*') ? 'active' : '' }}"><span class="ico">₱</span> My Payslips</a>
+                <a href="{{ route('me.leave') }}" class="{{ request()->routeIs('me.leave') ? 'active' : '' }}"><span class="ico">☖</span> My Leave</a>
+                <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
+            </div>
+        @endif
 
         @if($u->hasRole(\App\Models\User::HR_ROLES))
             <div class="nav-group">
@@ -41,32 +50,44 @@
             </div>
         @endif
 
-        @if($u->hasRole(\App\Models\User::MANAGEMENT_ROLES))
+        @if($isHr || $isManager)
             <div class="nav-group">
                 <div class="label">Time &amp; Attendance</div>
                 <a href="{{ route('attendance.index') }}" class="{{ request()->routeIs('attendance.index', 'attendance.edit') ? 'active' : '' }}"><span class="ico">⏱</span> Attendance / DTR</a>
-                <a href="{{ route('attendance.import.form') }}" class="{{ request()->routeIs('attendance.import*') ? 'active' : '' }}"><span class="ico">↥</span> Import Biometrics</a>
-                <a href="{{ route('shifts.index') }}" class="{{ request()->routeIs('shifts.*') ? 'active' : '' }}"><span class="ico">◔</span> Shifts</a>
-                <a href="{{ route('holidays.index') }}" class="{{ request()->routeIs('holidays.*') ? 'active' : '' }}"><span class="ico">✷</span> Holidays</a>
+                @if($isHr)
+                    <a href="{{ route('attendance.import.form') }}" class="{{ request()->routeIs('attendance.import*') ? 'active' : '' }}"><span class="ico">↥</span> Import Biometrics</a>
+                    <a href="{{ route('shifts.index') }}" class="{{ request()->routeIs('shifts.*') ? 'active' : '' }}"><span class="ico">◔</span> Shifts</a>
+                    <a href="{{ route('holidays.index') }}" class="{{ request()->routeIs('holidays.*') ? 'active' : '' }}"><span class="ico">✷</span> Holidays</a>
+                @endif
             </div>
+        @endif
+
+        @if($isHr || $isManager || $isPayroll)
             <div class="nav-group">
                 <div class="label">Leave</div>
-                <a href="{{ route('leave-requests.index') }}" class="{{ request()->routeIs('leave-requests.*') ? 'active' : '' }}"><span class="ico">☖</span> Leave Requests</a>
-                @if($u->hasRole(\App\Models\User::PAYROLL_ROLES))
+                @if($isHr || $isManager)
+                    <a href="{{ route('leave-requests.index') }}" class="{{ request()->routeIs('leave-requests.*') ? 'active' : '' }}"><span class="ico">☖</span> Leave Requests</a>
+                @endif
+                @if($isHr)
+                    <a href="{{ route('leave-balances.index') }}" class="{{ request()->routeIs('leave-balances.*') ? 'active' : '' }}"><span class="ico">∑</span> Leave Credits</a>
+                @endif
+                @if($isHr || $isPayroll)
                     <a href="{{ route('leave-types.index') }}" class="{{ request()->routeIs('leave-types.*') ? 'active' : '' }}"><span class="ico">≡</span> Leave Types</a>
                 @endif
             </div>
-            <div class="nav-group">
-                <div class="label">Loans</div>
-                <a href="{{ route('loans.index') }}" class="{{ request()->routeIs('loans.*') ? 'active' : '' }}"><span class="ico">◷</span> Employee Loans</a>
-                @if($u->hasRole(\App\Models\User::PAYROLL_ROLES))
-                    <a href="{{ route('loan-types.index') }}" class="{{ request()->routeIs('loan-types.*') ? 'active' : '' }}"><span class="ico">≡</span> Loan Types</a>
-                @endif
-            </div>
+        @endif
+
+        @if($isPayroll)
             <div class="nav-group">
                 <div class="label">Reports</div>
                 <a href="{{ route('government.index') }}" class="{{ request()->routeIs('government.index') ? 'active' : '' }}"><span class="ico">▦</span> Gov't Tables</a>
                 <a href="{{ route('government.remittances') }}" class="{{ request()->routeIs('government.remittances') ? 'active' : '' }}"><span class="ico">⇪</span> Remittances</a>
+                <div class="label" style="margin-top:10px">Statutory</div>
+                <a href="{{ route('reports.sss-r3') }}" class="{{ request()->routeIs('reports.sss-r3') ? 'active' : '' }}"><span class="ico">·</span> SSS R-3</a>
+                <a href="{{ route('reports.philhealth-rf1') }}" class="{{ request()->routeIs('reports.philhealth-rf1') ? 'active' : '' }}"><span class="ico">·</span> PhilHealth RF-1</a>
+                <a href="{{ route('reports.pagibig-mcrf') }}" class="{{ request()->routeIs('reports.pagibig-mcrf') ? 'active' : '' }}"><span class="ico">·</span> Pag-IBIG MCRF</a>
+                <a href="{{ route('reports.bir-1601c') }}" class="{{ request()->routeIs('reports.bir-1601c') ? 'active' : '' }}"><span class="ico">·</span> BIR 1601-C</a>
+                <a href="{{ route('reports.bir-2316') }}" class="{{ request()->routeIs('reports.bir-2316') ? 'active' : '' }}"><span class="ico">·</span> BIR 2316</a>
             </div>
         @endif
 
@@ -83,6 +104,7 @@
             <div class="nav-group">
                 <div class="label">Admin</div>
                 <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}"><span class="ico">⚙</span> User Accounts</a>
+                <a href="{{ route('audit.index') }}" class="{{ request()->routeIs('audit.*') ? 'active' : '' }}"><span class="ico">▤</span> Audit Log</a>
             </div>
         @endif
 

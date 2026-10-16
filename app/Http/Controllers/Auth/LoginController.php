@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,12 +36,18 @@ class LoginController extends Controller
         }
 
         $request->user()->forceFill(['last_login_at' => now()])->save();
+        AuditLog::record('login', 'Signed in: '.$request->user()->email, $request->user());
 
         return redirect()->intended(route('dashboard'));
     }
 
     public function logout(Request $request): RedirectResponse
     {
+        $user = $request->user();
+        if ($user) {
+            AuditLog::record('logout', 'Signed out: '.$user->email, $user);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

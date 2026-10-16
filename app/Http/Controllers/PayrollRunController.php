@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Services\PayrollService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PayrollRunController extends Controller
 {
@@ -40,6 +43,8 @@ class PayrollRunController extends Controller
 
         $run = PayrollRun::create($data + ['status' => 'draft']);
 
+        AuditLog::record('create', 'Created payroll run #'.$run->id, $run);
+
         return redirect()->route('payroll.runs.show', $run)->with('ok', 'Payroll run created. Review and process.');
     }
 
@@ -53,15 +58,39 @@ class PayrollRunController extends Controller
     public function process(PayrollRun $run): RedirectResponse
     {
         $this->payroll->processRun($run);
+        AuditLog::record('process', 'Processed payroll run #'.$run->id.' ('.$run->period?->name.')', $run);
 
         return redirect()->route('payroll.runs.show', $run)->with('ok', 'Payroll processed.');
     }
 
     public function destroy(PayrollRun $run): RedirectResponse
     {
+        AuditLog::record('delete', 'Deleted payroll run #'.$run->id, $run);
         $this->payroll->deleteRun($run);
 
         return redirect()->route('payroll.runs.index')->with('ok', 'Payroll run deleted.');
+    }
+
+    public function payslipsZip(PayrollRun $run): BinaryFileResponse
+    {
+        $run->load(['payslips.employee', 'period']);
+
+        abort_if($run->payslips->isEmpty(), 404, 'No payslips to export.');
+
+        $zipPath = tempnam(sys_get_temp_dir(), 'slips').'.zip';
+        $zip = new \ZipArchive;
+        $zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+
+        foreach ($run->payslips as $payslip) {
+            $pdf = Pdf::loadView('payroll.payslips.pdf', compact('payslip'))->setPaper('a4')->output();
+            $name = 'payslip-'.$payslip->employee->employee_no.'-'.preg_replace('/[^A-Za-z0-9]+/', '-', (string) $run->period?->name).'.pdf';
+            $zip->addFromString($name, $pdf);
+        }
+
+        $zip->close();
+        AuditLog::record('export', 'Downloaded payslips ZIP for run #'.$run->id, $run);
+
+        return response()->download($zipPath, 'payslips-run-'.$run->id.'.zip')->deleteFileAfterSend(true);
     }
 
     public function export(PayrollRun $run): Response

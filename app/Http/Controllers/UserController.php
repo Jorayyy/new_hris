@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\User;
@@ -54,6 +55,8 @@ class UserController extends Controller
             Employee::whereKey($data['employee_id'])->update(['user_id' => $user->id]);
         }
 
+        AuditLog::record('create', 'Created user account '.$user->email, $user);
+
         return redirect()->route('users.index')->with('ok', 'User account created.');
     }
 
@@ -95,6 +98,8 @@ class UserController extends Controller
             Employee::whereKey($data['employee_id'])->update(['user_id' => $user->id]);
         }
 
+        AuditLog::record('update', 'Updated user account '.$user->email, $user);
+
         return redirect()->route('users.index')->with('ok', 'User updated.');
     }
 
@@ -103,6 +108,7 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return back()->with('ok', 'You cannot delete your own account.');
         }
+        AuditLog::record('delete', 'Deleted user account '.$user->email, $user);
         $user->delete();
 
         return back()->with('ok', 'User deleted.');

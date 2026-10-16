@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
@@ -40,13 +42,14 @@ class EmployeeController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $employee = Employee::create($this->validated($request));
+        AuditLog::record('create', 'Created employee '.$employee->employee_no.' '.$employee->full_name, $employee);
 
         return redirect()->route('employees.show', $employee)->with('ok', 'Employee created.');
     }
 
     public function show(Employee $employee): View
     {
-        $employee->load(['branch', 'department', 'position', 'documents', 'allowances', 'deductions', 'activeLoans.loanType']);
+        $employee->load(['branch', 'department', 'position', 'documents', 'allowances', 'deductions']);
 
         return view('employees.show', [
             'employee' => $employee,
@@ -64,15 +67,60 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee): RedirectResponse
     {
         $employee->update($this->validated($request, $employee));
+        AuditLog::record('update', 'Updated employee '.$employee->employee_no.' '.$employee->full_name, $employee);
 
         return redirect()->route('employees.show', $employee)->with('ok', 'Employee updated.');
     }
 
     public function destroy(Employee $employee): RedirectResponse
     {
+        AuditLog::record('delete', 'Deleted employee '.$employee->employee_no.' '.$employee->full_name, $employee);
         $employee->delete();
 
         return redirect()->route('employees.index')->with('ok', 'Employee deleted.');
+    }
+
+    public function export(Request $request): Response
+    {
+        $employees = Employee::query()
+            ->with(['branch', 'department', 'position'])
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $term = '%'.$request->string('q').'%';
+                $q->where(fn ($w) => $w->where('first_name', 'like', $term)->orWhere('last_name', 'like', $term)->orWhere('employee_no', 'like', $term));
+            })
+            ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
+            ->when($request->filled('status'), fn ($q) => $q->where('employment_status', $request->string('status')))
+            ->orderBy('last_name')
+            ->get();
+
+        $rows = [['Employee No', 'Name', 'Branch', 'Department', 'Position', 'Status', 'Date Hired', 'Basic Salary']];
+        foreach ($employees as $employee) {
+            $rows[] = [
+                $employee->employee_no,
+                $employee->full_name,
+                $employee->branch?->name,
+                $employee->department?->name,
+                $employee->position?->title,
+                $employee->employment_status,
+                optional($employee->date_hired)->toDateString(),
+                number_format((float) $employee->basic_salary, 2, '.', ''),
+            ];
+        }
+
+        return $this->csv($rows, 'employees.csv');
+    }
+
+    private function csv(array $rows, string $filename): Response
+    {
+        $csv = '';
+        foreach ($rows as $row) {
+            $csv .= implode(',', array_map(fn ($value) => '"'.str_replace('"', '""', (string) $value).'"', $row))."\r\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
     }
 
     private function formData(Employee $employee): array

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\AuditLog;
 use App\Models\Employee;
 use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
@@ -10,6 +11,7 @@ use App\Models\LeaveType;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class LeaveRequestController extends Controller
@@ -53,6 +55,40 @@ class LeaveRequestController extends Controller
         return back()->with('ok', 'Leave request filed.');
     }
 
+    public function export(Request $request): Response
+    {
+        $requests = LeaveRequest::query()
+            ->with(['employee', 'leaveType'])
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
+            ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
+            ->latest()
+            ->get();
+
+        $rows = [['Employee No', 'Employee', 'Leave Type', 'From', 'To', 'Days', 'Paid', 'Status']];
+        foreach ($requests as $leave) {
+            $rows[] = [
+                $leave->employee?->employee_no,
+                $leave->employee?->full_name,
+                $leave->leaveType?->name,
+                optional($leave->date_from)->toDateString(),
+                optional($leave->date_to)->toDateString(),
+                number_format((float) $leave->days, 2, '.', ''),
+                $leave->is_paid ? 'Yes' : 'No',
+                $leave->status,
+            ];
+        }
+
+        $csv = '';
+        foreach ($rows as $row) {
+            $csv .= implode(',', array_map(fn ($value) => '"'.str_replace('"', '""', (string) $value).'"', $row))."\r\n";
+        }
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="leave-requests.csv"',
+        ]);
+    }
+
     public function approve(Request $request, LeaveRequest $leaveRequest): RedirectResponse
     {
         $request->validate(['status' => ['required', 'in:approved,rejected']]);
@@ -69,12 +105,15 @@ class LeaveRequestController extends Controller
             $this->markAttendanceAsLeave($leaveRequest);
         }
 
+        AuditLog::record($status, ucfirst($status).' leave request #'.$leaveRequest->id, $leaveRequest);
+
         return back()->with('ok', "Leave request {$status}.");
     }
 
     public function destroy(LeaveRequest $leaveRequest): RedirectResponse
     {
         $leaveRequest->update(['status' => LeaveRequest::STATUS_CANCELLED]);
+        AuditLog::record('cancel', 'Cancelled leave request #'.$leaveRequest->id, $leaveRequest);
 
         return back()->with('ok', 'Leave request cancelled.');
     }

@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Holiday;
-use App\Models\LoanType;
 use App\Models\Position;
 use App\Models\Setting;
 use App\Models\Shift;
@@ -60,15 +59,6 @@ class OrganizationSeeder extends Seeder
             ['date' => now()->year.'-08-21', 'name' => 'Ninoy Aquino Day', 'type' => 'special', 'rate_multiplier' => 1.3],
         ] as $holiday) {
             Holiday::create($holiday + ['branch_id' => null]);
-        }
-
-        foreach ([
-            ['name' => 'SSS Salary Loan', 'code' => 'SSS', 'interest_rate' => 0.10, 'max_amount' => 60000],
-            ['name' => 'Pag-IBIG MPL', 'code' => 'PAGIBIG', 'interest_rate' => 0.1044, 'max_amount' => 80000],
-            ['name' => 'Company Loan', 'code' => 'COMPANY', 'interest_rate' => 0, 'max_amount' => 50000],
-            ['name' => 'Cash Advance', 'code' => 'CA', 'interest_rate' => 0, 'max_amount' => 10000],
-        ] as $loanType) {
-            LoanType::create($loanType + ['is_active' => true]);
         }
 
         Setting::put('company_name', 'Prime BPO Services Inc.');

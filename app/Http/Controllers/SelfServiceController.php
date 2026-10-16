@@ -97,15 +97,4 @@ class SelfServiceController extends Controller
 
         return back()->with('ok', 'Leave request submitted.');
     }
-
-    public function loans(Request $request): View
-    {
-        $employee = $request->user()->employee;
-        abort_unless($employee, 404);
-
-        return view('me.loans', [
-            'employee' => $employee,
-            'loans' => $employee->loans()->with(['loanType', 'payments'])->latest()->get(),
-        ]);
-    }
 }
