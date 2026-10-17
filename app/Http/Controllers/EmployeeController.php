@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\DocumentType;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -52,7 +53,7 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee): View
     {
-        $employee->load(['branch', 'department', 'position', 'documents.documentType', 'allowances', 'deductions']);
+        $employee->load(['branch', 'department', 'position', 'documents.documentType', 'clearanceItems.doneBy', 'allowances', 'deductions']);
 
         return view('employees.show', [
             'employee' => $employee,
@@ -61,6 +62,53 @@ class EmployeeController extends Controller
             'attendances' => $employee->attendances()->latest('work_date')->take(15)->get(),
             'leaveBalances' => $employee->leaveBalances()->where('year', now()->year)->with('leaveType')->get(),
         ]);
+    }
+
+    public function regularize(Employee $employee): RedirectResponse
+    {
+        if (! $employee->is_active) {
+            return back()->with('error', 'Separated employees cannot be regularized.');
+        }
+
+        if ($employee->employment_status === 'regular') {
+            return back()->with('error', 'This employee is already regular.');
+        }
+
+        $employee->update([
+            'employment_status' => 'regular',
+            'date_regularized' => $employee->date_regularized ?? now()->toDateString(),
+        ]);
+
+        AuditLog::record('regularize', 'Regularized '.$employee->employee_no.' '.$employee->full_name, $employee);
+        Notify::employee($employee, 'Regularization confirmed', 'You are now a regular employee effective '.$employee->date_regularized->format('M d, Y').'.', null, '★');
+
+        return back()->with('ok', $employee->full_name.' marked as regular.');
+    }
+
+    public function separate(Request $request, Employee $employee): RedirectResponse
+    {
+        if (! $employee->is_active) {
+            return back()->with('error', 'This employee is already separated.');
+        }
+
+        $data = $request->validate([
+            'date_separated' => ['nullable', 'date'],
+            'separation_reason' => ['nullable', 'string', 'max:150'],
+        ]);
+
+        $employee->update([
+            'is_active' => false,
+            'employment_status' => 'separated',
+            'date_separated' => $data['date_separated'] ?? now()->toDateString(),
+            'separation_reason' => $data['separation_reason'] ?? null,
+        ]);
+
+        $employee->user?->update(['is_active' => false]);
+        $created = $employee->startClearance();
+
+        AuditLog::record('separate', 'Separated '.$employee->employee_no.' '.$employee->full_name, $employee);
+
+        return back()->with('ok', $employee->full_name.' separated. Login disabled, '.$created.' clearance item(s) added.');
     }
 
     public function edit(Employee $employee): View
@@ -294,6 +342,7 @@ class EmployeeController extends Controller
             'date_hired' => ['nullable', 'date'],
             'date_regularized' => ['nullable', 'date'],
             'employment_status' => ['required', 'string', 'max:30'],
+            'probation_months' => ['nullable', 'integer', 'min:1', 'max:24'],
             'sss_no' => ['nullable', 'string', 'max:30'],
             'philhealth_no' => ['nullable', 'string', 'max:30'],
             'pagibig_no' => ['nullable', 'string', 'max:30'],
@@ -318,6 +367,7 @@ class EmployeeController extends Controller
 
         return $data + [
             'is_active' => $request->boolean('is_active'),
+            'probation_months' => $request->input('probation_months') ?: 6,
             'monthly_allowance' => $request->input('monthly_allowance', 0),
             'daily_rate' => $request->input('daily_rate', 0),
             'dependents_count' => $request->input('dependents_count', 0),

@@ -117,6 +117,85 @@
     </div>
 
     <div class="card">
+        <div class="card-head">
+            <h2>Employment Lifecycle</h2>
+            @if($employee->is_active)
+                <span class="badge green">Active</span>
+            @else
+                <span class="badge gray">Separated {{ $employee->date_separated?->format('M d, Y') }}</span>
+            @endif
+        </div>
+        <div class="card-body">
+            <div class="grid cols-2">
+                <div>
+                    <h3 style="margin:0 0 8px">Regularization</h3>
+                    <dl class="kv">
+                        <dt>Status</dt><dd>{{ ucfirst($employee->employment_status) }}</dd>
+                        <dt>Probation</dt><dd>{{ $employee->probation_months }} month(s)</dd>
+                        <dt>Due on</dt>
+                        <dd>
+                            {{ $employee->regularizationDueOn()?->format('M d, Y') ?? '—' }}
+                            @if($employee->isForRegularization() && $employee->regularizationDaysLeft() !== null)
+                                @php $daysLeft = $employee->regularizationDaysLeft(); @endphp
+                                <span class="badge {{ $daysLeft < 0 ? 'red' : ($daysLeft <= \App\Models\Employee::REGULARIZATION_WARN_DAYS ? 'amber' : 'gray') }}">
+                                    {{ $daysLeft < 0 ? abs($daysLeft).' days overdue' : $daysLeft.' days left' }}
+                                </span>
+                            @endif
+                        </dd>
+                        <dt>Regularized</dt><dd>{{ $employee->date_regularized?->format('M d, Y') ?? '—' }}</dd>
+                    </dl>
+                    @if($employee->isForRegularization())
+                        <form method="POST" action="{{ route('employees.regularize', $employee) }}" onsubmit="return confirm('Mark this employee as regular?')">
+                            @csrf
+                            <button class="btn primary">Mark as regular</button>
+                        </form>
+                    @endif
+                </div>
+                <div>
+                    <h3 style="margin:0 0 8px">Separation &amp; clearance</h3>
+                    @if($employee->is_active)
+                        <form method="POST" action="{{ route('employees.separate', $employee) }}" onsubmit="return confirm('Separate this employee? Their login will be disabled and a clearance checklist created.')" class="filters">
+                            @csrf
+                            <div class="field"><label>Last day</label><input type="date" name="date_separated" value="{{ now()->toDateString() }}"></div>
+                            <div class="field"><label>Reason</label><input name="separation_reason" placeholder="e.g. Resigned, End of contract"></div>
+                            <button class="btn danger">Separate employee</button>
+                        </form>
+                    @else
+                        <p class="muted small">
+                            Separated on {{ $employee->date_separated?->format('M d, Y') ?? '—' }}
+                            @if($employee->separation_reason) · {{ $employee->separation_reason }} @endif
+                        </p>
+                        @php $progress = $employee->clearanceProgress(); @endphp
+                        <p class="small">Clearance: <strong>{{ $progress['done'] }} / {{ $progress['total'] }}</strong> done</p>
+                        <div class="table-wrap">
+                            <table>
+                                <thead><tr><th>Item</th><th></th><th>Done by</th></tr></thead>
+                                <tbody>
+                                @forelse($employee->clearanceItems as $item)
+                                    <tr>
+                                        <td>{{ $item->label }}</td>
+                                        <td>
+                                            <form method="POST" action="{{ route('clearance-items.update', $item) }}">
+                                                @csrf @method('PUT')
+                                                <input type="hidden" name="is_done" value="{{ $item->is_done ? 0 : 1 }}">
+                                                <button class="btn sm {{ $item->is_done ? 'ghost' : 'primary' }}">{{ $item->is_done ? 'Undo' : 'Done' }}</button>
+                                            </form>
+                                        </td>
+                                        <td class="muted small">{{ $item->is_done ? ($item->doneBy?->name ?? '—').' · '.$item->done_at?->format('M d, Y') : '—' }}</td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3" class="muted">No clearance checklist yet.</td></tr>
+                                @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
         <div class="card-head"><h2>Recent Payslips</h2></div>
         <div class="table-wrap">
             <table>

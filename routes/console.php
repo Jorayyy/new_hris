@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('attendance:mark-absent')->dailyAt('23:30');
 Schedule::command('documents:alerts')->dailyAt('07:00');
+Schedule::command('employees:regularization-alerts')->dailyAt('07:00');

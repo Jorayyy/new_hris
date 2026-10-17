@@ -14,6 +14,7 @@
                     <div class="field"><label>Employee No.</label><input type="text" name="employee_no" value="{{ old('employee_no', $employee->employee_no) }}" required></div>
                     <div class="field"><label>Time-clock PIN (4 digits{{ $employee->exists && $employee->pin ? ', blank = keep current' : '' }})</label><input type="text" name="pin" inputmode="numeric" maxlength="4" pattern="\d{4}" value="{{ old('pin') }}" placeholder="••••"></div>
                     <div class="field"><label>Date hired</label><input type="date" name="date_hired" value="{{ old('date_hired', optional($employee->date_hired)->format('Y-m-d')) }}"></div>
+                <div class="field"><label>Probation months</label><input type="number" min="1" max="24" name="probation_months" value="{{ old('probation_months', $employee->probation_months ?: 6) }}"></div>
                     <div class="field"><label>First name</label><input type="text" name="first_name" value="{{ old('first_name', $employee->first_name) }}" required></div>
                     <div class="field"><label>Middle name</label><input type="text" name="middle_name" value="{{ old('middle_name', $employee->middle_name) }}"></div>
                     <div class="field"><label>Last name</label><input type="text" name="last_name" value="{{ old('last_name', $employee->last_name) }}" required></div>
@@ -63,7 +64,7 @@
                     </div>
                     <div class="field"><label>Employment status</label>
                         <select name="employment_status">
-                            @foreach(['probationary','regular','contractual','project','part-time'] as $s)
+                            @foreach(['probationary','regular','contractual','project','part-time','separated'] as $s)
                                 <option value="{{ $s }}" @selected(old('employment_status', $employee->employment_status) === $s)>{{ ucfirst($s) }}</option>
                             @endforeach
                         </select>

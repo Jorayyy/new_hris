@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\BiometricDeviceController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\ClearanceItemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DisciplinaryCaseController;
@@ -100,6 +101,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('employees', EmployeeController::class);
         Route::post('employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])->name('employees.documents.store');
         Route::delete('documents/{document}', [EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+        Route::post('employees/{employee}/regularize', [EmployeeController::class, 'regularize'])->name('employees.regularize');
+        Route::post('employees/{employee}/separate', [EmployeeController::class, 'separate'])->name('employees.separate');
+        Route::put('clearance-items/{clearance_item}', [ClearanceItemController::class, 'update'])->name('clearance-items.update');
         Route::get('documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
         Route::resource('document-types', DocumentTypeController::class)->except('show');
 

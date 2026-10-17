@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 #[Fillable([
     'employee_no', 'pin', 'user_id', 'branch_id', 'department_id', 'position_id',
     'first_name', 'middle_name', 'last_name', 'suffix', 'birth_date', 'gender',
     'civil_status', 'nationality', 'address', 'contact_no', 'personal_email',
-    'date_hired', 'date_regularized', 'date_separated', 'employment_status', 'separation_reason',
+    'date_hired', 'date_regularized', 'date_separated', 'employment_status', 'separation_reason', 'probation_months',
     'rest_days',
     'sss_no', 'philhealth_no', 'pagibig_no', 'tin',
     'bank_name', 'bank_account_no',
@@ -24,6 +25,8 @@ class Employee extends Model
     public const PIN_MAX_ATTEMPTS = 5;
 
     public const PIN_LOCKOUT_MINUTES = 15;
+
+    public const REGULARIZATION_WARN_DAYS = 15;
 
     protected function casts(): array
     {
@@ -37,6 +40,7 @@ class Employee extends Model
             'daily_rate' => 'decimal:2',
             'hourly_rate' => 'decimal:2',
             'is_active' => 'boolean',
+            'probation_months' => 'integer',
             'pin' => 'hashed',
             'pin_locked_until' => 'datetime',
             'rest_days' => 'array',
@@ -123,6 +127,69 @@ class Employee extends Model
     public function documentIssueCount(): int
     {
         return $this->documentCompliance()->reject(fn (array $row) => $row['state'] === 'ok')->count();
+    }
+
+    public const CLEARANCE_ITEMS = [
+        'Return company ID',
+        'Return uniforms and PPE',
+        'Return laptop, tools and equipment',
+        'Return keys, locker and access cards',
+        'Clear department accountabilities',
+        'Clear cash advances and loans',
+        'Settle final pay computation',
+        'Conduct exit interview',
+        'Release last pay and Certificate of Employment',
+        'Deactivate email and system accounts',
+        'Revoke time-clock PIN and door access',
+    ];
+
+    public function clearanceItems(): HasMany
+    {
+        return $this->hasMany(ClearanceItem::class)->orderBy('sort')->orderBy('id');
+    }
+
+    public function regularizationDueOn(): ?Carbon
+    {
+        return $this->date_hired?->copy()->addMonths($this->probation_months ?: 6);
+    }
+
+    public function regularizationDaysLeft(): ?int
+    {
+        $due = $this->regularizationDueOn();
+
+        return $due ? (int) now()->startOfDay()->diffInDays($due, false) : null;
+    }
+
+    public function isForRegularization(): bool
+    {
+        return $this->is_active
+            && $this->employment_status === 'probationary'
+            && $this->regularizationDueOn() !== null;
+    }
+
+    public function startClearance(): int
+    {
+        $existing = $this->clearanceItems()->pluck('label')->all();
+        $created = 0;
+
+        foreach (self::CLEARANCE_ITEMS as $sort => $label) {
+            if (in_array($label, $existing, true)) {
+                continue;
+            }
+
+            $this->clearanceItems()->create(['label' => $label, 'sort' => $sort]);
+            $created++;
+        }
+
+        return $created;
+    }
+
+    public function clearanceProgress(): array
+    {
+        return [
+            'done' => $this->clearanceItems->where('is_done', true)->count(),
+            'total' => $this->clearanceItems->count(),
+        ];
     }
 
     public function allowances(): HasMany
