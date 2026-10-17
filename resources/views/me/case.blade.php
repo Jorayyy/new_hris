@@ -39,7 +39,7 @@
                     <div class="small muted">{{ $action->created_at->format('M d, Y g:i A') }}</div>
                     <div style="margin-top:6px;white-space:pre-line">{{ $action->body }}</div>
                     @if($action->file_path)
-                        <div style="margin-top:6px"><a href="{{ \Illuminate\Support\Facades\Storage::url($action->file_path) }}" target="_blank">Attachment</a></div>
+                        <div style="margin-top:6px"><a href="{{ route('me.cases.file', [$case->id, $action->id]) }}" target="_blank">Attachment</a></div>
                     @endif
                 </div>
             @empty

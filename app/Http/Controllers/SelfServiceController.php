@@ -10,10 +10,12 @@ use App\Models\LeaveType;
 use App\Models\QaEvaluation;
 use App\Services\ThirteenthMonthService;
 use App\Support\Notify;
+use App\Support\PrivateFile;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SelfServiceController extends Controller
 {
@@ -148,6 +150,17 @@ class SelfServiceController extends Controller
         $record = $employee->disciplinaryCases()->with(['filer', 'decider', 'actions.user'])->findOrFail($case);
 
         return view('me.case', ['case' => $record]);
+    }
+
+    public function caseFile(Request $request, int $case, DisciplinaryCaseAction $action): StreamedResponse
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404);
+
+        $record = $employee->disciplinaryCases()->findOrFail($case);
+        abort_unless($action->disciplinary_case_id === $record->id, 404);
+
+        return PrivateFile::download($action->file_path, 'case-attachment');
     }
 
     public function respondCase(Request $request, int $case): RedirectResponse

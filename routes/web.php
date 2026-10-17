@@ -95,6 +95,7 @@ Route::middleware('auth')->group(function () {
         Route::get('me/pay', [SelfServiceController::class, 'pay'])->name('me.pay');
         Route::get('me/cases/{case}', [SelfServiceController::class, 'case'])->name('me.cases.show');
         Route::post('me/cases/{case}/respond', [SelfServiceController::class, 'respondCase'])->name('me.cases.respond');
+        Route::get('me/cases/{case}/actions/{action}/file', [SelfServiceController::class, 'caseFile'])->name('me.cases.file');
     });
 
     Route::middleware('role:'.implode(',', User::HR_ROLES))->group(function () {
@@ -107,6 +108,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('employees', EmployeeController::class);
         Route::post('employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])->name('employees.documents.store');
         Route::delete('documents/{document}', [EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+        Route::get('documents/{document}/file', [EmployeeDocumentController::class, 'download'])->name('documents.file');
         Route::post('employees/{employee}/regularize', [EmployeeController::class, 'regularize'])->name('employees.regularize');
         Route::post('employees/{employee}/separate', [EmployeeController::class, 'separate'])->name('employees.separate');
         Route::put('clearance-items/{clearance_item}', [ClearanceItemController::class, 'update'])->name('clearance-items.update');
@@ -170,6 +172,7 @@ Route::middleware('auth')->group(function () {
         Route::post('cases', [DisciplinaryCaseController::class, 'store'])->name('cases.store');
         Route::get('cases/{case}', [DisciplinaryCaseController::class, 'show'])->name('cases.show');
         Route::post('cases/{case}/notes', [DisciplinaryCaseController::class, 'storeAction'])->name('cases.actions.store');
+        Route::get('cases/actions/{action}/file', [DisciplinaryCaseController::class, 'downloadAction'])->name('cases.actions.file');
         Route::post('cases/{case}/decide', [DisciplinaryCaseController::class, 'decide'])->name('cases.decide');
 
         Route::get('qa', [QaEvaluationController::class, 'index'])->name('qa.index');

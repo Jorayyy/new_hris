@@ -7,11 +7,13 @@ use App\Models\DisciplinaryCase;
 use App\Models\DisciplinaryCaseAction;
 use App\Models\Employee;
 use App\Support\Notify;
+use App\Support\PrivateFile;
 use App\Support\TeamScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DisciplinaryCaseController extends Controller
 {
@@ -114,12 +116,20 @@ class DisciplinaryCaseController extends Controller
             'user_id' => $request->user()->id,
             'type' => DisciplinaryCaseAction::TYPE_NOTE,
             'body' => $data['body'],
-            'file_path' => $request->hasFile('file') ? $request->file('file')->store('cases', 'public') : null,
+            'file_path' => $request->hasFile('file') ? $request->file('file')->store('cases', 'local') : null,
         ]);
 
         AuditLog::record('update', 'Added a note to case #'.$case->id, $case);
 
         return back()->with('ok', 'Note added.');
+    }
+
+    public function downloadAction(Request $request, DisciplinaryCaseAction $action): StreamedResponse
+    {
+        $action->loadMissing('case');
+        TeamScope::authorize($request->user(), $action->case?->branch_id);
+
+        return PrivateFile::download($action->file_path, 'case-attachment');
     }
 
     public function decide(Request $request, DisciplinaryCase $case): RedirectResponse

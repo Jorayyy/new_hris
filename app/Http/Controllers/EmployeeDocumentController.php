@@ -6,14 +6,17 @@ use App\Models\Branch;
 use App\Models\DocumentType;
 use App\Models\Employee;
 use App\Models\EmployeeDocument;
+use App\Support\PrivateFile;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EmployeeDocumentController extends Controller
 {
@@ -48,11 +51,16 @@ class EmployeeDocumentController extends Controller
             'type' => $type->name,
             'title' => $data['title'] ?? $type->name,
             'expires_at' => $data['expires_at'] ?? null,
-            'file_path' => $request->file('file')->store('documents', 'public'),
+            'file_path' => $request->file('file')->store('documents', 'local'),
             'uploaded_by' => $request->user()->id,
         ]);
 
         return back()->with('ok', 'Document uploaded.');
+    }
+
+    public function download(EmployeeDocument $document): StreamedResponse
+    {
+        return PrivateFile::download($document->file_path, Str::slug($document->title ?: $document->type ?: 'document'));
     }
 
     public function destroy(EmployeeDocument $document): RedirectResponse

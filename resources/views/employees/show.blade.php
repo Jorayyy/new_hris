@@ -76,7 +76,7 @@
                         @forelse($employee->documents as $document)
                             <tr>
                                 <td>{{ $document->documentType?->name ?? $document->type }}</td>
-                                <td><a href="{{ \Illuminate\Support\Facades\Storage::url($document->file_path) }}" target="_blank">{{ $document->title }}</a></td>
+                                <td><a href="{{ route('documents.file', $document) }}" target="_blank">{{ $document->title }}</a></td>
                                 <td>
                                     {{ $document->expires_at?->format('M d, Y') ?? '—' }}
                                     @if($document->expiryState() && $document->expiryState() !== 'ok')

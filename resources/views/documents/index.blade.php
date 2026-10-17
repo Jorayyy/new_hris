@@ -42,7 +42,7 @@
                         <td>{{ $issue['document']?->expires_at?->format('M d, Y') ?? '—' }}</td>
                         <td>
                             @if($issue['document'])
-                                <a class="btn sm" href="{{ \Illuminate\Support\Facades\Storage::url($issue['document']->file_path) }}" target="_blank">Open</a>
+                                <a class="btn sm" href="{{ route('documents.file', $issue['document']) }}" target="_blank">Open</a>
                             @else
                                 <a class="btn sm primary" href="{{ route('employees.show', $issue['employee']) }}">Upload</a>
                             @endif
