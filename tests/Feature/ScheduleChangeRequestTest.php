@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\EmployeeShift;
 use App\Models\ScheduleChangeRequest;
@@ -14,6 +15,15 @@ class ScheduleChangeRequestTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Branch $branch;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->branch = Branch::create(['name' => 'HQ', 'code' => 'HQ']);
+    }
+
     private function employeeUser(): array
     {
         $user = User::create([
@@ -22,6 +32,7 @@ class ScheduleChangeRequestTest extends TestCase
         ]);
         $employee = Employee::create([
             'employee_no' => 'E-001', 'first_name' => 'Juan', 'last_name' => 'Cruz', 'user_id' => $user->id,
+            'branch_id' => $this->branch->id,
         ]);
 
         return [$user, $employee];
@@ -62,6 +73,7 @@ class ScheduleChangeRequestTest extends TestCase
         $manager = User::create([
             'name' => 'Mgr', 'email' => 'mgr@test.local',
             'password' => 'password', 'role' => User::ROLE_MANAGER, 'is_active' => true,
+            'branch_id' => $this->branch->id,
         ]);
         $day = $this->shift('Day');
         $night = $this->shift('Night');
@@ -90,6 +102,7 @@ class ScheduleChangeRequestTest extends TestCase
         $manager = User::create([
             'name' => 'Mgr', 'email' => 'mgr@test.local',
             'password' => 'password', 'role' => User::ROLE_MANAGER, 'is_active' => true,
+            'branch_id' => $this->branch->id,
         ]);
         $day = $this->shift('Day');
         $night = $this->shift('Night');

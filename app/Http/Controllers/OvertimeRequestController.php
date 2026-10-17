@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\OvertimeRequest;
 use App\Support\Notify;
+use App\Support\TeamScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -38,7 +39,7 @@ class OvertimeRequestController extends Controller
 
         AuditLog::record('timekeeping', $employee->full_name.' filed '.$data['hours'].'h overtime for '.$overtime->work_date->toDateString(), $overtime);
 
-        Notify::approvers('Overtime filed', $employee->full_name.' filed '.$data['hours'].'h overtime for '.$overtime->work_date->toDateString().'.', route('ot.index'), '↑');
+        Notify::approvers('Overtime filed', $employee->full_name.' filed '.$data['hours'].'h overtime for '.$overtime->work_date->toDateString().'.', route('ot.index'), '↑', $employee);
 
         return back()->with('ok', 'Overtime filing submitted — awaiting approval.');
     }
@@ -47,7 +48,7 @@ class OvertimeRequestController extends Controller
     {
         $status = $request->string('status')->toString() ?: OvertimeRequest::STATUS_PENDING;
 
-        $requests = OvertimeRequest::query()
+        $requests = TeamScope::applyEmployee(OvertimeRequest::query(), $request->user())
             ->with(['employee', 'decider'])
             ->when($status !== 'all', fn ($q) => $q->where('status', $status))
             ->latest()
@@ -59,6 +60,8 @@ class OvertimeRequestController extends Controller
 
     public function decide(Request $request, OvertimeRequest $overtime): RedirectResponse
     {
+        TeamScope::authorizeEmployee($request->user(), $overtime->employee);
+
         abort_unless($overtime->status === OvertimeRequest::STATUS_PENDING, 403);
 
         $data = $request->validate([

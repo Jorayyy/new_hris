@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Attendance;
+use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,20 +15,22 @@ class AttendanceExceptionTest extends TestCase
 
     public function test_it_lists_attendance_exceptions(): void
     {
+        $branch = Branch::create(['name' => 'HQ', 'code' => 'HQ']);
         $manager = User::create([
             'name' => 'Mgr', 'email' => 'mgr@test.local',
             'password' => 'password', 'role' => User::ROLE_MANAGER, 'is_active' => true,
+            'branch_id' => $branch->id,
         ]);
-        $employee = Employee::create(['employee_no' => 'E-001', 'first_name' => 'Juan', 'last_name' => 'Cruz']);
+        $employee = Employee::create(['employee_no' => 'E-001', 'first_name' => 'Juan', 'last_name' => 'Cruz', 'branch_id' => $branch->id]);
 
-        Attendance::create(['employee_id' => $employee->id, 'work_date' => '2026-06-01', 'status' => Attendance::STATUS_ABSENT]);
+        Attendance::create(['employee_id' => $employee->id, 'branch_id' => $branch->id, 'work_date' => '2026-06-01', 'status' => Attendance::STATUS_ABSENT]);
         Attendance::create([
-            'employee_id' => $employee->id, 'work_date' => '2026-06-02',
+            'employee_id' => $employee->id, 'branch_id' => $branch->id, 'work_date' => '2026-06-02',
             'time_in' => '2026-06-02 09:30:00', 'time_out' => '2026-06-02 18:00:00',
             'late_minutes' => 30, 'status' => Attendance::STATUS_PRESENT,
         ]);
         Attendance::create([
-            'employee_id' => $employee->id, 'work_date' => '2026-06-03',
+            'employee_id' => $employee->id, 'branch_id' => $branch->id, 'work_date' => '2026-06-03',
             'time_in' => '2026-06-03 09:00:00', 'status' => Attendance::STATUS_PRESENT,
         ]);
 

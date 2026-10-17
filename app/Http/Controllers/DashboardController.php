@@ -11,6 +11,7 @@ use App\Models\LeaveRequest;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Models\User;
+use App\Support\TeamScope;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -39,18 +40,18 @@ class DashboardController extends Controller
 
         if ($isHr || $isManager) {
             $data['board'] = [
-                'headcount' => Employee::where('is_active', true)->count(),
-                'present' => Attendance::whereDate('work_date', $date)->where('status', Attendance::STATUS_PRESENT)->count(),
-                'late' => Attendance::whereDate('work_date', $date)->where('late_minutes', '>', 0)->count(),
-                'on_leave' => LeaveRequest::where('status', LeaveRequest::STATUS_APPROVED)
-                    ->whereDate('date_from', '<=', $date)->whereDate('date_to', '>=', $date)->count(),
+                'headcount' => TeamScope::employees($user)->count(),
+                'present' => TeamScope::apply(Attendance::whereDate('work_date', $date), $user)->where('status', Attendance::STATUS_PRESENT)->count(),
+                'late' => TeamScope::apply(Attendance::whereDate('work_date', $date), $user)->where('late_minutes', '>', 0)->count(),
+                'on_leave' => TeamScope::applyEmployee(LeaveRequest::where('status', LeaveRequest::STATUS_APPROVED)
+                    ->whereDate('date_from', '<=', $date)->whereDate('date_to', '>=', $date), $user)->count(),
             ];
-            $data['clockedIn'] = Attendance::with('employee')
-                ->whereDate('work_date', $date)->whereNotNull('time_in')->whereNull('time_out')
+            $data['clockedIn'] = TeamScope::apply(Attendance::with('employee')
+                ->whereDate('work_date', $date)->whereNotNull('time_in')->whereNull('time_out'), $user)
                 ->latest('time_in')->take(8)->get();
-            $data['pendingLeave'] = LeaveRequest::with('employee')
-                ->where('status', LeaveRequest::STATUS_PENDING)->latest()->take(6)->get();
-            $data['pendingLeaveCount'] = LeaveRequest::where('status', LeaveRequest::STATUS_PENDING)->count();
+            $data['pendingLeave'] = TeamScope::applyEmployee(LeaveRequest::with('employee')
+                ->where('status', LeaveRequest::STATUS_PENDING), $user)->latest()->take(6)->get();
+            $data['pendingLeaveCount'] = TeamScope::applyEmployee(LeaveRequest::where('status', LeaveRequest::STATUS_PENDING), $user)->count();
         }
 
         if ($isHr) {

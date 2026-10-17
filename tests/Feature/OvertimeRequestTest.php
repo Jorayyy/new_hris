@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\OvertimeRequest;
 use App\Models\User;
@@ -12,6 +13,15 @@ class OvertimeRequestTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Branch $branch;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->branch = Branch::create(['name' => 'HQ', 'code' => 'HQ']);
+    }
+
     private function employeeUser(): array
     {
         $user = User::create([
@@ -20,6 +30,7 @@ class OvertimeRequestTest extends TestCase
         ]);
         $employee = Employee::create([
             'employee_no' => 'E-001', 'first_name' => 'Juan', 'last_name' => 'Cruz', 'user_id' => $user->id,
+            'branch_id' => $this->branch->id,
         ]);
 
         return [$user, $employee];
@@ -47,6 +58,7 @@ class OvertimeRequestTest extends TestCase
         $manager = User::create([
             'name' => 'Mgr', 'email' => 'mgr@test.local',
             'password' => 'password', 'role' => User::ROLE_MANAGER, 'is_active' => true,
+            'branch_id' => $this->branch->id,
         ]);
 
         $approve = OvertimeRequest::create([

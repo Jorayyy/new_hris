@@ -121,7 +121,7 @@ class SelfServiceController extends Controller
             'status' => LeaveRequest::STATUS_PENDING,
         ]);
 
-        Notify::approvers('Leave request', $employee->full_name.' filed a leave request for '.$data['date_from'].'.', route('leave-requests.index'), '☖');
+        Notify::approvers('Leave request', $employee->full_name.' filed a leave request for '.$data['date_from'].'.', route('leave-requests.index'), '☖', $employee);
 
         return back()->with('ok', 'Leave request submitted.');
     }

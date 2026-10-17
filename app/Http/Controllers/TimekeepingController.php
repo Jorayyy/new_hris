@@ -60,7 +60,7 @@ class TimekeepingController extends Controller
 
         AuditLog::record('timekeeping', $employee->full_name.' requested a DTR correction for '.$correction->work_date->toDateString(), $correction);
 
-        Notify::approvers('DTR correction', $employee->full_name.' requested a DTR correction for '.$correction->work_date->toDateString().'.', route('attendance.corrections.index'), '⚑');
+        Notify::hr('DTR correction', $employee->full_name.' requested a DTR correction for '.$correction->work_date->toDateString().'.', route('attendance.corrections.index'), '⚑');
 
         return back()->with('ok', 'Correction request submitted — HR will review it.');
     }

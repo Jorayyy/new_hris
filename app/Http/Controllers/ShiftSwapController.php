@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeShift;
 use App\Models\ShiftSwapRequest;
 use App\Support\Notify;
+use App\Support\TeamScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -53,15 +54,16 @@ class ShiftSwapController extends Controller
             'status' => ShiftSwapRequest::STATUS_PENDING,
         ]);
 
-        Notify::approvers('Shift swap', $employee->full_name.' requested a shift swap for '.$data['swap_date'].'.', route('swaps.index'), '⇄');
+        Notify::approvers('Shift swap', $employee->full_name.' requested a shift swap for '.$data['swap_date'].'.', route('swaps.index'), '⇄', $employee);
 
         return back()->with('ok', 'Shift swap requested.');
     }
 
-    public function index(): View
+    public function index(Request $request): View
     {
         return view('swaps.index', [
-            'requests' => ShiftSwapRequest::with(['requester', 'target', 'requesterShift', 'targetShift', 'decider'])
+            'requests' => TeamScope::applyEmployee(ShiftSwapRequest::query(), $request->user(), 'requester_id')
+                ->with(['requester', 'target', 'requesterShift', 'targetShift', 'decider'])
                 ->latest()
                 ->paginate(20),
         ]);
@@ -69,6 +71,8 @@ class ShiftSwapController extends Controller
 
     public function decide(Request $request, ShiftSwapRequest $swap): RedirectResponse
     {
+        TeamScope::authorizeEmployee($request->user(), $swap->requester);
+
         $data = $request->validate(['decision' => ['required', 'in:approve,reject']]);
 
         abort_unless($swap->status === ShiftSwapRequest::STATUS_PENDING, 403, 'This request is already decided.');

@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\Branch;
-use App\Models\Employee;
+use App\Support\TeamScope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,8 +15,9 @@ class AttendanceExceptionController extends Controller
         $from = $request->date('from') ?? now()->startOfMonth();
         $to = $request->date('to') ?? now();
         $type = $request->string('type')->toString() ?: 'all';
+        $user = $request->user();
 
-        $scope = Attendance::query()
+        $scope = TeamScope::apply(Attendance::query(), $user)
             ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()])
             ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')));
@@ -50,8 +50,8 @@ class AttendanceExceptionController extends Controller
             'to' => $to,
             'type' => $type,
             'totals' => $totals,
-            'branches' => Branch::orderBy('name')->get(),
-            'employees' => Employee::where('is_active', true)->orderBy('last_name')->get(),
+            'branches' => TeamScope::branches($user),
+            'employees' => TeamScope::employees($user),
         ]);
     }
 }

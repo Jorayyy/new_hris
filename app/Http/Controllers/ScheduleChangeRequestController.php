@@ -7,6 +7,7 @@ use App\Models\EmployeeShift;
 use App\Models\ScheduleChangeRequest;
 use App\Models\Shift;
 use App\Support\Notify;
+use App\Support\TeamScope;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +47,7 @@ class ScheduleChangeRequestController extends Controller
 
         AuditLog::record('scheduling', $employee->full_name.' filed a schedule change for '.$change->work_date->toDateString(), $change);
 
-        Notify::approvers('Schedule change', $employee->full_name.' filed a schedule change for '.$change->work_date->toDateString().'.', route('schedule-changes.index'), '↻');
+        Notify::approvers('Schedule change', $employee->full_name.' filed a schedule change for '.$change->work_date->toDateString().'.', route('schedule-changes.index'), '↻', $employee);
 
         return back()->with('ok', 'Schedule change submitted — awaiting approval.');
     }
@@ -55,7 +56,7 @@ class ScheduleChangeRequestController extends Controller
     {
         $status = $request->string('status')->toString() ?: ScheduleChangeRequest::STATUS_PENDING;
 
-        $requests = ScheduleChangeRequest::query()
+        $requests = TeamScope::applyEmployee(ScheduleChangeRequest::query(), $request->user())
             ->with(['employee', 'currentShift', 'shift', 'decider'])
             ->when($status !== 'all', fn ($q) => $q->where('status', $status))
             ->latest()
@@ -67,6 +68,8 @@ class ScheduleChangeRequestController extends Controller
 
     public function decide(Request $request, ScheduleChangeRequest $change): RedirectResponse
     {
+        TeamScope::authorizeEmployee($request->user(), $change->employee);
+
         abort_unless($change->status === ScheduleChangeRequest::STATUS_PENDING, 403);
 
         $data = $request->validate([

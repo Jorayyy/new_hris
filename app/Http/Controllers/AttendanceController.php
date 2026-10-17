@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\Branch;
 use App\Models\Employee;
 use App\Services\DtrService;
+use App\Support\TeamScope;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,8 +26,9 @@ class AttendanceController extends Controller
     {
         $from = $request->date('from') ?? now()->startOfMonth();
         $to = $request->date('to') ?? now();
+        $user = $request->user();
 
-        $base = Attendance::query()
+        $base = TeamScope::apply(Attendance::query(), $user)
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
             ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
             ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()]);
@@ -49,8 +50,8 @@ class AttendanceController extends Controller
 
         return view('attendance.index', [
             'attendances' => $attendances,
-            'employees' => Employee::where('is_active', true)->orderBy('last_name')->get(),
-            'branches' => Branch::orderBy('name')->get(),
+            'employees' => TeamScope::employees($user),
+            'branches' => TeamScope::branches($user),
             'from' => $from,
             'to' => $to,
             'totals' => $totals,
@@ -67,7 +68,7 @@ class AttendanceController extends Controller
         $from = $request->date('from') ?? now()->startOfMonth();
         $to = $request->date('to') ?? now();
 
-        $attendances = Attendance::query()
+        $attendances = TeamScope::apply(Attendance::query(), $request->user())
             ->with(['employee', 'shift'])
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
             ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
@@ -114,11 +115,14 @@ class AttendanceController extends Controller
 
     public function edit(Attendance $attendance): View
     {
+        TeamScope::authorize(auth()->user(), $attendance->branch_id);
+
         return view('attendance.form', $this->formData($attendance));
     }
 
     public function update(Request $request, Attendance $attendance): RedirectResponse
     {
+        TeamScope::authorize($request->user(), $attendance->branch_id);
         $attendance->update($this->validated($request));
         $this->dtr->process($attendance->fresh(['employee']));
 
@@ -127,6 +131,7 @@ class AttendanceController extends Controller
 
     public function destroy(Attendance $attendance): RedirectResponse
     {
+        TeamScope::authorize(auth()->user(), $attendance->branch_id);
         $attendance->delete();
 
         return back()->with('ok', 'Attendance deleted.');
@@ -141,6 +146,8 @@ class AttendanceController extends Controller
     {
         $request->validate(['file' => ['required', 'file', 'mimes:csv,txt']]);
         $handle = fopen($request->file('file')->getRealPath(), 'r');
+        $allowed = TeamScope::employeeIds($request->user());
+        $scoped = TeamScope::limited($request->user());
         $created = 0;
         $skipped = 0;
         $header = true;
@@ -153,7 +160,7 @@ class AttendanceController extends Controller
             }
             [$employeeNo, $date, $timeIn, $timeOut] = array_pad($row, 4, null);
             $employee = Employee::where('employee_no', trim((string) $employeeNo))->first();
-            if (! $employee || ! $date) {
+            if (! $employee || ! $date || ($scoped && ! in_array($employee->id, $allowed, true))) {
                 $skipped++;
 
                 continue;
@@ -180,8 +187,8 @@ class AttendanceController extends Controller
     {
         return [
             'attendance' => $attendance,
-            'employees' => Employee::where('is_active', true)->orderBy('last_name')->get(),
-            'branches' => Branch::orderBy('name')->get(),
+            'employees' => TeamScope::employees(auth()->user()),
+            'branches' => TeamScope::branches(auth()->user()),
         ];
     }
 
@@ -199,6 +206,8 @@ class AttendanceController extends Controller
         }
 
         $data = $request->validate($rules);
+
+        TeamScope::authorizeEmployee($request->user(), Employee::find($data['employee_id']));
 
         foreach (self::PUNCH_FIELDS as $field) {
             $data[$field] = empty($data[$field]) ? null : Carbon::parse($data['work_date'].' '.$data[$field]);

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\EmployeeShift;
 use App\Models\Shift;
@@ -14,10 +15,20 @@ class ShiftSwapTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Branch $branch;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->branch = Branch::create(['name' => 'HQ', 'code' => 'HQ']);
+    }
+
     private function employee(string $no, ?User $user = null): Employee
     {
         return Employee::create([
             'employee_no' => $no, 'first_name' => 'Juan', 'last_name' => $no, 'user_id' => $user?->id,
+            'branch_id' => $this->branch->id,
         ]);
     }
 
@@ -70,6 +81,7 @@ class ShiftSwapTest extends TestCase
         $manager = User::create([
             'name' => 'Mgr', 'email' => 'mgr@test.local',
             'password' => 'password', 'role' => User::ROLE_MANAGER, 'is_active' => true,
+            'branch_id' => $this->branch->id,
         ]);
         $me = $this->employee('E-001', $user);
         $colleague = $this->employee('E-002');
@@ -97,6 +109,7 @@ class ShiftSwapTest extends TestCase
         $manager = User::create([
             'name' => 'Mgr', 'email' => 'mgr@test.local',
             'password' => 'password', 'role' => User::ROLE_MANAGER, 'is_active' => true,
+            'branch_id' => $this->branch->id,
         ]);
         $me = $this->employee('E-001');
         $colleague = $this->employee('E-002');

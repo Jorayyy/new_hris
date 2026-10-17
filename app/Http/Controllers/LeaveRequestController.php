@@ -9,6 +9,7 @@ use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Support\Notify;
+use App\Support\TeamScope;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,9 @@ class LeaveRequestController extends Controller
 {
     public function index(Request $request): View
     {
-        $requests = LeaveRequest::query()
+        $user = $request->user();
+
+        $requests = TeamScope::applyEmployee(LeaveRequest::query(), $user)
             ->with(['employee', 'leaveType', 'approver'])
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
@@ -29,7 +32,7 @@ class LeaveRequestController extends Controller
 
         return view('leave-requests.index', [
             'requests' => $requests,
-            'employees' => Employee::orderBy('last_name')->get(),
+            'employees' => TeamScope::employees($user, false),
             'leaveTypes' => LeaveType::where('is_active', true)->orderBy('name')->get(),
         ]);
     }
@@ -47,6 +50,8 @@ class LeaveRequestController extends Controller
         $type = LeaveType::findOrFail($data['leave_type_id']);
         $days = $this->workingDays($data['date_from'], $data['date_to']);
 
+        TeamScope::authorizeEmployee($request->user(), Employee::find($data['employee_id']));
+
         LeaveRequest::create($data + [
             'days' => $days,
             'is_paid' => $type->is_paid,
@@ -58,7 +63,7 @@ class LeaveRequestController extends Controller
 
     public function export(Request $request): Response
     {
-        $requests = LeaveRequest::query()
+        $requests = TeamScope::applyEmployee(LeaveRequest::query(), $request->user())
             ->with(['employee', 'leaveType'])
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
@@ -92,6 +97,8 @@ class LeaveRequestController extends Controller
 
     public function approve(Request $request, LeaveRequest $leaveRequest): RedirectResponse
     {
+        TeamScope::authorizeEmployee($request->user(), $leaveRequest->employee);
+
         $request->validate(['status' => ['required', 'in:approved,rejected']]);
 
         $status = $request->string('status')->toString();
@@ -115,6 +122,7 @@ class LeaveRequestController extends Controller
 
     public function destroy(LeaveRequest $leaveRequest): RedirectResponse
     {
+        TeamScope::authorizeEmployee(auth()->user(), $leaveRequest->employee);
         $leaveRequest->update(['status' => LeaveRequest::STATUS_CANCELLED]);
         AuditLog::record('cancel', 'Cancelled leave request #'.$leaveRequest->id, $leaveRequest);
 
