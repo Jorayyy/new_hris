@@ -24,6 +24,7 @@ use App\Http\Controllers\OvertimeRequestController;
 use App\Http\Controllers\PayrollPeriodController;
 use App\Http\Controllers\PayrollRunController;
 use App\Http\Controllers\PayslipController;
+use App\Http\Controllers\PinController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
@@ -80,6 +81,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('employees', EmployeeController::class);
         Route::post('employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])->name('employees.documents.store');
         Route::delete('documents/{document}', [EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+
+        Route::get('pins', [PinController::class, 'index'])->name('pins.index');
+        Route::put('pins/{employee}', [PinController::class, 'update'])->name('pins.update');
+        Route::post('pins/{employee}/generate', [PinController::class, 'generate'])->name('pins.generate');
         Route::resource('announcements', AnnouncementController::class)->except('show');
         Route::resource('shifts', ShiftController::class)->except('show');
         Route::resource('holidays', HolidayController::class)->except('show');

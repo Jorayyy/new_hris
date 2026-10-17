@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $attendance->exists ? 'Edit attendance' : 'New attendance')
+@section('back', route('attendance.index'))
 @section('content')
     <div class="card" style="max-width:760px">
         <div class="card-head"><h2>{{ $attendance->exists ? 'Edit attendance' : 'New attendance' }}</h2></div>

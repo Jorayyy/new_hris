@@ -20,6 +20,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class Employee extends Model
 {
+    public const PIN_MAX_ATTEMPTS = 5;
+
+    public const PIN_LOCKOUT_MINUTES = 15;
+
     protected function casts(): array
     {
         return [
@@ -33,8 +37,31 @@ class Employee extends Model
             'hourly_rate' => 'decimal:2',
             'is_active' => 'boolean',
             'pin' => 'hashed',
+            'pin_locked_until' => 'datetime',
             'rest_days' => 'array',
         ];
+    }
+
+    public function isPinLocked(): bool
+    {
+        return $this->pin_locked_until !== null && $this->pin_locked_until->isFuture();
+    }
+
+    public function registerFailedPin(): void
+    {
+        $this->pin_attempts = (int) $this->pin_attempts + 1;
+
+        if ($this->pin_attempts >= self::PIN_MAX_ATTEMPTS) {
+            $this->pin_attempts = 0;
+            $this->pin_locked_until = now()->addMinutes(self::PIN_LOCKOUT_MINUTES);
+        }
+
+        $this->save();
+    }
+
+    public function clearPinLock(): void
+    {
+        $this->forceFill(['pin_attempts' => 0, 'pin_locked_until' => null])->save();
     }
 
     public function getFullNameAttribute(): string

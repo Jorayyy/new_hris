@@ -50,6 +50,7 @@
             <div class="nav-group">
                 <div class="label">People</div>
                 <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}"><span class="ico">☺</span> Employees</a>
+                <a href="{{ route('pins.index') }}" class="{{ request()->routeIs('pins.*') ? 'active' : '' }}"><span class="ico">⌘</span> Time-clock PINs</a>
                 <a href="{{ route('announcements.index') }}" class="{{ request()->routeIs('announcements.*') ? 'active' : '' }}"><span class="ico">✦</span> Announcements</a>
             </div>
             <div class="nav-group">
@@ -149,8 +150,17 @@
 
     <div class="main">
         <header class="topbar">
-            <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">☰</label>
-            <h1>@yield('title', 'Dashboard')</h1>
+            <div class="topbar-left">
+                <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">☰</label>
+                @unless(request()->routeIs('dashboard'))
+                    @hasSection('back')
+                        <a href="@yield('back')" class="btn sm">← Back</a>
+                    @else
+                        <button type="button" class="btn sm" onclick="if (history.length > 1) { history.back(); } else { window.location='{{ route('dashboard') }}'; }">← Back</button>
+                    @endif
+                @endunless
+                <h1>@yield('title', 'Dashboard')</h1>
+            </div>
             <div class="who">
                 <button type="button" class="btn sm" id="theme-toggle" aria-label="Toggle dark mode">Dark</button>
                 <div style="text-align:right">

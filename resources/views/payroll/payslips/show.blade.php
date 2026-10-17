@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Payslip')
+@section('back', ($readonly ?? false) ? route('me.payslips') : route('payroll.runs.index'))
 @section('content')
     @php($readonly = $readonly ?? false)
     <div class="card">

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $employee->exists ? 'Edit employee' : 'New employee')
+@section('back', $employee->exists ? route('employees.show', $employee) : route('employees.index'))
 @section('content')
     <form method="POST" action="{{ $employee->exists ? route('employees.update', $employee) : route('employees.store') }}">
         @csrf

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'New payroll run')
+@section('back', route('payroll.runs.index'))
 @section('content')
     <div class="card" style="max-width:640px">
         <div class="card-head"><h2>New payroll run</h2></div>

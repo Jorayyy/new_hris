@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Employee;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Models\User;
@@ -29,7 +30,7 @@ class HttpSmokeTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
         ]);
 
-        foreach (['/', '/employees', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/payroll/final-pay', '/attendance/exceptions', '/loans', '/loan-types', '/users', '/audit-log', '/time-clock/access', '/biometric-devices', '/leave-balances', '/shifts', '/roster', '/swaps', '/ot', '/schedule-changes', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
+        foreach (['/', '/employees', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/payroll/final-pay', '/attendance/exceptions', '/loans', '/loan-types', '/users', '/audit-log', '/time-clock/access', '/biometric-devices', '/pins', '/leave-balances', '/shifts', '/roster', '/swaps', '/ot', '/schedule-changes', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
             $this->actingAs($admin)->get($path)->assertOk();
         }
     }
@@ -86,6 +87,21 @@ class HttpSmokeTest extends TestCase
 
         $this->actingAs($employee)->get('/payroll/periods')->assertForbidden();
         $this->actingAs($employee)->get('/employees')->assertForbidden();
+    }
+
+    public function test_pages_offer_a_back_control(): void
+    {
+        $admin = User::create([
+            'name' => 'Admin', 'email' => 'admin@test.local',
+            'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
+        ]);
+
+        $employee = Employee::create(['employee_no' => 'E-001', 'first_name' => 'Juan', 'last_name' => 'Cruz']);
+
+        $this->actingAs($admin)->get('/employees')->assertOk()->assertSee('← Back');
+        $this->actingAs($admin)->get('/employees/'.$employee->id)->assertOk()
+            ->assertSee('<a href="'.route('employees.index').'" class="btn sm">← Back</a>', false);
+        $this->actingAs($admin)->get('/')->assertOk()->assertDontSee('← Back');
     }
 
     public function test_payroll_run_csv_export(): void

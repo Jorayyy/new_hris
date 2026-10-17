@@ -31,10 +31,19 @@ class TimeClockController extends Controller
             ->where('is_active', true)
             ->first();
 
+        if ($employee && $employee->isPinLocked()) {
+            return back()->withInput($request->only('employee_no'))
+                ->with('punch_error', 'Too many failed attempts. Try again after '.$employee->pin_locked_until->format('g:i A').'.');
+        }
+
         if (! $employee || ! $employee->pin || ! Hash::check($data['pin'], $employee->pin)) {
+            $employee?->registerFailedPin();
+
             return back()->withInput($request->only('employee_no'))
                 ->with('punch_error', 'Invalid employee number or PIN.');
         }
+
+        $employee->clearPinLock();
 
         $now = now();
         $label = strtoupper(str_replace('_', ' ', $data['punch']));

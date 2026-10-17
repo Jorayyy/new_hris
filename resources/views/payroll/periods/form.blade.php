@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $period->exists ? 'Edit pay period' : 'New pay period')
+@section('back', route('payroll.periods.index'))
 @section('content')
     <div class="card" style="max-width:760px">
         <div class="card-head"><h2>{{ $period->exists ? 'Edit pay period' : 'New pay period' }}</h2></div>

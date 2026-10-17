@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $employee->full_name)
+@section('back', route('employees.index'))
 @section('content')
     <div class="card">
         <div class="card-head">

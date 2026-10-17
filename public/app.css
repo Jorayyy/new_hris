@@ -173,6 +173,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outli
     top: 0;
     z-index: 10;
 }
+.topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .topbar h1 { font-size: 17px; font-weight: 650; margin: 0; letter-spacing: -.01em; }
 .topbar .who { color: var(--muted); font-size: 12.5px; display: flex; align-items: center; gap: 12px; }
 .avatar {
