@@ -12,6 +12,7 @@ use App\Http\Controllers\BiometricDeviceController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DisciplinaryCaseController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\EmployeeLoanController;
@@ -83,6 +84,9 @@ Route::middleware('auth')->group(function () {
         Route::get('me/profile', [ProfileController::class, 'edit'])->name('me.profile');
         Route::put('me/profile', [ProfileController::class, 'update'])->name('me.profile.update');
         Route::put('me/password', [ProfileController::class, 'updatePassword'])->name('me.password');
+        Route::get('me/cases', [SelfServiceController::class, 'cases'])->name('me.cases');
+        Route::get('me/cases/{case}', [SelfServiceController::class, 'case'])->name('me.cases.show');
+        Route::post('me/cases/{case}/respond', [SelfServiceController::class, 'respondCase'])->name('me.cases.respond');
     });
 
     Route::middleware('role:'.implode(',', User::HR_ROLES))->group(function () {
@@ -136,6 +140,13 @@ Route::middleware('auth')->group(function () {
 
         Route::get('schedule-changes', [ScheduleChangeRequestController::class, 'index'])->name('schedule-changes.index');
         Route::post('schedule-changes/{change}/decide', [ScheduleChangeRequestController::class, 'decide'])->name('schedule-changes.decide');
+
+        Route::get('cases', [DisciplinaryCaseController::class, 'index'])->name('cases.index');
+        Route::get('cases/create', [DisciplinaryCaseController::class, 'create'])->name('cases.create');
+        Route::post('cases', [DisciplinaryCaseController::class, 'store'])->name('cases.store');
+        Route::get('cases/{case}', [DisciplinaryCaseController::class, 'show'])->name('cases.show');
+        Route::post('cases/{case}/notes', [DisciplinaryCaseController::class, 'storeAction'])->name('cases.actions.store');
+        Route::post('cases/{case}/decide', [DisciplinaryCaseController::class, 'decide'])->name('cases.decide');
     });
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_PAYROLL]))->group(function () {

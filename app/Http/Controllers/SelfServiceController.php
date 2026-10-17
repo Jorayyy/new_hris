@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\DisciplinaryCase;
+use App\Models\DisciplinaryCaseAction;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Support\Notify;
@@ -124,5 +126,47 @@ class SelfServiceController extends Controller
         Notify::approvers('Leave request', $employee->full_name.' filed a leave request for '.$data['date_from'].'.', route('leave-requests.index'), '☖', $employee);
 
         return back()->with('ok', 'Leave request submitted.');
+    }
+
+    public function cases(Request $request): View
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404);
+
+        return view('me.cases', [
+            'cases' => $employee->disciplinaryCases()->with('filer')->latest('id')->paginate(15),
+        ]);
+    }
+
+    public function case(Request $request, int $case): View
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404);
+
+        $record = $employee->disciplinaryCases()->with(['filer', 'decider', 'actions.user'])->findOrFail($case);
+
+        return view('me.case', ['case' => $record]);
+    }
+
+    public function respondCase(Request $request, int $case): RedirectResponse
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404);
+
+        $record = $employee->disciplinaryCases()->findOrFail($case);
+        abort_unless($record->isOpenForResponse(), 403, 'This case is not open for a response.');
+
+        $data = $request->validate(['body' => ['required', 'string', 'max:5000']]);
+
+        $record->actions()->create([
+            'user_id' => $request->user()->id,
+            'type' => DisciplinaryCaseAction::TYPE_RESPONSE,
+            'body' => $data['body'],
+        ]);
+        $record->update(['status' => DisciplinaryCase::STATUS_OPEN]);
+
+        Notify::hr('Employee response', $employee->full_name.' responded on: '.$record->subject, route('cases.show', $record), '⚑');
+
+        return back()->with('ok', 'Response submitted.');
     }
 }

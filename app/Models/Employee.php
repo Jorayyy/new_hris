@@ -79,6 +79,11 @@ class Employee extends Model
         return $this->belongsTo(Branch::class);
     }
 
+    public function disciplinaryCases(): HasMany
+    {
+        return $this->hasMany(DisciplinaryCase::class);
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);

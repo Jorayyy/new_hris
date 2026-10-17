@@ -43,6 +43,7 @@
                 <a href="{{ route('me.swaps') }}" class="{{ request()->routeIs('me.swaps*') ? 'active' : '' }}"><span class="ico">⇄</span> Shift Swaps</a>
                 <a href="{{ route('me.ot') }}" class="{{ request()->routeIs('me.ot*') ? 'active' : '' }}"><span class="ico">↑</span> Overtime</a>
                 <a href="{{ route('me.schedule') }}" class="{{ request()->routeIs('me.schedule*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Change</a>
+                <a href="{{ route('me.cases') }}" class="{{ request()->routeIs('me.cases*') ? 'active' : '' }}"><span class="ico">⚑</span> My Cases</a>
                 <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
             </div>
         @endif
@@ -77,6 +78,13 @@
                 <a href="{{ route('ot.index') }}" class="{{ request()->routeIs('ot.*') ? 'active' : '' }}"><span class="ico">↑</span> Overtime</a>
                 <a href="{{ route('schedule-changes.index') }}" class="{{ request()->routeIs('schedule-changes.*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Changes</a>
                 <a href="{{ route('attendance.exceptions.index') }}" class="{{ request()->routeIs('attendance.exceptions.*') ? 'active' : '' }}"><span class="ico">⚠</span> Exceptions</a>
+            </div>
+        @endif
+
+        @if($isHr || $isManager)
+            <div class="nav-group">
+                <div class="label">Employee Relations</div>
+                <a href="{{ route('cases.index') }}" class="{{ request()->routeIs('cases.*') ? 'active' : '' }}"><span class="ico">⚑</span> Cases</a>
             </div>
         @endif
 

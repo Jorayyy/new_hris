@@ -30,7 +30,7 @@ class HttpSmokeTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
         ]);
 
-        foreach (['/', '/employees', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/payroll/final-pay', '/attendance/exceptions', '/loans', '/loan-types', '/users', '/audit-log', '/time-clock/access', '/biometric-devices', '/pins', '/notifications', '/leave-balances', '/shifts', '/roster', '/swaps', '/ot', '/schedule-changes', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
+        foreach (['/', '/employees', '/employees/import', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/payroll/final-pay', '/attendance/exceptions', '/loans', '/loan-types', '/users', '/audit-log', '/time-clock/access', '/biometric-devices', '/pins', '/notifications', '/leave-balances', '/shifts', '/roster', '/swaps', '/ot', '/schedule-changes', '/cases', '/cases/create', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
             $this->actingAs($admin)->get($path)->assertOk();
         }
     }
@@ -52,8 +52,10 @@ class HttpSmokeTest extends TestCase
             'name' => 'Emp', 'email' => 'emp@test.local',
             'password' => 'password', 'role' => User::ROLE_EMPLOYEE, 'is_active' => true,
         ]);
+        Employee::create(['employee_no' => 'E-001', 'first_name' => 'Emp', 'last_name' => 'User', 'user_id' => $employee->id]);
 
         $this->actingAs($employee)->get('/me/profile')->assertOk()->assertSee('Change password');
+        $this->actingAs($employee)->get('/me/cases')->assertOk();
 
         $this->actingAs($employee)->put('/me/password', [
             'current_password' => 'password',
