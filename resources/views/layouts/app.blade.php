@@ -41,6 +41,7 @@
                 <a href="{{ route('me.leave') }}" class="{{ request()->routeIs('me.leave') ? 'active' : '' }}"><span class="ico">☖</span> My Leave</a>
                 <a href="{{ route('me.swaps') }}" class="{{ request()->routeIs('me.swaps*') ? 'active' : '' }}"><span class="ico">⇄</span> Shift Swaps</a>
                 <a href="{{ route('me.ot') }}" class="{{ request()->routeIs('me.ot*') ? 'active' : '' }}"><span class="ico">↑</span> Overtime</a>
+                <a href="{{ route('me.schedule') }}" class="{{ request()->routeIs('me.schedule*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Change</a>
                 <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
             </div>
         @endif
@@ -72,6 +73,7 @@
                 @endif
                 <a href="{{ route('swaps.index') }}" class="{{ request()->routeIs('swaps.*') ? 'active' : '' }}"><span class="ico">⇄</span> Shift Swaps</a>
                 <a href="{{ route('ot.index') }}" class="{{ request()->routeIs('ot.*') ? 'active' : '' }}"><span class="ico">↑</span> Overtime</a>
+                <a href="{{ route('schedule-changes.index') }}" class="{{ request()->routeIs('schedule-changes.*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Changes</a>
             </div>
         @endif
 

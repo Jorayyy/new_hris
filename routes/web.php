@@ -26,6 +26,7 @@ use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RosterController;
+use App\Http\Controllers\ScheduleChangeRequestController;
 use App\Http\Controllers\SelfServiceController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\ShiftSwapController;
@@ -62,6 +63,8 @@ Route::middleware('auth')->group(function () {
         Route::post('me/swaps', [ShiftSwapController::class, 'store'])->name('me.swaps.store');
         Route::get('me/ot', [OvertimeRequestController::class, 'mine'])->name('me.ot');
         Route::post('me/ot', [OvertimeRequestController::class, 'store'])->name('me.ot.store');
+        Route::get('me/schedule', [ScheduleChangeRequestController::class, 'mine'])->name('me.schedule');
+        Route::post('me/schedule', [ScheduleChangeRequestController::class, 'store'])->name('me.schedule.store');
         Route::get('me/profile', [ProfileController::class, 'edit'])->name('me.profile');
         Route::put('me/profile', [ProfileController::class, 'update'])->name('me.profile.update');
         Route::put('me/password', [ProfileController::class, 'updatePassword'])->name('me.password');
@@ -108,6 +111,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('ot', [OvertimeRequestController::class, 'index'])->name('ot.index');
         Route::post('ot/{overtime}/decide', [OvertimeRequestController::class, 'decide'])->name('ot.decide');
+
+        Route::get('schedule-changes', [ScheduleChangeRequestController::class, 'index'])->name('schedule-changes.index');
+        Route::post('schedule-changes/{change}/decide', [ScheduleChangeRequestController::class, 'decide'])->name('schedule-changes.decide');
     });
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_PAYROLL]))->group(function () {
