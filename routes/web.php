@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceCorrectionController;
+use App\Http\Controllers\AttendanceExceptionController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\BiometricDeviceController;
@@ -101,6 +102,7 @@ Route::middleware('auth')->group(function () {
         Route::get('attendance/import', [AttendanceController::class, 'importForm'])->name('attendance.import.form');
         Route::post('attendance/import', [AttendanceController::class, 'import'])->name('attendance.import');
         Route::get('attendance/export', [AttendanceController::class, 'export'])->name('attendance.export');
+        Route::get('attendance/exceptions', [AttendanceExceptionController::class, 'index'])->name('attendance.exceptions.index');
         Route::resource('attendance', AttendanceController::class)->except('show');
 
         Route::get('leave-requests/export', [LeaveRequestController::class, 'export'])->name('leave-requests.export');

@@ -74,6 +74,7 @@
                 <a href="{{ route('swaps.index') }}" class="{{ request()->routeIs('swaps.*') ? 'active' : '' }}"><span class="ico">⇄</span> Shift Swaps</a>
                 <a href="{{ route('ot.index') }}" class="{{ request()->routeIs('ot.*') ? 'active' : '' }}"><span class="ico">↑</span> Overtime</a>
                 <a href="{{ route('schedule-changes.index') }}" class="{{ request()->routeIs('schedule-changes.*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Changes</a>
+                <a href="{{ route('attendance.exceptions.index') }}" class="{{ request()->routeIs('attendance.exceptions.*') ? 'active' : '' }}"><span class="ico">⚠</span> Exceptions</a>
             </div>
         @endif
 
