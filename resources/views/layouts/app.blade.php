@@ -64,6 +64,7 @@
                     <a href="{{ route('attendance.corrections.index') }}" class="{{ request()->routeIs('attendance.corrections.*') ? 'active' : '' }}"><span class="ico">⚑</span> Corrections</a>
                     <a href="{{ route('attendance.import.form') }}" class="{{ request()->routeIs('attendance.import*') ? 'active' : '' }}"><span class="ico">↥</span> Import Biometrics</a>
                     <a href="{{ route('shifts.index') }}" class="{{ request()->routeIs('shifts.*') ? 'active' : '' }}"><span class="ico">◔</span> Shifts</a>
+                    <a href="{{ route('roster.index') }}" class="{{ request()->routeIs('roster.*') ? 'active' : '' }}"><span class="ico">▦</span> Roster</a>
                     <a href="{{ route('holidays.index') }}" class="{{ request()->routeIs('holidays.*') ? 'active' : '' }}"><span class="ico">✷</span> Holidays</a>
                 @endif
             </div>

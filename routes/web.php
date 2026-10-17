@@ -24,6 +24,7 @@ use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RosterController;
 use App\Http\Controllers\SelfServiceController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\TimeClockController;
@@ -70,6 +71,10 @@ Route::middleware('auth')->group(function () {
         Route::resource('announcements', AnnouncementController::class)->except('show');
         Route::resource('shifts', ShiftController::class)->except('show');
         Route::resource('holidays', HolidayController::class)->except('show');
+
+        Route::get('roster', [RosterController::class, 'index'])->name('roster.index');
+        Route::post('roster', [RosterController::class, 'store'])->name('roster.store');
+        Route::delete('roster/{assignment}', [RosterController::class, 'destroy'])->name('roster.destroy');
 
         Route::get('attendance/corrections', [AttendanceCorrectionController::class, 'index'])->name('attendance.corrections.index');
         Route::post('attendance/corrections/{correction}/decide', [AttendanceCorrectionController::class, 'decide'])->name('attendance.corrections.decide');
