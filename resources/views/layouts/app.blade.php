@@ -82,7 +82,7 @@
                 <a href="{{ route('attendance.index') }}" class="{{ request()->routeIs('attendance.index', 'attendance.edit') ? 'active' : '' }}"><x-icon name="clock" /> Attendance / DTR</a>
                 @if($isHr)
                     <a href="{{ route('attendance.corrections.index') }}" class="{{ request()->routeIs('attendance.corrections.*') ? 'active' : '' }}"><x-icon name="clipboard-check" /> Corrections</a>
-                    <a href="{{ route('attendance.import.form') }}" class="{{ request()->routeIs('attendance.import*') ? 'active' : '' }}"><x-icon name="upload" /> Import Biometrics</a>
+                    <a href="{{ route('biometric-devices.index') }}" class="{{ request()->routeIs('biometric-devices.*') ? 'active' : '' }}"><x-icon name="fingerprint" /> Biometrics</a>
                     <a href="{{ route('shifts.index') }}" class="{{ request()->routeIs('shifts.*') ? 'active' : '' }}"><x-icon name="calendar-clock" /> Shifts</a>
                     <a href="{{ route('roster.index') }}" class="{{ request()->routeIs('roster.*') ? 'active' : '' }}"><x-icon name="calendar-range" /> Roster</a>
                     <a href="{{ route('holidays.index') }}" class="{{ request()->routeIs('holidays.*') ? 'active' : '' }}"><x-icon name="party-popper" /> Holidays</a>
@@ -159,7 +159,6 @@
                 <a href="{{ route('audit.index') }}" class="{{ request()->routeIs('audit.*') ? 'active' : '' }}"><x-icon name="scroll-text" /> Audit Log</a>
                 <a href="{{ route('operations.index') }}" class="{{ request()->routeIs('operations.*') ? 'active' : '' }}"><x-icon name="activity" /> Operations</a>
                 <a href="{{ route('time-clock.ips.index') }}" class="{{ request()->routeIs('time-clock.ips.*') ? 'active' : '' }}"><x-icon name="monitor-smartphone" /> Kiosk Access</a>
-                <a href="{{ route('biometric-devices.index') }}" class="{{ request()->routeIs('biometric-devices.*') ? 'active' : '' }}"><x-icon name="fingerprint" /> Biometric Devices</a>
             </div>
         @endif
 

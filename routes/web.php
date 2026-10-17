@@ -131,6 +131,13 @@ Route::middleware('auth')->group(function () {
         Route::get('attendance/corrections', [AttendanceCorrectionController::class, 'index'])->name('attendance.corrections.index');
         Route::post('attendance/corrections/{correction}/decide', [AttendanceCorrectionController::class, 'decide'])->name('attendance.corrections.decide');
 
+        Route::get('biometric-devices', [BiometricDeviceController::class, 'index'])->name('biometric-devices.index');
+        Route::post('biometric-devices/import', [BiometricDeviceController::class, 'import'])->name('biometric-devices.import');
+        Route::post('biometric-devices/{device}/regenerate', [BiometricDeviceController::class, 'regenerate'])->name('biometric-devices.regenerate');
+        Route::put('biometric-devices/{device}', [BiometricDeviceController::class, 'update'])->name('biometric-devices.update');
+        Route::delete('biometric-devices/{device}', [BiometricDeviceController::class, 'destroy'])->name('biometric-devices.destroy');
+        Route::post('biometric-devices', [BiometricDeviceController::class, 'store'])->name('biometric-devices.store');
+
         Route::get('vacancies/create', [JobVacancyController::class, 'create'])->name('vacancies.create');
         Route::post('vacancies', [JobVacancyController::class, 'store'])->name('vacancies.store');
         Route::get('vacancies/{vacancy}/edit', [JobVacancyController::class, 'edit'])->name('vacancies.edit');
@@ -149,8 +156,6 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_MANAGER]))->group(function () {
-        Route::get('attendance/import', [AttendanceController::class, 'importForm'])->name('attendance.import.form');
-        Route::post('attendance/import', [AttendanceController::class, 'import'])->name('attendance.import');
         Route::get('attendance/export', [AttendanceController::class, 'export'])->name('attendance.export');
         Route::get('attendance/exceptions', [AttendanceExceptionController::class, 'index'])->name('attendance.exceptions.index');
         Route::resource('attendance', AttendanceController::class)->except('show');
@@ -247,11 +252,5 @@ Route::middleware('auth')->group(function () {
         Route::post('time-clock/access', [TimeClockIpController::class, 'store'])->name('time-clock.ips.store');
         Route::put('time-clock/access/{ip}', [TimeClockIpController::class, 'update'])->name('time-clock.ips.update');
         Route::delete('time-clock/access/{ip}', [TimeClockIpController::class, 'destroy'])->name('time-clock.ips.destroy');
-
-        Route::get('biometric-devices', [BiometricDeviceController::class, 'index'])->name('biometric-devices.index');
-        Route::post('biometric-devices', [BiometricDeviceController::class, 'store'])->name('biometric-devices.store');
-        Route::post('biometric-devices/{device}/regenerate', [BiometricDeviceController::class, 'regenerate'])->name('biometric-devices.regenerate');
-        Route::put('biometric-devices/{device}', [BiometricDeviceController::class, 'update'])->name('biometric-devices.update');
-        Route::delete('biometric-devices/{device}', [BiometricDeviceController::class, 'destroy'])->name('biometric-devices.destroy');
     });
 });

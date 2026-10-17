@@ -137,52 +137,6 @@ class AttendanceController extends Controller
         return back()->with('ok', 'Attendance deleted.');
     }
 
-    public function importForm(): View
-    {
-        return view('attendance.import');
-    }
-
-    public function import(Request $request): RedirectResponse
-    {
-        $request->validate(['file' => ['required', 'file', 'mimes:csv,txt']]);
-        $handle = fopen($request->file('file')->getRealPath(), 'r');
-        $allowed = TeamScope::employeeIds($request->user());
-        $scoped = TeamScope::limited($request->user());
-        $created = 0;
-        $skipped = 0;
-        $header = true;
-
-        while (($row = fgetcsv($handle)) !== false) {
-            if ($header) {
-                $header = false;
-
-                continue;
-            }
-            [$employeeNo, $date, $timeIn, $timeOut] = array_pad($row, 4, null);
-            $employee = Employee::where('employee_no', trim((string) $employeeNo))->first();
-            if (! $employee || ! $date || ($scoped && ! in_array($employee->id, $allowed, true))) {
-                $skipped++;
-
-                continue;
-            }
-
-            $attendance = Attendance::updateOrCreate(
-                ['employee_id' => $employee->id, 'work_date' => Carbon::parse($date)->toDateString()],
-                [
-                    'branch_id' => $employee->branch_id,
-                    'time_in' => $timeIn ? Carbon::parse($date.' '.$timeIn) : null,
-                    'time_out' => $timeOut ? Carbon::parse($date.' '.$timeOut) : null,
-                    'source' => 'import',
-                ]
-            );
-            $this->dtr->process($attendance);
-            $created++;
-        }
-        fclose($handle);
-
-        return redirect()->route('attendance.index')->with('ok', "Imported {$created} rows, skipped {$skipped}.");
-    }
-
     private function formData(Attendance $attendance): array
     {
         return [

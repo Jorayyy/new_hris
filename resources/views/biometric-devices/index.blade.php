@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Biometric Devices')
+@section('title', 'Biometrics')
 @section('content')
     @if(session('new_device_token'))
         <div class="alert ok">
@@ -9,9 +9,73 @@
         </div>
     @endif
 
+    <div class="card" style="max-width:860px">
+        <div class="card-head">
+            <h2>Import from device</h2>
+        </div>
+        <div class="card-body">
+            <p class="muted small">
+                Copy the attendance file off the biometric device (USB or the vendor's export) and upload it here.
+                Rows are matched by employee number, grouped per work date, then processed by the DTR engine.
+            </p>
+            <table style="margin-bottom:16px">
+                <thead><tr><th>Format</th><th>Columns</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>Paired</td>
+                        <td class="muted small">employee no, date, time in, time out <br>e.g. <code>EMP0001, 2026-01-15, 08:00, 17:00</code></td>
+                    </tr>
+                    <tr>
+                        <td>One row per punch</td>
+                        <td class="muted small">employee no, name, date, time, state <br>e.g. <code>EMP0001, Dela Cruz Juan, 2026-01-15, 08:00, Check-in</code></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="muted small">
+                Dates are read as <code>YYYY-MM-DD</code> or <code>DD/MM/YYYY</code>; times as <code>HH:MM</code>,
+                <code>HH:MM:SS</code> or <code>H:MM AM/PM</code>. Header and trailer lines are ignored.
+                For per-punch files the earliest time of the day becomes time in and the latest becomes time out.
+            </p>
+            <form method="POST" action="{{ route('biometric-devices.import') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="field"><label>Device export file</label><input type="file" name="file" accept=".csv,.txt,.dat,.log,text/plain,text/csv" required></div>
+                <div class="btn-row">
+                    <button class="btn primary">Upload &amp; process</button>
+                    <a class="btn" href="{{ route('attendance.index') }}">View DTR</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if($report = session('import_report'))
+        <div class="card" style="max-width:860px">
+            <div class="card-head">
+                <h2>Import result</h2>
+                <span class="muted small">{{ $report['created'] }} new · {{ $report['updated'] }} updated · {{ $report['problem_count'] }} skipped</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Line</th><th>Row</th><th>Why it was skipped</th></tr></thead>
+                    <tbody>
+                    @forelse($report['problems'] as $problem)
+                        <tr>
+                            <td class="muted small">{{ $problem['line'] ?: '—' }}</td>
+                            <td class="small" style="font-family:monospace">{{ $problem['raw'] ?: '—' }}</td>
+                            <td>{{ $problem['reason'] }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="3" class="muted">Every row was imported.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
+
     <div class="card">
         <div class="card-head">
-            <h2>Register device</h2>
+            <h2>Devices pushing over the network</h2>
+            <span class="muted small">Only needed for devices that POST to <code>/api/biometric/punch</code> with their token</span>
         </div>
         <form method="POST" action="{{ route('biometric-devices.store') }}" class="form-grid card-section">
             @csrf
@@ -26,12 +90,6 @@
             </div>
             <div class="field full"><button class="btn primary">Register device</button></div>
         </form>
-    </div>
-
-    <div class="card">
-        <div class="card-head">
-            <h2>Devices</h2>
-        </div>
         <div class="table-wrap">
             <table>
                 <thead><tr><th>Name</th><th>Branch</th><th>Status</th><th>Last seen</th><th></th></tr></thead>
@@ -68,8 +126,8 @@
 
     <div class="card">
         <div class="card-head">
-            <h2>Recent biometric punches</h2>
-            <span class="muted small">POST /api/biometric/punch</span>
+            <h2>Recent punches</h2>
+            <span class="muted small">From uploads and network devices</span>
         </div>
         <div class="table-wrap">
             <table>

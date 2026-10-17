@@ -5,7 +5,7 @@
     @php
         $t = fn ($value) => $value?->format('h:i A') ?? '—';
         $pair = fn ($out, $in) => $t($out).' / '.$t($in);
-        $src = ['kiosk' => 'blue', 'import' => 'gray', 'manual' => 'amber', 'correction' => 'cyan'];
+        $src = ['kiosk' => 'blue', 'biometric' => 'gray', 'import' => 'gray', 'manual' => 'amber', 'correction' => 'cyan'];
     @endphp
 
     <div class="grid cols-4" style="margin-bottom:18px">
@@ -20,7 +20,7 @@
             <h2>Daily Time Records</h2>
             <div class="btn-row">
                 <a class="btn sm" href="{{ route('attendance.corrections.index') }}">Corrections</a>
-                <a class="btn sm" href="{{ route('attendance.import.form') }}">Import</a>
+                <a class="btn sm" href="{{ route('biometric-devices.index') }}">Import</a>
                 <a class="btn primary sm" href="{{ route('attendance.create') }}">+ New entry</a>
             </div>
         </div>
