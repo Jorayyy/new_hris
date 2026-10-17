@@ -262,16 +262,15 @@ tbody tr:last-child td { border-bottom: 0; }
 form .field { margin-bottom: 18px; }
 label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 7px; color: var(--label-fg); }
 input[type=text], input[type=email], input[type=password], input[type=number], input[type=date], input[type=time], input[type=datetime-local], input[type=month], input[type=week], input[type=tel], input[type=url], input[type=search], input[type=file], select, textarea {
-    width: 100%; min-height: 40px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius);
+    width: 100%; height: 42px; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius);
     background: var(--field-bg); color: var(--text); font: inherit; font-size: 13px;
     box-shadow: var(--field-shadow);
     transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
-textarea { min-height: 80px; }
-input[type=time], input[type=date], input[type=datetime-local] { min-height: 40px; }
+textarea { height: auto; min-height: 96px; }
 input[type=time]::-webkit-calendar-picker-indicator, input[type=date]::-webkit-calendar-picker-indicator, input[type=datetime-local]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .65; }
 input[type=time]:hover::-webkit-calendar-picker-indicator, input[type=date]:hover::-webkit-calendar-picker-indicator, input[type=datetime-local]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
-input[type=color] { padding: 3px; height: 40px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--field-bg); }
+input[type=color] { padding: 3px; height: 42px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--field-bg); }
 input[type=checkbox], input[type=radio] { width: 15px; height: 15px; margin: 0; accent-color: var(--primary); cursor: pointer; vertical-align: -2px; }
 input::placeholder, textarea::placeholder { color: var(--placeholder); }
 input:hover:not(:disabled):not(:focus), select:hover:not(:disabled):not(:focus), textarea:hover:not(:disabled):not(:focus) { border-color: var(--field-border-hover); }
@@ -303,7 +302,10 @@ td > .btn + .btn, td > form + form, td > .btn + form, td > form + .btn { margin-
 .mb-0 { margin-bottom: 0; }
 .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.card > .filters { padding: 22px 22px 8px; }
 .filters .field { margin: 0; }
+.filters .field > input:not([class]), .filters .field > select:not([class]) { width: 220px; }
+.field:has(> label.check) { display: flex; align-items: flex-end; padding-bottom: 12px; }
 .pagination { padding: 16px 22px; }
 .pagination svg { width: 15px; height: 15px; }
 

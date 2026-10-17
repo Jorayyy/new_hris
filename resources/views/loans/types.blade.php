@@ -10,8 +10,8 @@
             @csrf
             <div class="field"><label>Name</label><input name="name" value="{{ old('name') }}" placeholder="e.g. SSS Salary Loan" required></div>
             <div class="field"><label>Interest rate (% per annum)</label><input type="number" step="0.0001" min="0" max="100" name="interest_rate" value="{{ old('interest_rate', 0) }}" required></div>
-            <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="is_government" value="1" style="width:auto"> Government loan</label></div>
-            <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="is_active" value="1" style="width:auto" checked> Active</label></div>
+            <div class="field"><label class="check"><input type="checkbox" name="is_government" value="1"> Government loan</label></div>
+            <div class="field"><label class="check"><input type="checkbox" name="is_active" value="1" checked> Active</label></div>
             <div class="field full"><button class="btn primary">Add loan type</button></div>
         </form>
         <div class="table-wrap">
@@ -25,8 +25,8 @@
                                 @csrf @method('PUT')
                                 <input name="name" value="{{ $type->name }}" required style="flex:1">
                                 <input type="number" step="0.0001" min="0" max="100" name="interest_rate" value="{{ $type->interest_rate }}" style="width:110px">
-                                <label style="display:flex;align-items:center;gap:6px;font-weight:500"><input type="checkbox" name="is_government" value="1" style="width:auto" @checked($type->is_government)> Gov't</label>
-                                <label style="display:flex;align-items:center;gap:6px;font-weight:500"><input type="checkbox" name="is_active" value="1" style="width:auto" @checked($type->is_active)> Active</label>
+                                <label class="check"><input type="checkbox" name="is_government" value="1" @checked($type->is_government)> Gov't</label>
+                                <label class="check"><input type="checkbox" name="is_active" value="1" @checked($type->is_active)> Active</label>
                                 <span class="badge gray">{{ $type->loans_count }} loans</span>
                                 <button class="btn sm primary">Save</button>
                             </form>

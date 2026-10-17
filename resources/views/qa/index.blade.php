@@ -13,7 +13,7 @@
         <form method="GET" class="filters">
             <div class="field"><label>Month</label><input type="month" name="month" value="{{ $month }}"></div>
             <div class="field"><label>Search</label><input name="q" value="{{ request('q') }}" placeholder="Name or employee no."></div>
-            <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="below" value="1" style="width:auto" @checked($below)> Below passing {{ $passing }}%</label></div>
+            <div class="field"><label class="check"><input type="checkbox" name="below" value="1" @checked($below)> Below passing {{ $passing }}%</label></div>
             <button class="btn primary">Filter</button>
         </form>
         <div class="table-wrap">

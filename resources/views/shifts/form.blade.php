@@ -34,13 +34,13 @@
                         <input type="number" name="required_hours" step="0.01" value="{{ old('required_hours', $shift->required_hours ?? 8) }}" min="0">
                     </div>
                     <div class="field">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:500">
-                            <input type="checkbox" name="is_night_diff" value="1" style="width:auto" @checked(old('is_night_diff', $shift->is_night_diff))> Night differential
+                        <label class="check">
+                            <input type="checkbox" name="is_night_diff" value="1" @checked(old('is_night_diff', $shift->is_night_diff))> Night differential
                         </label>
                     </div>
                     <div class="field full">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:500">
-                            <input type="checkbox" name="is_active" value="1" style="width:auto" @checked(old('is_active', $shift->is_active ?? true))> Active
+                        <label class="check">
+                            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $shift->is_active ?? true))> Active
                         </label>
                     </div>
                 </div>

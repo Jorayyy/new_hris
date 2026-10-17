@@ -24,7 +24,7 @@
                         @foreach($branches as $branch)<option value="{{ $branch->id }}" @selected(request('branch') == $branch->id)>{{ $branch->name }}</option>@endforeach
                     </select>
                 </div>
-                <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="missing" value="1" style="width:auto" @checked(request('missing'))> Without a PIN</label></div>
+                <div class="field"><label class="check"><input type="checkbox" name="missing" value="1" @checked(request('missing'))> Without a PIN</label></div>
                 <button class="btn primary">Filter</button>
                 <a class="btn" href="{{ route('pins.index') }}">Reset</a>
             </form>

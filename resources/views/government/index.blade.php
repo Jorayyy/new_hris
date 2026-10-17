@@ -64,8 +64,8 @@
                                 <input type="number" min="2000" max="2100" name="year" value="{{ $row->year }}" style="width:90px">
                                 <input type="number" step="0.01" min="0" name="min_salary" value="{{ $row->min_salary }}" style="width:120px">
                                 <input type="number" step="0.01" min="0" name="max_salary" value="{{ $row->max_salary }}" style="width:120px">
-                                <label style="display:flex;align-items:center;gap:6px"><input type="number" step="0.0001" min="0" max="100" name="employee_rate" value="{{ (float) $row->employee_rate * 100 }}" style="width:90px"> % EE</label>
-                                <label style="display:flex;align-items:center;gap:6px"><input type="number" step="0.0001" min="0" max="100" name="employer_rate" value="{{ (float) $row->employer_rate * 100 }}" style="width:90px"> % ER</label>
+                                <label class="check"><input type="number" step="0.0001" min="0" max="100" name="employee_rate" value="{{ (float) $row->employee_rate * 100 }}" style="width:90px"> % EE</label>
+                                <label class="check"><input type="number" step="0.0001" min="0" max="100" name="employer_rate" value="{{ (float) $row->employer_rate * 100 }}" style="width:90px"> % ER</label>
                                 <button class="btn sm primary">Save</button>
                             </form>
                             <form method="POST" action="{{ route('government.philhealth.destroy', $row) }}" onsubmit="return confirm('Delete the PhilHealth table for {{ $row->year }}?')" style="padding:0 18px 13px">
@@ -108,8 +108,8 @@
                                 @csrf @method('PUT')
                                 <input type="number" step="0.01" min="0" name="min_salary" value="{{ $row->min_salary }}" style="width:110px">
                                 <input type="number" step="0.01" min="0" name="max_salary" value="{{ $row->max_salary }}" placeholder="no limit" style="width:110px">
-                                <label style="display:flex;align-items:center;gap:6px"><input type="number" step="0.0001" min="0" max="100" name="employee_rate" value="{{ (float) $row->employee_rate * 100 }}" style="width:90px"> % EE</label>
-                                <label style="display:flex;align-items:center;gap:6px"><input type="number" step="0.0001" min="0" max="100" name="employer_rate" value="{{ (float) $row->employer_rate * 100 }}" style="width:90px"> % ER</label>
+                                <label class="check"><input type="number" step="0.0001" min="0" max="100" name="employee_rate" value="{{ (float) $row->employee_rate * 100 }}" style="width:90px"> % EE</label>
+                                <label class="check"><input type="number" step="0.0001" min="0" max="100" name="employer_rate" value="{{ (float) $row->employer_rate * 100 }}" style="width:90px"> % ER</label>
                                 <input type="number" step="0.01" min="0" name="employee_cap" value="{{ $row->employee_cap }}" style="width:100px" title="Employee cap">
                                 <input type="number" step="0.01" min="0" name="employer_cap" value="{{ $row->employer_cap }}" style="width:100px" title="Employer cap">
                                 <button class="btn sm primary">Save</button>
@@ -172,7 +172,7 @@
                                 <input type="number" step="0.01" min="0" name="min_taxable" value="{{ $row->min_taxable }}" style="width:120px">
                                 <input type="number" step="0.01" min="0" name="max_taxable" value="{{ $row->max_taxable }}" placeholder="no limit" style="width:120px">
                                 <input type="number" step="0.01" min="0" name="base_tax" value="{{ $row->base_tax }}" style="width:110px" title="Base tax">
-                                <label style="display:flex;align-items:center;gap:6px"><input type="number" step="0.0001" min="0" max="100" name="rate" value="{{ (float) $row->rate * 100 }}" style="width:80px"> %</label>
+                                <label class="check"><input type="number" step="0.0001" min="0" max="100" name="rate" value="{{ (float) $row->rate * 100 }}" style="width:80px"> %</label>
                                 <input type="number" step="0.01" min="0" name="excess_over" value="{{ $row->excess_over }}" style="width:120px" title="Excess over">
                                 <button class="btn sm primary">Save</button>
                             </form>

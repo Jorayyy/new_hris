@@ -22,8 +22,8 @@
                         <input type="text" name="address" value="{{ old('address', $branch->address) }}">
                     </div>
                     <div class="field full">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:500">
-                            <input type="checkbox" name="is_active" value="1" style="width:auto" @checked(old('is_active', $branch->is_active ?? true))> Active
+                        <label class="check">
+                            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $branch->is_active ?? true))> Active
                         </label>
                     </div>
                 </div>

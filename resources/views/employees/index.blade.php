@@ -13,7 +13,7 @@
         </div>
         <div class="card-body" style="padding-bottom:0">
             <form method="GET" class="filters">
-                <div class="field" style="min-width:220px">
+                <div class="field">
                     <label>Search</label>
                     <input type="text" name="q" value="{{ request('q') }}" placeholder="Name or employee no.">
                 </div>

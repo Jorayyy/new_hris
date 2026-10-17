@@ -11,9 +11,9 @@
             @csrf
             <div class="field"><label>Name</label><input name="name" value="{{ old('name') }}" placeholder="e.g. NBI Clearance" required></div>
             <div class="field"><label>Sort order</label><input type="number" min="0" max="999" name="sort" value="{{ old('sort', 0) }}"></div>
-            <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="is_required" value="1" style="width:auto"> Required</label></div>
-            <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="requires_expiry" value="1" style="width:auto"> Needs expiry date</label></div>
-            <div class="field"><label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:22px"><input type="checkbox" name="is_active" value="1" style="width:auto" checked> Active</label></div>
+            <div class="field"><label class="check"><input type="checkbox" name="is_required" value="1"> Required</label></div>
+            <div class="field"><label class="check"><input type="checkbox" name="requires_expiry" value="1"> Needs expiry date</label></div>
+            <div class="field"><label class="check"><input type="checkbox" name="is_active" value="1" checked> Active</label></div>
             <div class="field full"><button class="btn primary">Add document type</button></div>
         </form>
         <div class="table-wrap">
@@ -27,9 +27,9 @@
                                 @csrf @method('PUT')
                                 <input name="name" value="{{ $type->name }}" required style="flex:1">
                                 <input type="number" min="0" max="999" name="sort" value="{{ $type->sort }}" style="width:80px">
-                                <label style="display:flex;align-items:center;gap:6px;font-weight:500"><input type="checkbox" name="is_required" value="1" style="width:auto" @checked($type->is_required)> Req'd</label>
-                                <label style="display:flex;align-items:center;gap:6px;font-weight:500"><input type="checkbox" name="requires_expiry" value="1" style="width:auto" @checked($type->requires_expiry)> Expiry</label>
-                                <label style="display:flex;align-items:center;gap:6px;font-weight:500"><input type="checkbox" name="is_active" value="1" style="width:auto" @checked($type->is_active)> Active</label>
+                                <label class="check"><input type="checkbox" name="is_required" value="1" @checked($type->is_required)> Req'd</label>
+                                <label class="check"><input type="checkbox" name="requires_expiry" value="1" @checked($type->requires_expiry)> Expiry</label>
+                                <label class="check"><input type="checkbox" name="is_active" value="1" @checked($type->is_active)> Active</label>
                                 <span class="badge gray">{{ $type->documents_count }} files</span>
                                 <button class="btn sm primary">Save</button>
                             </form>

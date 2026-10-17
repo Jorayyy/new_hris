@@ -26,23 +26,23 @@
                         <input type="number" name="max_days_per_year" min="0" value="{{ old('max_days_per_year', $leaveType->max_days_per_year ?? 0) }}">
                     </div>
                     <div class="field">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:500">
-                            <input type="checkbox" name="is_paid" value="1" style="width:auto" @checked(old('is_paid', $leaveType->is_paid ?? true))> Paid
+                        <label class="check">
+                            <input type="checkbox" name="is_paid" value="1" @checked(old('is_paid', $leaveType->is_paid ?? true))> Paid
                         </label>
                     </div>
                     <div class="field">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:500">
-                            <input type="checkbox" name="is_cash_convertible" value="1" style="width:auto" @checked(old('is_cash_convertible', $leaveType->is_cash_convertible))> Cash convertible
+                        <label class="check">
+                            <input type="checkbox" name="is_cash_convertible" value="1" @checked(old('is_cash_convertible', $leaveType->is_cash_convertible))> Cash convertible
                         </label>
                     </div>
                     <div class="field">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:500">
-                            <input type="checkbox" name="requires_attachment" value="1" style="width:auto" @checked(old('requires_attachment', $leaveType->requires_attachment))> Requires attachment
+                        <label class="check">
+                            <input type="checkbox" name="requires_attachment" value="1" @checked(old('requires_attachment', $leaveType->requires_attachment))> Requires attachment
                         </label>
                     </div>
                     <div class="field">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:500">
-                            <input type="checkbox" name="is_active" value="1" style="width:auto" @checked(old('is_active', $leaveType->is_active ?? true))> Active
+                        <label class="check">
+                            <input type="checkbox" name="is_active" value="1" @checked(old('is_active', $leaveType->is_active ?? true))> Active
                         </label>
                     </div>
                 </div>
