@@ -47,6 +47,9 @@
     @if(session('punch_ok'))
         <div class="kiosk-toast ok">{{ session('punch_ok') }}</div>
     @endif
+    @if(session('login_status'))
+        <div class="kiosk-toast ok">{{ session('login_status') }}</div>
+    @endif
     @if(session('punch_error'))
         <div class="kiosk-toast err">{{ session('punch_error') }}</div>
     @endif
@@ -92,6 +95,7 @@
         </div>
         <label class="kiosk-remember"><input type="checkbox" name="remember" value="1"> Remember me</label>
         <button type="submit" class="btn primary" style="width:100%;justify-content:center">Sign in</button>
+        <a class="kiosk-link" href="{{ route('password.request') }}">Forgot password?</a>
         <button type="button" class="kiosk-link" id="staff-back">Back to time clock</button>
     </form>
 </main>
