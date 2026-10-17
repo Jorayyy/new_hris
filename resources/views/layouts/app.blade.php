@@ -32,6 +32,16 @@
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><x-icon name="layout-dashboard" /> Dashboard</a>
         </div>
 
+        @if($isPayroll)
+            <div class="nav-group payroll">
+                <div class="label">Payroll</div>
+                <a href="{{ route('payroll.periods.index') }}" class="{{ request()->routeIs('payroll.periods.*') ? 'active' : '' }}"><x-icon name="calendar" /> Pay Periods</a>
+                <a href="{{ route('payroll.runs.index') }}" class="{{ request()->routeIs('payroll.runs.*') ? 'active' : '' }}"><x-icon name="circle-play" /> Payroll Runs</a>
+                <a href="{{ route('payroll.thirteenth') }}" class="{{ request()->routeIs('payroll.thirteenth') ? 'active' : '' }}"><x-icon name="gift" /> 13th Month</a>
+                <a href="{{ route('payroll.final-pay') }}" class="{{ request()->routeIs('payroll.final-pay') ? 'active' : '' }}"><x-icon name="banknote" /> Final Pay</a>
+            </div>
+        @endif
+
         @if($isEmployee)
             <div class="nav-group">
                 <div class="label">My Space</div>
@@ -131,16 +141,6 @@
                 <a href="{{ route('reports.pagibig-mcrf') }}" class="{{ request()->routeIs('reports.pagibig-mcrf') ? 'active' : '' }}"><x-icon name="file-text" /> Pag-IBIG MCRF</a>
                 <a href="{{ route('reports.bir-1601c') }}" class="{{ request()->routeIs('reports.bir-1601c') ? 'active' : '' }}"><x-icon name="file-text" /> BIR 1601-C</a>
                 <a href="{{ route('reports.bir-2316') }}" class="{{ request()->routeIs('reports.bir-2316') ? 'active' : '' }}"><x-icon name="file-text" /> BIR 2316</a>
-            </div>
-        @endif
-
-        @if($u->hasRole(\App\Models\User::PAYROLL_ROLES))
-            <div class="nav-group">
-                <div class="label">Payroll</div>
-                <a href="{{ route('payroll.periods.index') }}" class="{{ request()->routeIs('payroll.periods.*') ? 'active' : '' }}"><x-icon name="calendar" /> Pay Periods</a>
-                <a href="{{ route('payroll.runs.index') }}" class="{{ request()->routeIs('payroll.runs.*') ? 'active' : '' }}"><x-icon name="circle-play" /> Payroll Runs</a>
-                <a href="{{ route('payroll.thirteenth') }}" class="{{ request()->routeIs('payroll.thirteenth') ? 'active' : '' }}"><x-icon name="gift" /> 13th Month</a>
-                <a href="{{ route('payroll.final-pay') }}" class="{{ request()->routeIs('payroll.final-pay') ? 'active' : '' }}"><x-icon name="banknote" /> Final Pay</a>
             </div>
         @endif
 
