@@ -6,7 +6,7 @@
         <div class="card-head">
             <h2>Final Pay Computation</h2>
         </div>
-        <form method="GET" action="{{ route('payroll.final-pay') }}" class="form-grid" style="padding:16px">
+        <form method="GET" action="{{ route('payroll.final-pay') }}" class="form-grid card-section">
             <div class="field"><label>Employee</label>
                 <select name="employee_id" required>
                     <option value="">Select employee…</option>

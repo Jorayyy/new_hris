@@ -6,7 +6,7 @@
         <div class="card-head">
             <h2>File overtime</h2>
         </div>
-        <form method="POST" action="{{ route('me.ot.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('me.ot.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Date</label><input type="date" name="work_date" value="{{ old('work_date', now()->toDateString()) }}" required></div>
             <div class="field"><label>Hours</label><input type="number" step="0.25" min="0.5" max="12" name="hours" value="{{ old('hours') }}" required></div>

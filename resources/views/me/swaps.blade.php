@@ -6,7 +6,7 @@
         <div class="card-head">
             <h2>Request a shift swap</h2>
         </div>
-        <form method="POST" action="{{ route('me.swaps.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('me.swaps.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Swap with</label>
                 <select name="target_id" required>

@@ -6,7 +6,7 @@
         <div class="card-head">
             <h2>File a schedule change</h2>
         </div>
-        <form method="POST" action="{{ route('me.schedule.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('me.schedule.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Date</label><input type="date" name="work_date" value="{{ old('work_date', now()->toDateString()) }}" required></div>
             <div class="field"><label>Requested shift</label>

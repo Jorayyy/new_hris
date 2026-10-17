@@ -8,12 +8,12 @@
             <h2>QA Criteria</h2>
             <span class="muted">Scores are averaged using each criterion's weight.</span>
         </div>
-        <form method="POST" action="{{ route('qa.settings') }}" class="filters">
+        <form method="POST" action="{{ route('qa.settings') }}" class="filters" style="padding:22px 22px 0">
             @csrf @method('PUT')
             <div class="field"><label>Passing score (%)</label><input type="number" step="0.01" min="1" max="100" name="passing_score" value="{{ $passing }}" class="w-sm"></div>
             <button class="btn primary">Save</button>
         </form>
-        <form method="POST" action="{{ route('qa-criteria.store') }}" class="form-grid" style="padding:0 16px 16px">
+        <form method="POST" action="{{ route('qa-criteria.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Name</label><input name="name" value="{{ old('name') }}" placeholder="e.g. Product knowledge" required></div>
             <div class="field"><label>Weight (%)</label><input type="number" step="0.01" min="0.01" max="100" name="weight" value="{{ old('weight', 100) }}" required></div>

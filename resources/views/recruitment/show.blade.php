@@ -40,7 +40,7 @@
     @if($canManage)
         <div class="card">
             <div class="card-head"><h2>Add applicant</h2><span class="muted">Starts in the Applied stage</span></div>
-            <form method="POST" action="{{ route('applicants.store', $vacancy) }}" class="form-grid" style="padding:16px">
+            <form method="POST" action="{{ route('applicants.store', $vacancy) }}" class="form-grid card-section">
                 @csrf
                 <div class="field"><label>First name</label><input name="first_name" value="{{ old('first_name') }}" required></div>
                 <div class="field"><label>Last name</label><input name="last_name" value="{{ old('last_name') }}" required></div>

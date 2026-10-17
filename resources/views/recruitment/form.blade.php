@@ -14,7 +14,7 @@
                     <button class="btn primary">{{ $vacancy->exists ? 'Save changes' : 'Create vacancy' }}</button>
                 </div>
             </div>
-            <div class="form-grid" style="padding:16px">
+            <div class="form-grid card-section">
                 <div class="field full"><label>Title</label><input name="title" value="{{ old('title', $vacancy->title) }}" required></div>
 
                 <div class="field"><label>Branch</label>

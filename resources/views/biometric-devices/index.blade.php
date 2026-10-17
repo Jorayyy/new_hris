@@ -13,7 +13,7 @@
         <div class="card-head">
             <h2>Register device</h2>
         </div>
-        <form method="POST" action="{{ route('biometric-devices.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('biometric-devices.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Name</label><input name="name" value="{{ old('name') }}" required></div>
             <div class="field"><label>Branch</label>

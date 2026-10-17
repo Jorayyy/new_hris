@@ -38,7 +38,7 @@
         <div class="grid cols-2">
             <div class="card">
                 <div class="card-head"><h2>Move stage</h2></div>
-                <form method="POST" action="{{ route('applicants.update', $applicant) }}" class="form-grid" style="padding:16px">
+                <form method="POST" action="{{ route('applicants.update', $applicant) }}" class="form-grid card-section">
                     @csrf @method('PUT')
                     <div class="field full"><label>Stage</label>
                         <select name="stage">
@@ -55,7 +55,7 @@
             @unless($applicant->employee_id)
                 <div class="card">
                     <div class="card-head"><h2>Hire applicant</h2><span class="muted">Creates the employee record</span></div>
-                    <form method="POST" action="{{ route('applicants.hire', $applicant) }}" class="form-grid" style="padding:16px">
+                    <form method="POST" action="{{ route('applicants.hire', $applicant) }}" class="form-grid card-section">
                         @csrf
                         <div class="field"><label>Employee no.</label><input name="employee_no" value="{{ old('employee_no') }}" required></div>
                         <div class="field"><label>Basic salary</label><input type="number" step="0.01" min="0" name="basic_salary" value="{{ old('basic_salary') }}" required></div>

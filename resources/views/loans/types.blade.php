@@ -6,7 +6,7 @@
         <div class="card-head">
             <h2>Loan Types</h2>
         </div>
-        <form method="POST" action="{{ route('loan-types.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('loan-types.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Name</label><input name="name" value="{{ old('name') }}" placeholder="e.g. SSS Salary Loan" required></div>
             <div class="field"><label>Interest rate (% per annum)</label><input type="number" step="0.0001" min="0" max="100" name="interest_rate" value="{{ old('interest_rate', 0) }}" required></div>
@@ -21,7 +21,7 @@
                 @forelse($loanTypes as $type)
                     <tr>
                         <td colspan="6" style="padding:0">
-                            <form method="POST" action="{{ route('loan-types.update', $type) }}" class="btn-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;margin:0">
+                            <form method="POST" action="{{ route('loan-types.update', $type) }}" class="row-form">
                                 @csrf @method('PUT')
                                 <input name="name" value="{{ $type->name }}" required style="flex:1">
                                 <input type="number" step="0.0001" min="0" max="100" name="interest_rate" value="{{ $type->interest_rate }}" style="width:110px">
@@ -30,7 +30,7 @@
                                 <span class="badge gray">{{ $type->loans_count }} loans</span>
                                 <button class="btn sm primary">Save</button>
                             </form>
-                            <form method="POST" action="{{ route('loan-types.destroy', $type) }}" onsubmit="return confirm('Delete this loan type?')" style="padding:0 12px 10px">
+                            <form method="POST" action="{{ route('loan-types.destroy', $type) }}" onsubmit="return confirm('Delete this loan type?')" style="padding:0 18px 13px">
                                 @csrf @method('DELETE')
                                 <button class="btn sm danger">Delete</button>
                             </form>

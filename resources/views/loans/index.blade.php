@@ -6,7 +6,7 @@
         <div class="card-head">
             <h2>New Employee Loan</h2>
         </div>
-        <form method="POST" action="{{ route('loans.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('loans.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Employee</label>
                 <select name="employee_id" required>

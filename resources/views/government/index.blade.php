@@ -9,7 +9,7 @@
             <h2>SSS Contribution</h2>
             <span class="muted">Rebuild the whole schedule from the current rate</span>
         </div>
-        <form method="POST" action="{{ route('government.sss.rebuild') }}" class="form-grid" style="padding:16px" onsubmit="return confirm('Rebuild the SSS schedule from these parameters?')">
+        <form method="POST" action="{{ route('government.sss.rebuild') }}" class="form-grid card-section" onsubmit="return confirm('Rebuild the SSS schedule from these parameters?')">
             @csrf @method('PUT')
             <div class="field"><label>Minimum MSC</label><input type="number" step="0.01" min="1" name="min_msc" value="5000" required></div>
             <div class="field"><label>Maximum MSC</label><input type="number" step="0.01" min="1" name="max_msc" value="35000" required></div>
@@ -43,7 +43,7 @@
             <h2>PhilHealth Contribution</h2>
             <span class="muted">{{ $philhealth->count() }} year(s)</span>
         </div>
-        <form method="POST" action="{{ route('government.philhealth.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('government.philhealth.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Year</label><input type="number" min="2000" max="2100" name="year" value="{{ now()->year }}" required></div>
             <div class="field"><label>Minimum salary</label><input type="number" step="0.01" min="0" name="min_salary" value="10000" required></div>
@@ -59,7 +59,7 @@
                 @forelse($philhealth as $row)
                     <tr>
                         <td colspan="6" style="padding:0">
-                            <form method="POST" action="{{ route('government.philhealth.update', $row) }}" class="btn-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;margin:0">
+                            <form method="POST" action="{{ route('government.philhealth.update', $row) }}" class="row-form">
                                 @csrf @method('PUT')
                                 <input type="number" min="2000" max="2100" name="year" value="{{ $row->year }}" style="width:90px">
                                 <input type="number" step="0.01" min="0" name="min_salary" value="{{ $row->min_salary }}" style="width:120px">
@@ -68,7 +68,7 @@
                                 <label style="display:flex;align-items:center;gap:6px"><input type="number" step="0.0001" min="0" max="100" name="employer_rate" value="{{ (float) $row->employer_rate * 100 }}" style="width:90px"> % ER</label>
                                 <button class="btn sm primary">Save</button>
                             </form>
-                            <form method="POST" action="{{ route('government.philhealth.destroy', $row) }}" onsubmit="return confirm('Delete the PhilHealth table for {{ $row->year }}?')" style="padding:0 12px 10px">
+                            <form method="POST" action="{{ route('government.philhealth.destroy', $row) }}" onsubmit="return confirm('Delete the PhilHealth table for {{ $row->year }}?')" style="padding:0 18px 13px">
                                 @csrf @method('DELETE')
                                 <button class="btn sm danger">Delete</button>
                             </form>
@@ -87,7 +87,7 @@
             <h2>Pag-IBIG Contribution</h2>
             <span class="muted">Leave maximum salary blank for the top bracket</span>
         </div>
-        <form method="POST" action="{{ route('government.pagibig.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('government.pagibig.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Minimum salary</label><input type="number" step="0.01" min="0" name="min_salary" value="0" required></div>
             <div class="field"><label>Maximum salary</label><input type="number" step="0.01" min="0" name="max_salary" placeholder="blank = no limit"></div>
@@ -104,7 +104,7 @@
                 @forelse($pagibig as $row)
                     <tr>
                         <td colspan="6" style="padding:0">
-                            <form method="POST" action="{{ route('government.pagibig.update', $row) }}" class="btn-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;margin:0">
+                            <form method="POST" action="{{ route('government.pagibig.update', $row) }}" class="row-form">
                                 @csrf @method('PUT')
                                 <input type="number" step="0.01" min="0" name="min_salary" value="{{ $row->min_salary }}" style="width:110px">
                                 <input type="number" step="0.01" min="0" name="max_salary" value="{{ $row->max_salary }}" placeholder="no limit" style="width:110px">
@@ -114,7 +114,7 @@
                                 <input type="number" step="0.01" min="0" name="employer_cap" value="{{ $row->employer_cap }}" style="width:100px" title="Employer cap">
                                 <button class="btn sm primary">Save</button>
                             </form>
-                            <form method="POST" action="{{ route('government.pagibig.destroy', $row) }}" onsubmit="return confirm('Delete this Pag-IBIG bracket?')" style="padding:0 12px 10px">
+                            <form method="POST" action="{{ route('government.pagibig.destroy', $row) }}" onsubmit="return confirm('Delete this Pag-IBIG bracket?')" style="padding:0 18px 13px">
                                 @csrf @method('DELETE')
                                 <button class="btn sm danger">Delete</button>
                             </form>
@@ -139,7 +139,7 @@
                 </select>
             </form>
         </div>
-        <form method="POST" action="{{ route('government.tax.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('government.tax.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Year</label><input type="number" min="2000" max="2100" name="year" value="{{ $taxYear }}" required></div>
             <div class="field"><label>Period</label>
@@ -162,7 +162,7 @@
                 @forelse($tax as $row)
                     <tr>
                         <td colspan="6" style="padding:0">
-                            <form method="POST" action="{{ route('government.tax.update', $row) }}" class="btn-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;margin:0">
+                            <form method="POST" action="{{ route('government.tax.update', $row) }}" class="row-form">
                                 @csrf @method('PUT')
                                 <input type="number" min="2000" max="2100" name="year" value="{{ $row->year }}" style="width:90px">
                                 <select name="period" style="width:130px">
@@ -176,7 +176,7 @@
                                 <input type="number" step="0.01" min="0" name="excess_over" value="{{ $row->excess_over }}" style="width:120px" title="Excess over">
                                 <button class="btn sm primary">Save</button>
                             </form>
-                            <form method="POST" action="{{ route('government.tax.destroy', $row) }}" onsubmit="return confirm('Delete this tax bracket?')" style="padding:0 12px 10px">
+                            <form method="POST" action="{{ route('government.tax.destroy', $row) }}" onsubmit="return confirm('Delete this tax bracket?')" style="padding:0 18px 13px">
                                 @csrf @method('DELETE')
                                 <button class="btn sm danger">Delete</button>
                             </form>

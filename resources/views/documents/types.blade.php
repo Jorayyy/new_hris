@@ -7,7 +7,7 @@
             <h2>Document Types</h2>
             <span class="muted">Required types appear on every employee's 201-file checklist.</span>
         </div>
-        <form method="POST" action="{{ route('document-types.store') }}" class="form-grid" style="padding:16px">
+        <form method="POST" action="{{ route('document-types.store') }}" class="form-grid card-section">
             @csrf
             <div class="field"><label>Name</label><input name="name" value="{{ old('name') }}" placeholder="e.g. NBI Clearance" required></div>
             <div class="field"><label>Sort order</label><input type="number" min="0" max="999" name="sort" value="{{ old('sort', 0) }}"></div>
@@ -23,7 +23,7 @@
                 @forelse($types as $type)
                     <tr>
                         <td colspan="7" style="padding:0">
-                            <form method="POST" action="{{ route('document-types.update', $type) }}" class="btn-row" style="display:flex;align-items:center;gap:12px;padding:10px 12px;margin:0">
+                            <form method="POST" action="{{ route('document-types.update', $type) }}" class="row-form">
                                 @csrf @method('PUT')
                                 <input name="name" value="{{ $type->name }}" required style="flex:1">
                                 <input type="number" min="0" max="999" name="sort" value="{{ $type->sort }}" style="width:80px">
@@ -33,7 +33,7 @@
                                 <span class="badge gray">{{ $type->documents_count }} files</span>
                                 <button class="btn sm primary">Save</button>
                             </form>
-                            <form method="POST" action="{{ route('document-types.destroy', $type) }}" onsubmit="return confirm('Delete this document type?')" style="padding:0 12px 10px">
+                            <form method="POST" action="{{ route('document-types.destroy', $type) }}" onsubmit="return confirm('Delete this document type?')" style="padding:0 18px 13px">
                                 @csrf @method('DELETE')
                                 <button class="btn sm danger">Delete</button>
                             </form>
