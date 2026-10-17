@@ -10,7 +10,7 @@
                 <button class="btn primary">View</button>
             </form>
         </div>
-        <div class="card-body" style="padding-bottom:0">
+        <div class="card-body">
             <p class="muted small">Computed as total basic salary earned in {{ $year }} ÷ 12. Only processed payroll runs are included.</p>
         </div>
         <div class="table-wrap">

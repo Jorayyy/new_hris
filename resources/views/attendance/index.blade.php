@@ -24,7 +24,7 @@
                 <a class="btn primary sm" href="{{ route('attendance.create') }}">+ New entry</a>
             </div>
         </div>
-        <div class="card-body" style="padding-bottom:0">
+        <div class="card-body">
             <form method="GET" class="filters">
                 <div class="field"><label>From</label><input type="date" name="from" value="{{ $from->format('Y-m-d') }}"></div>
                 <div class="field"><label>To</label><input type="date" name="to" value="{{ $to->format('Y-m-d') }}"></div>

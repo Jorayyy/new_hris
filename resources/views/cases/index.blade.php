@@ -17,7 +17,7 @@
                 <a class="btn primary sm" href="{{ route('cases.create') }}">+ File a case</a>
             </div>
         </div>
-        <div class="card-body" style="padding-bottom:0">
+        <div class="card-body">
             <form method="GET" class="filters">
                 <input type="hidden" name="status" value="{{ $status }}">
                 <div class="field" style="min-width:240px">

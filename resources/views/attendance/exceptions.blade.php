@@ -18,7 +18,7 @@
                 @endforeach
             </div>
         </div>
-        <div class="card-body" style="padding-bottom:0">
+        <div class="card-body">
             <form method="GET" class="filters">
                 <input type="hidden" name="type" value="{{ $type }}">
                 <div class="field"><label>From</label><input type="date" name="from" value="{{ $from->format('Y-m-d') }}"></div>

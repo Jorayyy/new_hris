@@ -11,7 +11,7 @@
                 <a class="btn primary sm" href="{{ route('employees.create') }}">+ New employee</a>
             </div>
         </div>
-        <div class="card-body" style="padding-bottom:0">
+        <div class="card-body">
             <form method="GET" class="filters">
                 <div class="field">
                     <label>Search</label>

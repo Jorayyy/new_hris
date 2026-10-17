@@ -308,7 +308,7 @@ td > .btn + .btn, td > form + form, td > .btn + form, td > form + .btn { margin-
 .mb-0 { margin-bottom: 0; }
 .row-between { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-.card > .filters { padding: 22px 22px 8px; }
+.card > .filters { padding: 22px 22px 18px; }
 .filters .field { margin: 0; }
 .filters .field > input:not([class]), .filters .field > select:not([class]) { width: 220px; }
 .field:has(> label.check) { display: flex; align-items: flex-end; padding-bottom: 12px; }
