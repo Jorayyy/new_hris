@@ -45,6 +45,7 @@
                 <a href="{{ route('me.schedule') }}" class="{{ request()->routeIs('me.schedule*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Change</a>
                 <a href="{{ route('me.cases') }}" class="{{ request()->routeIs('me.cases*') ? 'active' : '' }}"><span class="ico">⚑</span> My Cases</a>
                 <a href="{{ route('me.scorecards') }}" class="{{ request()->routeIs('me.scorecards') ? 'active' : '' }}"><span class="ico">◎</span> My Scorecards</a>
+                <a href="{{ route('me.pay') }}" class="{{ request()->routeIs('me.pay') ? 'active' : '' }}"><span class="ico">₱</span> My Pay</a>
                 <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
             </div>
         @endif

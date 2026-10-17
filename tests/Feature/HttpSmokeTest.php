@@ -57,6 +57,7 @@ class HttpSmokeTest extends TestCase
         $this->actingAs($employee)->get('/me/profile')->assertOk()->assertSee('Change password');
         $this->actingAs($employee)->get('/me/cases')->assertOk();
         $this->actingAs($employee)->get('/me/scorecards')->assertOk();
+        $this->actingAs($employee)->get('/me/pay')->assertOk();
 
         $this->actingAs($employee)->put('/me/password', [
             'current_password' => 'password',

@@ -90,6 +90,7 @@ Route::middleware('auth')->group(function () {
         Route::put('me/password', [ProfileController::class, 'updatePassword'])->name('me.password');
         Route::get('me/cases', [SelfServiceController::class, 'cases'])->name('me.cases');
         Route::get('me/scorecards', [SelfServiceController::class, 'scorecards'])->name('me.scorecards');
+        Route::get('me/pay', [SelfServiceController::class, 'pay'])->name('me.pay');
         Route::get('me/cases/{case}', [SelfServiceController::class, 'case'])->name('me.cases.show');
         Route::post('me/cases/{case}/respond', [SelfServiceController::class, 'respondCase'])->name('me.cases.respond');
     });

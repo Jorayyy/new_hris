@@ -8,6 +8,7 @@ use App\Models\DisciplinaryCaseAction;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\QaEvaluation;
+use App\Services\ThirteenthMonthService;
 use App\Support\Notify;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -169,6 +170,18 @@ class SelfServiceController extends Controller
         Notify::hr('Employee response', $employee->full_name.' responded on: '.$record->subject, route('cases.show', $record), '⚑');
 
         return back()->with('ok', 'Response submitted.');
+    }
+
+    public function pay(Request $request): View
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404);
+
+        return view('me.pay', [
+            'employee' => $employee->load(['branch', 'position', 'allowances', 'deductions']),
+            'loans' => $employee->loans()->with(['type', 'payments' => fn ($query) => $query->latest('paid_on')->latest('id')])->latest('id')->get(),
+            'thirteenth' => (new ThirteenthMonthService)->summary($employee),
+        ]);
     }
 
     public function scorecards(Request $request): View
