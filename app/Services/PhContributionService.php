@@ -7,6 +7,7 @@ use App\Models\PagibigContribution;
 use App\Models\PhilhealthContribution;
 use App\Models\SssContribution;
 use App\Models\TaxTable;
+use Illuminate\Support\Collection;
 
 /**
  * Philippine statutory contributions and BIR withholding tax.
@@ -14,16 +15,21 @@ use App\Models\TaxTable;
  */
 class PhContributionService
 {
+    /** Tables are tiny and read once per request/payroll run instead of per employee. */
+    private ?Collection $sssRows = null;
+
+    private ?Collection $philhealthRows = null;
+
+    private ?Collection $pagibigRows = null;
+
+    private ?Collection $taxRows = null;
+
     public function sssMonthly(float $monthlySalary): array
     {
-        $row = SssContribution::query()
-            ->where('min_msc', '<=', $monthlySalary)
-            ->where('max_msc', '>=', $monthlySalary)
-            ->first();
+        $rows = $this->sssRows ??= SssContribution::query()->orderBy('min_msc')->get();
 
-        if (! $row) {
-            $row = SssContribution::query()->orderByDesc('max_msc')->first();
-        }
+        $row = $rows->first(fn (SssContribution $r) => (float) $r->min_msc <= $monthlySalary && (float) $r->max_msc >= $monthlySalary)
+            ?? $rows->sortByDesc('max_msc')->first();
 
         return [
             'msc' => (float) ($row?->max_msc ?? 0),
@@ -36,8 +42,8 @@ class PhContributionService
     public function philhealthMonthly(float $monthlySalary, ?int $year = null): array
     {
         $year ??= (int) date('Y');
-        $row = PhilhealthContribution::query()->where('year', $year)->first()
-            ?? PhilhealthContribution::query()->orderByDesc('year')->first();
+        $rows = $this->philhealthRows ??= PhilhealthContribution::query()->get();
+        $row = $rows->firstWhere('year', $year) ?? $rows->sortByDesc('year')->first();
 
         if (! $row) {
             return ['employee' => 0.0, 'employer' => 0.0, 'total' => 0.0, 'basis' => 0.0];
@@ -55,10 +61,11 @@ class PhContributionService
 
     public function pagibigMonthly(float $monthlySalary): array
     {
-        $row = PagibigContribution::query()
-            ->where('min_salary', '<=', $monthlySalary)
-            ->where(fn ($q) => $q->whereNull('max_salary')->orWhere('max_salary', '>=', $monthlySalary))
-            ->first() ?? PagibigContribution::query()->first();
+        $rows = $this->pagibigRows ??= PagibigContribution::query()->orderBy('min_salary')->get();
+
+        $row = $rows->first(fn (PagibigContribution $r) => (float) $r->min_salary <= $monthlySalary
+                && ($r->max_salary === null || (float) $r->max_salary >= $monthlySalary))
+            ?? $rows->first();
 
         if (! $row) {
             return ['employee' => 0.0, 'employer' => 0.0];
@@ -80,13 +87,12 @@ class PhContributionService
         }
 
         $year ??= (int) date('Y');
+        $rows = $this->taxRows ??= TaxTable::query()->get();
 
-        $row = TaxTable::query()
-            ->where('year', $year)
-            ->where('period', $period)
-            ->where('min_taxable', '<=', $taxableIncome)
-            ->where(fn ($q) => $q->whereNull('max_taxable')->orWhere('max_taxable', '>=', $taxableIncome))
-            ->first();
+        $row = $rows->first(fn (TaxTable $r) => (int) $r->year === $year
+            && $r->period === $period
+            && (float) $r->min_taxable <= $taxableIncome
+            && ($r->max_taxable === null || (float) $r->max_taxable >= $taxableIncome));
 
         if (! $row) {
             return 0.0;

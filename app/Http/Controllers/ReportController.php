@@ -126,23 +126,27 @@ class ReportController extends Controller
     {
         $year = $request->integer('year') ?: (int) now()->year;
 
+        $totals = Payslip::query()
+            ->selectRaw('employee_id, SUM(gross_pay) as gross, SUM(sss_contribution) as sss, SUM(philhealth_contribution) as philhealth, SUM(pagibig_contribution) as pagibig, SUM(tax_withheld) as tax')
+            ->whereHas('run.period', fn ($q) => $q->whereYear('date_to', $year))
+            ->groupBy('employee_id')
+            ->get()
+            ->keyBy('employee_id');
+
         $rows = [];
         $grossTotal = $taxTotal = 0.0;
         foreach (Employee::where('is_active', true)->orderBy('last_name')->get() as $index => $employee) {
-            $slips = Payslip::query()
-                ->where('employee_id', $employee->id)
-                ->whereHas('run.period', fn ($q) => $q->whereYear('date_to', $year))
-                ->get();
+            $slips = $totals->get($employee->id);
 
-            if ($slips->isEmpty()) {
+            if (! $slips) {
                 continue;
             }
 
-            $gross = (float) $slips->sum('gross_pay');
-            $sss = (float) $slips->sum('sss_contribution');
-            $ph = (float) $slips->sum('philhealth_contribution');
-            $pi = (float) $slips->sum('pagibig_contribution');
-            $tax = (float) $slips->sum('tax_withheld');
+            $gross = (float) $slips->gross;
+            $sss = (float) $slips->sss;
+            $ph = (float) $slips->philhealth;
+            $pi = (float) $slips->pagibig;
+            $tax = (float) $slips->tax;
             $taxable = max(0, $gross - $sss - $ph - $pi);
 
             $grossTotal += $gross;

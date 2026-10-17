@@ -11,14 +11,14 @@ class PayslipController extends Controller
 {
     public function show(Payslip $payslip): View
     {
-        $payslip->load(['employee.branch', 'employee.department', 'run.period', 'items']);
+        $payslip->load(['employee.branch', 'employee.department', 'employee.position', 'run.period', 'items']);
 
         return view('payroll.payslips.show', compact('payslip'));
     }
 
     public function pdf(Payslip $payslip): Response
     {
-        $payslip->load(['employee.branch', 'employee.department', 'run.period', 'items']);
+        $payslip->load(['employee.branch', 'employee.department', 'employee.position', 'run.period', 'items']);
 
         return Pdf::loadView('payroll.payslips.pdf', compact('payslip'))
             ->setPaper('a4')

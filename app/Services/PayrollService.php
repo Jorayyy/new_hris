@@ -9,6 +9,7 @@ use App\Models\LeaveRequest;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Models\Payslip;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -229,11 +230,17 @@ class PayrollService
     /** 13th month pay = total basic salary earned in a calendar year / 12. */
     public function thirteenthMonth(Employee $employee, int $year): float
     {
-        $total = Payslip::query()
-            ->where('employee_id', $employee->id)
-            ->whereHas('run.period', fn ($q) => $q->whereYear('date_to', $year))
-            ->sum('basic_pay');
+        return $this->thirteenthMonthTotals($year)->get($employee->id, 0.0);
+    }
 
-        return round(((float) $total) / 12, 2);
+    /** @return Collection<int|string, float> employee id => 13th month amount */
+    public function thirteenthMonthTotals(int $year): Collection
+    {
+        return Payslip::query()
+            ->selectRaw('employee_id, SUM(basic_pay) as basic')
+            ->whereHas('run.period', fn ($q) => $q->whereYear('date_to', $year))
+            ->groupBy('employee_id')
+            ->pluck('basic', 'employee_id')
+            ->map(fn ($basic) => round(((float) $basic) / 12, 2));
     }
 }

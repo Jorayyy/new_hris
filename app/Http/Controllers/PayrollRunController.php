@@ -182,10 +182,11 @@ class PayrollRunController extends Controller
     public function thirteenthMonth(Request $request): View
     {
         $year = $request->integer('year') ?: (int) now()->year;
-        $employees = Employee::where('is_active', true)->orderBy('last_name')->get()
+        $totals = $this->payroll->thirteenthMonthTotals($year);
+        $employees = Employee::with('branch')->where('is_active', true)->orderBy('last_name')->get()
             ->map(fn (Employee $e) => [
                 'employee' => $e,
-                'amount' => $this->payroll->thirteenthMonth($e, $year),
+                'amount' => $totals->get($e->id, 0.0),
             ]);
 
         return view('payroll.thirteenth-month', [
