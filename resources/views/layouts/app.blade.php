@@ -86,6 +86,13 @@
 
         @if($isHr || $isManager)
             <div class="nav-group">
+                <div class="label">Recruitment</div>
+                <a href="{{ route('vacancies.index') }}" class="{{ request()->routeIs('vacancies.*', 'applicants.*') ? 'active' : '' }}"><span class="ico">⌖</span> Vacancies</a>
+                @if($isHr)
+                    <a href="{{ route('vacancies.create') }}" class="{{ request()->routeIs('vacancies.create') ? 'active' : '' }}"><span class="ico">+</span> New Vacancy</a>
+                @endif
+            </div>
+            <div class="nav-group">
                 <div class="label">Employee Relations</div>
                 <a href="{{ route('cases.index') }}" class="{{ request()->routeIs('cases.*') ? 'active' : '' }}"><span class="ico">⚑</span> Cases</a>
             </div>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceCorrectionController;
 use App\Http\Controllers\AttendanceExceptionController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\EmployeeLoanController;
 use App\Http\Controllers\FinalPayController;
 use App\Http\Controllers\GovernmentTableController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\JobVacancyController;
 use App\Http\Controllers\LeaveBalanceController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
@@ -126,6 +128,17 @@ Route::middleware('auth')->group(function () {
         Route::get('attendance/corrections', [AttendanceCorrectionController::class, 'index'])->name('attendance.corrections.index');
         Route::post('attendance/corrections/{correction}/decide', [AttendanceCorrectionController::class, 'decide'])->name('attendance.corrections.decide');
 
+        Route::get('vacancies/create', [JobVacancyController::class, 'create'])->name('vacancies.create');
+        Route::post('vacancies', [JobVacancyController::class, 'store'])->name('vacancies.store');
+        Route::get('vacancies/{vacancy}/edit', [JobVacancyController::class, 'edit'])->name('vacancies.edit');
+        Route::put('vacancies/{vacancy}', [JobVacancyController::class, 'update'])->name('vacancies.update');
+        Route::delete('vacancies/{vacancy}', [JobVacancyController::class, 'destroy'])->name('vacancies.destroy');
+
+        Route::post('vacancies/{vacancy}/applicants', [ApplicantController::class, 'store'])->name('applicants.store');
+        Route::put('applicants/{applicant}', [ApplicantController::class, 'update'])->name('applicants.update');
+        Route::post('applicants/{applicant}/hire', [ApplicantController::class, 'hire'])->name('applicants.hire');
+        Route::delete('applicants/{applicant}', [ApplicantController::class, 'destroy'])->name('applicants.destroy');
+
         Route::get('leave-balances', [LeaveBalanceController::class, 'index'])->name('leave-balances.index');
         Route::post('leave-balances', [LeaveBalanceController::class, 'store'])->name('leave-balances.store');
         Route::put('leave-balances/{leaveBalance}', [LeaveBalanceController::class, 'update'])->name('leave-balances.update');
@@ -171,6 +184,10 @@ Route::middleware('auth')->group(function () {
         Route::put('qa/{qa_evaluation}', [QaEvaluationController::class, 'update'])->name('qa.update');
         Route::delete('qa/{qa_evaluation}', [QaEvaluationController::class, 'destroy'])->name('qa.destroy');
         Route::get('qa/{qa_evaluation}', [QaEvaluationController::class, 'show'])->name('qa.show');
+
+        Route::get('vacancies', [JobVacancyController::class, 'index'])->name('vacancies.index');
+        Route::get('vacancies/{vacancy}', [JobVacancyController::class, 'show'])->name('vacancies.show');
+        Route::get('applicants/{applicant}', [ApplicantController::class, 'show'])->name('applicants.show');
     });
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_PAYROLL]))->group(function () {

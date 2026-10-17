@@ -30,7 +30,7 @@ class HttpSmokeTest extends TestCase
             'password' => 'password', 'role' => User::ROLE_SUPER_ADMIN, 'is_active' => true,
         ]);
 
-        foreach (['/', '/employees', '/employees/import', '/documents', '/document-types', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/payroll/final-pay', '/attendance/exceptions', '/loans', '/loan-types', '/users', '/audit-log', '/time-clock/access', '/biometric-devices', '/pins', '/notifications', '/leave-balances', '/shifts', '/roster', '/swaps', '/ot', '/schedule-changes', '/cases', '/cases/create', '/qa', '/qa/create', '/qa/criteria', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
+        foreach (['/', '/employees', '/employees/import', '/documents', '/document-types', '/vacancies', '/vacancies/create', '/attendance', '/attendance/corrections', '/government', '/government/remittances', '/payroll/periods', '/payroll/runs', '/payroll/final-pay', '/attendance/exceptions', '/loans', '/loan-types', '/users', '/audit-log', '/time-clock/access', '/biometric-devices', '/pins', '/notifications', '/leave-balances', '/shifts', '/roster', '/swaps', '/ot', '/schedule-changes', '/cases', '/cases/create', '/qa', '/qa/create', '/qa/criteria', '/reports/sss-r3', '/reports/philhealth-rf1', '/reports/pagibig-mcrf', '/reports/bir-1601c', '/reports/bir-2316'] as $path) {
             $this->actingAs($admin)->get($path)->assertOk();
         }
     }
