@@ -157,6 +157,7 @@
                 <div class="label">Admin</div>
                 <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}"><span class="ico">⚙</span> User Accounts</a>
                 <a href="{{ route('audit.index') }}" class="{{ request()->routeIs('audit.*') ? 'active' : '' }}"><span class="ico">▤</span> Audit Log</a>
+                <a href="{{ route('operations.index') }}" class="{{ request()->routeIs('operations.*') ? 'active' : '' }}"><span class="ico">◈</span> Operations</a>
                 <a href="{{ route('time-clock.ips.index') }}" class="{{ request()->routeIs('time-clock.ips.*') ? 'active' : '' }}"><span class="ico">⇉</span> Kiosk Access</a>
                 <a href="{{ route('biometric-devices.index') }}" class="{{ request()->routeIs('biometric-devices.*') ? 'active' : '' }}"><span class="ico">⌘</span> Biometric Devices</a>
             </div>

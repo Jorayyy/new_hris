@@ -28,6 +28,7 @@ use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\LoanTypeController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OperationsController;
 use App\Http\Controllers\OvertimeRequestController;
 use App\Http\Controllers\PayrollPeriodController;
 use App\Http\Controllers\PayrollRunController;
@@ -238,6 +239,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN)->group(function () {
         Route::resource('users', UserController::class)->except('show');
         Route::get('audit-log', [AuditLogController::class, 'index'])->name('audit.index');
+
+        Route::get('operations', [OperationsController::class, 'index'])->name('operations.index');
+        Route::post('operations/retry-failed', [OperationsController::class, 'retryFailed'])->name('operations.retry');
 
         Route::get('time-clock/access', [TimeClockIpController::class, 'index'])->name('time-clock.ips.index');
         Route::post('time-clock/access', [TimeClockIpController::class, 'store'])->name('time-clock.ips.store');
