@@ -197,6 +197,16 @@ Route::middleware('auth')->group(function () {
 
         Route::get('government', [GovernmentTableController::class, 'index'])->name('government.index');
         Route::get('government/remittances', [GovernmentTableController::class, 'remittances'])->name('government.remittances');
+        Route::put('government/sss', [GovernmentTableController::class, 'rebuildSss'])->name('government.sss.rebuild');
+        Route::post('government/philhealth', [GovernmentTableController::class, 'storePhilhealth'])->name('government.philhealth.store');
+        Route::put('government/philhealth/{philhealth}', [GovernmentTableController::class, 'updatePhilhealth'])->name('government.philhealth.update');
+        Route::delete('government/philhealth/{philhealth}', [GovernmentTableController::class, 'destroyPhilhealth'])->name('government.philhealth.destroy');
+        Route::post('government/pagibig', [GovernmentTableController::class, 'storePagibig'])->name('government.pagibig.store');
+        Route::put('government/pagibig/{pagibig}', [GovernmentTableController::class, 'updatePagibig'])->name('government.pagibig.update');
+        Route::delete('government/pagibig/{pagibig}', [GovernmentTableController::class, 'destroyPagibig'])->name('government.pagibig.destroy');
+        Route::post('government/tax', [GovernmentTableController::class, 'storeTax'])->name('government.tax.store');
+        Route::put('government/tax/{tax}', [GovernmentTableController::class, 'updateTax'])->name('government.tax.update');
+        Route::delete('government/tax/{tax}', [GovernmentTableController::class, 'destroyTax'])->name('government.tax.destroy');
 
         Route::get('reports/sss-r3', [ReportController::class, 'sssR3'])->name('reports.sss-r3');
         Route::get('reports/philhealth-rf1', [ReportController::class, 'philhealthRf1'])->name('reports.philhealth-rf1');
