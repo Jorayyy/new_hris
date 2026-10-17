@@ -122,6 +122,11 @@ class Employee extends Model
         return $this->hasMany(ShiftSwapRequest::class, 'requester_id');
     }
 
+    public function overtimeRequests(): HasMany
+    {
+        return $this->hasMany(OvertimeRequest::class);
+    }
+
     public function shiftForDate(\DateTimeInterface|string $date): ?Shift
     {
         $date = is_string($date) ? $date : $date->format('Y-m-d');

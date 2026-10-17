@@ -18,6 +18,7 @@ use App\Http\Controllers\LeaveBalanceController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\LoanTypeController;
+use App\Http\Controllers\OvertimeRequestController;
 use App\Http\Controllers\PayrollPeriodController;
 use App\Http\Controllers\PayrollRunController;
 use App\Http\Controllers\PayslipController;
@@ -59,6 +60,8 @@ Route::middleware('auth')->group(function () {
         Route::post('me/leave', [SelfServiceController::class, 'storeLeave'])->name('me.leave.store');
         Route::get('me/swaps', [ShiftSwapController::class, 'mine'])->name('me.swaps');
         Route::post('me/swaps', [ShiftSwapController::class, 'store'])->name('me.swaps.store');
+        Route::get('me/ot', [OvertimeRequestController::class, 'mine'])->name('me.ot');
+        Route::post('me/ot', [OvertimeRequestController::class, 'store'])->name('me.ot.store');
         Route::get('me/profile', [ProfileController::class, 'edit'])->name('me.profile');
         Route::put('me/profile', [ProfileController::class, 'update'])->name('me.profile.update');
         Route::put('me/password', [ProfileController::class, 'updatePassword'])->name('me.password');
@@ -102,6 +105,9 @@ Route::middleware('auth')->group(function () {
 
         Route::get('swaps', [ShiftSwapController::class, 'index'])->name('swaps.index');
         Route::post('swaps/{swap}/decide', [ShiftSwapController::class, 'decide'])->name('swaps.decide');
+
+        Route::get('ot', [OvertimeRequestController::class, 'index'])->name('ot.index');
+        Route::post('ot/{overtime}/decide', [OvertimeRequestController::class, 'decide'])->name('ot.decide');
     });
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_PAYROLL]))->group(function () {
