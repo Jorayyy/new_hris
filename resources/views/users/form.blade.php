@@ -19,7 +19,8 @@
                     </div>
                     <div class="field">
                         <label>Password</label>
-                        <input type="password" name="password" placeholder="{{ $user->exists ? 'Leave blank to keep current password' : '' }}" {{ $user->exists ? '' : 'required' }}>
+                        <input type="password" name="password" minlength="8" placeholder="{{ $user->exists ? 'Leave blank to keep current password' : '' }}" {{ $user->exists ? '' : 'required' }}>
+                        <p class="muted">At least 8 characters, including a number.</p>
                     </div>
                     <div class="field">
                         <label>Role</label>

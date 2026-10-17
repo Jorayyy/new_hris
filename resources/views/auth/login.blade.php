@@ -117,6 +117,9 @@
         var staffView = document.getElementById('staff-view');
         toggle.addEventListener('click', function () { punchView.hidden = true; staffView.hidden = false; });
         back.addEventListener('click', function () { staffView.hidden = true; punchView.hidden = false; });
+
+        // Keep the kiosk session (and its CSRF token) alive between punches.
+        setInterval(function () { fetch(location.pathname, { credentials: 'same-origin' }); }, 20 * 60 * 1000);
     })();
 </script>
 </body>

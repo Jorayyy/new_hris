@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -35,7 +36,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', Password::min(8)->numbers()],
             'role' => ['required', Rule::in($this->roles())],
             'branch_id' => ['nullable', 'exists:branches,id'],
             'employee_id' => ['nullable', 'exists:employees,id'],
@@ -74,7 +75,7 @@ class UserController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:8'],
+            'password' => ['nullable', 'string', Password::min(8)->numbers()],
             'role' => ['required', Rule::in($this->roles())],
             'branch_id' => ['nullable', 'exists:branches,id'],
             'employee_id' => ['nullable', 'exists:employees,id'],

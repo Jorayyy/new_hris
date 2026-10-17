@@ -27,7 +27,7 @@
                 <form method="POST" action="{{ route('me.password') }}">
                     @csrf @method('PUT')
                     <div class="field"><label>Current password</label><input type="password" name="current_password" required></div>
-                    <div class="field"><label>New password</label><input type="password" name="password" required></div>
+                    <div class="field"><label>New password</label><input type="password" name="password" minlength="8" required><p class="muted">At least 8 characters, including a number.</p></div>
                     <div class="field"><label>Confirm new password</label><input type="password" name="password_confirmation" required></div>
                     <button class="btn primary">Update password</button>
                 </form>
