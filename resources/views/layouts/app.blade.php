@@ -27,14 +27,14 @@
         <div class="brand"><span class="dot"></span> {{ config('app.name') }}</div>
 
         <nav class="nav-scroll">
-        <div class="nav-group">
-            <div class="label">Overview</div>
+        <details class="nav-group">
+            <summary class="label">Overview</summary>
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}"><span class="ico">▦</span> Dashboard</a>
-        </div>
+        </details>
 
         @if($isEmployee)
-            <div class="nav-group">
-                <div class="label">My Space</div>
+            <details class="nav-group">
+                <summary class="label">My Space</summary>
                 <a href="{{ route('me.dtr') }}" class="{{ request()->routeIs('me.dtr') ? 'active' : '' }}"><span class="ico">⏱</span> My DTR</a>
                 <a href="{{ route('me.roster') }}" class="{{ request()->routeIs('me.roster') ? 'active' : '' }}"><span class="ico">◔</span> My Roster</a>
                 <a href="{{ route('me.tk') }}" class="{{ request()->routeIs('me.tk*') ? 'active' : '' }}"><span class="ico">⌚</span> Timekeeping</a>
@@ -47,28 +47,28 @@
                 <a href="{{ route('me.scorecards') }}" class="{{ request()->routeIs('me.scorecards') ? 'active' : '' }}"><span class="ico">◎</span> My Scorecards</a>
                 <a href="{{ route('me.pay') }}" class="{{ request()->routeIs('me.pay') ? 'active' : '' }}"><span class="ico">₱</span> My Pay</a>
                 <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
-            </div>
+            </details>
         @endif
 
         @if($u->hasRole(\App\Models\User::HR_ROLES))
-            <div class="nav-group">
-                <div class="label">People</div>
+            <details class="nav-group">
+                <summary class="label">People</summary>
                 <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}"><span class="ico">☺</span> Employees</a>
                 <a href="{{ route('documents.index') }}" class="{{ request()->routeIs('documents.*', 'document-types.*') ? 'active' : '' }}"><span class="ico">▦</span> 201 Documents</a>
                 <a href="{{ route('pins.index') }}" class="{{ request()->routeIs('pins.*') ? 'active' : '' }}"><span class="ico">⌘</span> Time-clock PINs</a>
                 <a href="{{ route('announcements.index') }}" class="{{ request()->routeIs('announcements.*') ? 'active' : '' }}"><span class="ico">✦</span> Announcements</a>
-            </div>
-            <div class="nav-group">
-                <div class="label">Organization</div>
+            </details>
+            <details class="nav-group">
+                <summary class="label">Organization</summary>
                 <a href="{{ route('branches.index') }}" class="{{ request()->routeIs('branches.*') ? 'active' : '' }}"><span class="ico">⌂</span> Branches</a>
                 <a href="{{ route('departments.index') }}" class="{{ request()->routeIs('departments.*') ? 'active' : '' }}"><span class="ico">▤</span> Departments</a>
                 <a href="{{ route('positions.index') }}" class="{{ request()->routeIs('positions.*') ? 'active' : '' }}"><span class="ico">★</span> Positions</a>
-            </div>
+            </details>
         @endif
 
         @if($isHr || $isManager)
-            <div class="nav-group">
-                <div class="label">Time &amp; Attendance</div>
+            <details class="nav-group">
+                <summary class="label">Time &amp; Attendance</summary>
                 <a href="{{ route('attendance.index') }}" class="{{ request()->routeIs('attendance.index', 'attendance.edit') ? 'active' : '' }}"><span class="ico">⏱</span> Attendance / DTR</a>
                 @if($isHr)
                     <a href="{{ route('attendance.corrections.index') }}" class="{{ request()->routeIs('attendance.corrections.*') ? 'active' : '' }}"><span class="ico">⚑</span> Corrections</a>
@@ -81,33 +81,33 @@
                 <a href="{{ route('ot.index') }}" class="{{ request()->routeIs('ot.*') ? 'active' : '' }}"><span class="ico">↑</span> Overtime</a>
                 <a href="{{ route('schedule-changes.index') }}" class="{{ request()->routeIs('schedule-changes.*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Changes</a>
                 <a href="{{ route('attendance.exceptions.index') }}" class="{{ request()->routeIs('attendance.exceptions.*') ? 'active' : '' }}"><span class="ico">⚠</span> Exceptions</a>
-            </div>
+            </details>
         @endif
 
         @if($isHr || $isManager)
-            <div class="nav-group">
-                <div class="label">Recruitment</div>
+            <details class="nav-group">
+                <summary class="label">Recruitment</summary>
                 <a href="{{ route('vacancies.index') }}" class="{{ request()->routeIs('vacancies.*', 'applicants.*') ? 'active' : '' }}"><span class="ico">⌖</span> Vacancies</a>
                 @if($isHr)
                     <a href="{{ route('vacancies.create') }}" class="{{ request()->routeIs('vacancies.create') ? 'active' : '' }}"><span class="ico">+</span> New Vacancy</a>
                 @endif
-            </div>
-            <div class="nav-group">
-                <div class="label">Employee Relations</div>
+            </details>
+            <details class="nav-group">
+                <summary class="label">Employee Relations</summary>
                 <a href="{{ route('cases.index') }}" class="{{ request()->routeIs('cases.*') ? 'active' : '' }}"><span class="ico">⚑</span> Cases</a>
-            </div>
-            <div class="nav-group">
-                <div class="label">Performance</div>
+            </details>
+            <details class="nav-group">
+                <summary class="label">Performance</summary>
                 <a href="{{ route('qa.index') }}" class="{{ request()->routeIs('qa.index', 'qa.show', 'qa.create', 'qa.edit') ? 'active' : '' }}"><span class="ico">◎</span> QA Scorecards</a>
                 @if($isHr)
                     <a href="{{ route('qa.criteria') }}" class="{{ request()->routeIs('qa.criteria') ? 'active' : '' }}"><span class="ico">≡</span> QA Criteria</a>
                 @endif
-            </div>
+            </details>
         @endif
 
         @if($isHr || $isManager || $isPayroll)
-            <div class="nav-group">
-                <div class="label">Leave</div>
+            <details class="nav-group">
+                <summary class="label">Leave</summary>
                 @if($isHr || $isManager)
                     <a href="{{ route('leave-requests.index') }}" class="{{ request()->routeIs('leave-requests.*') ? 'active' : '' }}"><span class="ico">☖</span> Leave Requests</a>
                 @endif
@@ -117,12 +117,12 @@
                 @if($isHr || $isPayroll)
                     <a href="{{ route('leave-types.index') }}" class="{{ request()->routeIs('leave-types.*') ? 'active' : '' }}"><span class="ico">≡</span> Leave Types</a>
                 @endif
-            </div>
+            </details>
         @endif
 
         @if($isPayroll)
-            <div class="nav-group">
-                <div class="label">Reports</div>
+            <details class="nav-group">
+                <summary class="label">Reports</summary>
                 <a href="{{ route('government.index') }}" class="{{ request()->routeIs('government.index') ? 'active' : '' }}"><span class="ico">▦</span> Gov't Tables</a>
                 <a href="{{ route('government.remittances') }}" class="{{ request()->routeIs('government.remittances') ? 'active' : '' }}"><span class="ico">⇪</span> Remittances</a>
                 <div class="label" style="margin-top:10px">Statutory</div>
@@ -131,36 +131,36 @@
                 <a href="{{ route('reports.pagibig-mcrf') }}" class="{{ request()->routeIs('reports.pagibig-mcrf') ? 'active' : '' }}"><span class="ico">·</span> Pag-IBIG MCRF</a>
                 <a href="{{ route('reports.bir-1601c') }}" class="{{ request()->routeIs('reports.bir-1601c') ? 'active' : '' }}"><span class="ico">·</span> BIR 1601-C</a>
                 <a href="{{ route('reports.bir-2316') }}" class="{{ request()->routeIs('reports.bir-2316') ? 'active' : '' }}"><span class="ico">·</span> BIR 2316</a>
-            </div>
+            </details>
         @endif
 
         @if($u->hasRole(\App\Models\User::PAYROLL_ROLES))
-            <div class="nav-group">
-                <div class="label">Payroll</div>
+            <details class="nav-group">
+                <summary class="label">Payroll</summary>
                 <a href="{{ route('payroll.periods.index') }}" class="{{ request()->routeIs('payroll.periods.*') ? 'active' : '' }}"><span class="ico">▦</span> Pay Periods</a>
                 <a href="{{ route('payroll.runs.index') }}" class="{{ request()->routeIs('payroll.runs.*') ? 'active' : '' }}"><span class="ico">▷</span> Payroll Runs</a>
                 <a href="{{ route('payroll.thirteenth') }}" class="{{ request()->routeIs('payroll.thirteenth') ? 'active' : '' }}"><span class="ico">13</span> 13th Month</a>
                 <a href="{{ route('payroll.final-pay') }}" class="{{ request()->routeIs('payroll.final-pay') ? 'active' : '' }}"><span class="ico">⌫</span> Final Pay</a>
-            </div>
+            </details>
         @endif
 
         @if($isHr || $isPayroll)
-            <div class="nav-group">
-                <div class="label">Loans</div>
+            <details class="nav-group">
+                <summary class="label">Loans</summary>
                 <a href="{{ route('loans.index') }}" class="{{ request()->routeIs('loans.*') ? 'active' : '' }}"><span class="ico">₱</span> Employee Loans</a>
                 <a href="{{ route('loan-types.index') }}" class="{{ request()->routeIs('loan-types.*') ? 'active' : '' }}"><span class="ico">≡</span> Loan Types</a>
-            </div>
+            </details>
         @endif
 
         @if($u->hasRole([\App\Models\User::ROLE_SUPER_ADMIN, \App\Models\User::ROLE_ADMIN]))
-            <div class="nav-group">
-                <div class="label">Admin</div>
+            <details class="nav-group">
+                <summary class="label">Admin</summary>
                 <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}"><span class="ico">⚙</span> User Accounts</a>
                 <a href="{{ route('audit.index') }}" class="{{ request()->routeIs('audit.*') ? 'active' : '' }}"><span class="ico">▤</span> Audit Log</a>
                 <a href="{{ route('operations.index') }}" class="{{ request()->routeIs('operations.*') ? 'active' : '' }}"><span class="ico">◈</span> Operations</a>
                 <a href="{{ route('time-clock.ips.index') }}" class="{{ request()->routeIs('time-clock.ips.*') ? 'active' : '' }}"><span class="ico">⇉</span> Kiosk Access</a>
                 <a href="{{ route('biometric-devices.index') }}" class="{{ request()->routeIs('biometric-devices.*') ? 'active' : '' }}"><span class="ico">⌘</span> Biometric Devices</a>
-            </div>
+            </details>
         @endif
 
         </nav>
@@ -251,6 +251,20 @@
             timer = setTimeout(function () { sessionStorage.setItem(key, nav.scrollTop); }, 120);
         });
         window.addEventListener('pagehide', function () { sessionStorage.setItem(key, nav.scrollTop); });
+    })();
+
+    (function () {
+        var groups = document.querySelectorAll('.nav-group');
+        Array.prototype.forEach.call(groups, function (group) {
+            var title = group.querySelector('summary');
+            var key = 'hris.nav.' + (title ? title.textContent.trim() : '');
+            var saved = null;
+            try { saved = localStorage.getItem(key); } catch (e) {}
+            group.open = !!group.querySelector('a.active') || saved === '1';
+            group.addEventListener('toggle', function () {
+                try { localStorage.setItem(key, group.open ? '1' : '0'); } catch (e) {}
+            });
+        });
     })();
 
     (function () {
