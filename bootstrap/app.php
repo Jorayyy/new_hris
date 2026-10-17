@@ -19,6 +19,16 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->redirectGuestsTo('/login');
+
+        // Behind nginx/Cloudflare a load balancer terminates TLS and forwards the
+        // real client IP plus X-Forwarded-* headers. Without TRUSTED_PROXIES the
+        // audit log records the proxy IP, the time-clock IP allowlist compares
+        // against the wrong address and HTTPS is never detected.
+        $proxies = array_values(array_filter(array_map('trim', explode(',', (string) env('TRUSTED_PROXIES', '')))));
+
+        if ($proxies !== []) {
+            $middleware->trustProxies(at: $proxies);
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

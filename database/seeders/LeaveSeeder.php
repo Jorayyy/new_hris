@@ -18,7 +18,7 @@ class LeaveSeeder extends Seeder
             ['name' => 'Unpaid Leave', 'code' => 'UL', 'is_paid' => false, 'pay_percentage' => 0, 'max_days_per_year' => 0, 'is_cash_convertible' => false, 'requires_attachment' => false],
         ];
         foreach ($types as $type) {
-            LeaveType::create($type + ['is_active' => true]);
+            LeaveType::updateOrCreate(['name' => $type['name']], $type + ['is_active' => true]);
         }
     }
 }
