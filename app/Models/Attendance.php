@@ -22,6 +22,18 @@ class Attendance extends Model
 
     public const STATUS_HOLIDAY = 'holiday';
 
+    /** Maps a punch action to the attendance column it stamps, in punch order. */
+    public const PUNCHES = [
+        'in' => 'time_in',
+        'break1_out' => 'break1_out',
+        'break1_in' => 'break1_in',
+        'lunch_out' => 'lunch_out',
+        'lunch_in' => 'lunch_in',
+        'break2_out' => 'break2_out',
+        'break2_in' => 'break2_in',
+        'out' => 'time_out',
+    ];
+
     protected function casts(): array
     {
         return [

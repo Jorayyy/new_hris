@@ -5,6 +5,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceCorrectionController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\BiometricDeviceController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
@@ -156,5 +157,11 @@ Route::middleware('auth')->group(function () {
         Route::post('time-clock/access', [TimeClockIpController::class, 'store'])->name('time-clock.ips.store');
         Route::put('time-clock/access/{ip}', [TimeClockIpController::class, 'update'])->name('time-clock.ips.update');
         Route::delete('time-clock/access/{ip}', [TimeClockIpController::class, 'destroy'])->name('time-clock.ips.destroy');
+
+        Route::get('biometric-devices', [BiometricDeviceController::class, 'index'])->name('biometric-devices.index');
+        Route::post('biometric-devices', [BiometricDeviceController::class, 'store'])->name('biometric-devices.store');
+        Route::post('biometric-devices/{device}/regenerate', [BiometricDeviceController::class, 'regenerate'])->name('biometric-devices.regenerate');
+        Route::put('biometric-devices/{device}', [BiometricDeviceController::class, 'update'])->name('biometric-devices.update');
+        Route::delete('biometric-devices/{device}', [BiometricDeviceController::class, 'destroy'])->name('biometric-devices.destroy');
     });
 });

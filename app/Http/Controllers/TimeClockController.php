@@ -14,18 +14,6 @@ use Illuminate\Validation\Rule;
 
 class TimeClockController extends Controller
 {
-    /** Maps a kiosk punch action to the attendance column it stamps. */
-    private const PUNCHES = [
-        'in' => 'time_in',
-        'break1_out' => 'break1_out',
-        'break1_in' => 'break1_in',
-        'lunch_out' => 'lunch_out',
-        'lunch_in' => 'lunch_in',
-        'break2_out' => 'break2_out',
-        'break2_in' => 'break2_in',
-        'out' => 'time_out',
-    ];
-
     public function punch(Request $request): RedirectResponse
     {
         if (! TimeClockIp::allows($request->ip())) {
@@ -36,7 +24,7 @@ class TimeClockController extends Controller
         $data = $request->validate([
             'employee_no' => ['required', 'string'],
             'pin' => ['required', 'string'],
-            'punch' => ['required', Rule::in(array_keys(self::PUNCHES))],
+            'punch' => ['required', Rule::in(array_keys(Attendance::PUNCHES))],
         ]);
 
         $employee = Employee::where('employee_no', $data['employee_no'])
@@ -60,7 +48,7 @@ class TimeClockController extends Controller
 
         $attendance->branch_id ??= $employee->branch_id;
         $attendance->source = 'kiosk';
-        $attendance->{self::PUNCHES[$data['punch']]} = $now;
+        $attendance->{Attendance::PUNCHES[$data['punch']]} = $now;
         $attendance->save();
 
         (new DtrService)->process($attendance->fresh(['employee', 'shift']));
