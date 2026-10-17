@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\OvertimeRequest;
+use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -36,6 +37,8 @@ class OvertimeRequestController extends Controller
         ]);
 
         AuditLog::record('timekeeping', $employee->full_name.' filed '.$data['hours'].'h overtime for '.$overtime->work_date->toDateString(), $overtime);
+
+        Notify::approvers('Overtime filed', $employee->full_name.' filed '.$data['hours'].'h overtime for '.$overtime->work_date->toDateString().'.', route('ot.index'), '↑');
 
         return back()->with('ok', 'Overtime filing submitted — awaiting approval.');
     }
@@ -72,6 +75,8 @@ class OvertimeRequestController extends Controller
         $overtime->save();
 
         AuditLog::record('timekeeping', 'Overtime filing for '.$overtime->employee?->full_name.' ('.$overtime->work_date->toDateString().') '.$overtime->status.' by '.$request->user()->name, $overtime);
+
+        Notify::employee($overtime->employee, 'Overtime '.$overtime->status, 'Your overtime filing for '.$overtime->work_date->toDateString().' was '.$overtime->status.'.', route('me.ot'), '↑');
 
         return back()->with('ok', 'Overtime '.$overtime->status.'.');
     }

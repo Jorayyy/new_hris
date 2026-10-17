@@ -20,6 +20,7 @@ use App\Http\Controllers\LeaveBalanceController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\LoanTypeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OvertimeRequestController;
 use App\Http\Controllers\PayrollPeriodController;
 use App\Http\Controllers\PayrollRunController;
@@ -52,6 +53,10 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::post('notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
 
     Route::middleware('role:'.User::ROLE_EMPLOYEE)->group(function () {
         Route::get('me/dtr', [SelfServiceController::class, 'dtr'])->name('me.dtr');

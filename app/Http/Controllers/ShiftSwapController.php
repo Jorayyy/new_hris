@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Employee;
 use App\Models\EmployeeShift;
 use App\Models\ShiftSwapRequest;
+use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,8 @@ class ShiftSwapController extends Controller
             'status' => ShiftSwapRequest::STATUS_PENDING,
         ]);
 
+        Notify::approvers('Shift swap', $employee->full_name.' requested a shift swap for '.$data['swap_date'].'.', route('swaps.index'), '⇄');
+
         return back()->with('ok', 'Shift swap requested.');
     }
 
@@ -92,6 +95,10 @@ class ShiftSwapController extends Controller
             'decided_by' => $request->user()->id,
             'decided_at' => now(),
         ]);
+
+        foreach ([$swap->requester, $swap->target] as $party) {
+            Notify::employee($party, 'Shift swap '.$swap->status, 'Your shift swap for '.$swap->swap_date->toDateString().' was '.$swap->status.'.', route('me.swaps'), '⇄');
+        }
 
         return back()->with('ok', 'Shift swap '.($data['decision'] === 'approve' ? 'approved.' : 'rejected.'));
     }

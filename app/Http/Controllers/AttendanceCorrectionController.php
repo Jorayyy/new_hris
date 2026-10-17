@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceCorrection;
 use App\Models\AuditLog;
 use App\Services\DtrService;
+use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -63,6 +64,8 @@ class AttendanceCorrectionController extends Controller
         $correction->save();
 
         AuditLog::record('timekeeping', 'DTR correction for '.$correction->employee?->full_name.' ('.$correction->work_date->toDateString().') '.$correction->status.' by '.$request->user()->name, $correction);
+
+        Notify::employee($correction->employee, 'DTR correction '.$correction->status, 'Your DTR correction for '.$correction->work_date->toDateString().' was '.$correction->status.'.', route('me.tk'), '⚑');
 
         return back()->with('ok', 'Correction '.$correction->status.'.');
     }

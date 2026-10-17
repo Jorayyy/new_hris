@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Support\Notify;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -106,6 +107,8 @@ class LeaveRequestController extends Controller
         }
 
         AuditLog::record($status, ucfirst($status).' leave request #'.$leaveRequest->id, $leaveRequest);
+
+        Notify::employee($leaveRequest->employee, 'Leave '.$status, 'Your leave request for '.optional($leaveRequest->date_from)->toDateString().' was '.$status.'.', route('me.leave'), '☖');
 
         return back()->with('ok', "Leave request {$status}.");
     }

@@ -19,6 +19,7 @@
     $isPayroll = $u->hasRole(\App\Models\User::PAYROLL_ROLES);
     $isManager = $u->hasRole(\App\Models\User::ROLE_MANAGER);
     $isAdmin = $u->hasRole([\App\Models\User::ROLE_SUPER_ADMIN, \App\Models\User::ROLE_ADMIN]);
+    $unread = $u->unreadNotifications()->count();
 @endphp
 <div class="layout">
     <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden>
@@ -162,6 +163,24 @@
                 <h1>@yield('title', 'Dashboard')</h1>
             </div>
             <div class="who">
+                <details class="bell">
+                    <summary aria-label="Notifications" title="Notifications">🔔@if($unread)<span class="bell-count">{{ $unread }}</span>@endif</summary>
+                    <div class="bell-menu">
+                        @forelse($u->notifications()->latest()->take(8)->get() as $notification)
+                            <a href="{{ route('notifications.read', $notification->id) }}" class="bell-item @unless($notification->read_at) unread @endunless">
+                                <span class="ico">{{ $notification->data['icon'] ?? '•' }}</span>
+                                <span style="min-width:0">
+                                    <span class="bell-title">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                    <div class="small muted">{{ $notification->data['body'] ?? '' }}</div>
+                                    <div class="small muted">{{ $notification->created_at->diffForHumans() }}</div>
+                                </span>
+                            </a>
+                        @empty
+                            <div class="bell-empty muted small">No notifications yet.</div>
+                        @endforelse
+                        <a href="{{ route('notifications.index') }}" class="bell-all">View all</a>
+                    </div>
+                </details>
                 <button type="button" class="btn sm" id="theme-toggle" aria-label="Toggle dark mode">Dark</button>
                 <div style="text-align:right">
                     <div style="font-weight:600;color:var(--text)">{{ $u->name }}</div>

@@ -6,6 +6,7 @@ use App\Models\AuditLog;
 use App\Models\EmployeeShift;
 use App\Models\ScheduleChangeRequest;
 use App\Models\Shift;
+use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +45,8 @@ class ScheduleChangeRequestController extends Controller
         ]);
 
         AuditLog::record('scheduling', $employee->full_name.' filed a schedule change for '.$change->work_date->toDateString(), $change);
+
+        Notify::approvers('Schedule change', $employee->full_name.' filed a schedule change for '.$change->work_date->toDateString().'.', route('schedule-changes.index'), '↻');
 
         return back()->with('ok', 'Schedule change submitted — awaiting approval.');
     }
@@ -92,6 +95,8 @@ class ScheduleChangeRequestController extends Controller
         $change->save();
 
         AuditLog::record('scheduling', 'Schedule change for '.$change->employee?->full_name.' ('.$change->work_date->toDateString().') '.$change->status.' by '.$request->user()->name, $change);
+
+        Notify::employee($change->employee, 'Schedule change '.$change->status, 'Your schedule change for '.$change->work_date->toDateString().' was '.$change->status.'.', route('me.schedule'), '↻');
 
         return back()->with('ok', 'Schedule change '.$change->status.'.');
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Support\Notify;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -119,6 +120,8 @@ class SelfServiceController extends Controller
             'reason' => $data['reason'] ?? null,
             'status' => LeaveRequest::STATUS_PENDING,
         ]);
+
+        Notify::approvers('Leave request', $employee->full_name.' filed a leave request for '.$data['date_from'].'.', route('leave-requests.index'), '☖');
 
         return back()->with('ok', 'Leave request submitted.');
     }
