@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             GovernmentTableSeeder::class,
             OrganizationSeeder::class,
             LoanTypeSeeder::class,
+            DocumentTypeSeeder::class,
             LeaveSeeder::class,
             UserSeeder::class,
             EmployeeSeeder::class,

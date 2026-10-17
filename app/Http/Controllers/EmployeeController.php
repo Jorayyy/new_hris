@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\Branch;
 use App\Models\Department;
+use App\Models\DocumentType;
 use App\Models\Employee;
 use App\Models\Position;
 use Illuminate\Http\RedirectResponse;
@@ -51,10 +52,11 @@ class EmployeeController extends Controller
 
     public function show(Employee $employee): View
     {
-        $employee->load(['branch', 'department', 'position', 'documents', 'allowances', 'deductions']);
+        $employee->load(['branch', 'department', 'position', 'documents.documentType', 'allowances', 'deductions']);
 
         return view('employees.show', [
             'employee' => $employee,
+            'documentTypes' => DocumentType::where('is_active', true)->orderBy('sort')->orderBy('name')->get(),
             'payslips' => $employee->payslips()->with('run.period')->latest()->take(8)->get(),
             'attendances' => $employee->attendances()->latest('work_date')->take(15)->get(),
             'leaveBalances' => $employee->leaveBalances()->where('year', now()->year)->with('leaveType')->get(),

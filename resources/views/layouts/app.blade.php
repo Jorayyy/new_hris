@@ -52,6 +52,7 @@
             <div class="nav-group">
                 <div class="label">People</div>
                 <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}"><span class="ico">☺</span> Employees</a>
+                <a href="{{ route('documents.index') }}" class="{{ request()->routeIs('documents.*', 'document-types.*') ? 'active' : '' }}"><span class="ico">▦</span> 201 Documents</a>
                 <a href="{{ route('pins.index') }}" class="{{ request()->routeIs('pins.*') ? 'active' : '' }}"><span class="ico">⌘</span> Time-clock PINs</a>
                 <a href="{{ route('announcements.index') }}" class="{{ request()->routeIs('announcements.*') ? 'active' : '' }}"><span class="ico">✦</span> Announcements</a>
             </div>

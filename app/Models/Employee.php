@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 #[Fillable([
     'employee_no', 'pin', 'user_id', 'branch_id', 'department_id', 'position_id',
@@ -102,6 +103,26 @@ class Employee extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(EmployeeDocument::class);
+    }
+
+    public function documentCompliance(): Collection
+    {
+        $documents = $this->documents->keyBy('document_type_id');
+
+        return DocumentType::query()->required()->get()->map(function (DocumentType $type) use ($documents) {
+            $document = $documents->get($type->id);
+
+            return [
+                'type' => $type,
+                'document' => $document,
+                'state' => $document ? ($document->expiryState() ?? 'ok') : 'missing',
+            ];
+        });
+    }
+
+    public function documentIssueCount(): int
+    {
+        return $this->documentCompliance()->reject(fn (array $row) => $row['state'] === 'ok')->count();
     }
 
     public function allowances(): HasMany

@@ -13,6 +13,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DisciplinaryCaseController;
+use App\Http\Controllers\DocumentTypeController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeDocumentController;
 use App\Http\Controllers\EmployeeLoanController;
@@ -99,6 +100,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('employees', EmployeeController::class);
         Route::post('employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])->name('employees.documents.store');
         Route::delete('documents/{document}', [EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+        Route::get('documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
+        Route::resource('document-types', DocumentTypeController::class)->except('show');
 
         Route::get('pins', [PinController::class, 'index'])->name('pins.index');
         Route::put('pins/{employee}', [PinController::class, 'update'])->name('pins.update');

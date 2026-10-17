@@ -36,11 +36,36 @@
         <div class="card">
             <div class="card-head"><h2>201 Documents</h2></div>
             <div class="card-body">
+                @php
+                    $compliance = $employee->documentCompliance();
+                    $stateBadge = ['missing' => 'red', 'expired' => 'red', 'expiring' => 'amber', 'ok' => 'green'];
+                    $stateLabel = ['missing' => 'Missing', 'expired' => 'Expired', 'expiring' => 'Expiring', 'ok' => 'OK'];
+                @endphp
+                @if($compliance->isNotEmpty())
+                    <ul style="list-style:none;margin:0 0 14px;padding:0">
+                        @foreach($compliance as $row)
+                            <li style="display:flex;align-items:center;gap:8px;padding:4px 0">
+                                <span class="badge {{ $stateBadge[$row['state']] ?? 'gray' }}">{{ $stateLabel[$row['state']] ?? $row['state'] }}</span>
+                                <span>{{ $row['type']->name }}</span>
+                                @if($row['document']?->expires_at)
+                                    <span class="muted" style="margin-left:auto">{{ $row['document']->expires_at->format('M d, Y') }}</span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
                 <form method="POST" action="{{ route('employees.documents.store', $employee) }}" enctype="multipart/form-data" class="filters" style="margin-bottom:14px">
                     @csrf
-                    <div class="field"><label>Type</label><input type="text" name="type" placeholder="e.g. NBI Clearance" required></div>
-                    <div class="field"><label>Title</label><input type="text" name="title" placeholder="Title" required></div>
-                    <div class="field"><label>Expires</label><input type="date" name="expires_at"></div>
+                    <div class="field"><label>Type</label>
+                        <select name="document_type_id" required>
+                            <option value="">Select type…</option>
+                            @foreach($documentTypes as $type)
+                                <option value="{{ $type->id }}" @selected(old('document_type_id') == $type->id)>{{ $type->name }}{{ $type->requires_expiry ? ' *' : '' }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="field"><label>Title (optional)</label><input type="text" name="title" value="{{ old('title') }}" placeholder="Defaults to type name"></div>
+                    <div class="field"><label>Expires *</label><input type="date" name="expires_at" value="{{ old('expires_at') }}"></div>
                     <div class="field"><label>File</label><input type="file" name="file" required></div>
                     <button class="btn primary">Upload</button>
                 </form>
@@ -50,9 +75,14 @@
                         <tbody>
                         @forelse($employee->documents as $document)
                             <tr>
-                                <td>{{ $document->type }}</td>
+                                <td>{{ $document->documentType?->name ?? $document->type }}</td>
                                 <td><a href="{{ \Illuminate\Support\Facades\Storage::url($document->file_path) }}" target="_blank">{{ $document->title }}</a></td>
-                                <td>{{ $document->expires_at?->format('M d, Y') ?? '—' }}</td>
+                                <td>
+                                    {{ $document->expires_at?->format('M d, Y') ?? '—' }}
+                                    @if($document->expiryState() && $document->expiryState() !== 'ok')
+                                        <span class="badge {{ $stateBadge[$document->expiryState()] }}">{{ $stateLabel[$document->expiryState()] }}</span>
+                                    @endif
+                                </td>
                                 <td><form method="POST" action="{{ route('documents.destroy', $document) }}">@csrf @method('DELETE')<button class="btn sm danger">Remove</button></form></td>
                             </tr>
                         @empty
