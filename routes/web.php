@@ -27,6 +27,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\SelfServiceController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\ShiftSwapController;
 use App\Http\Controllers\TimeClockController;
 use App\Http\Controllers\TimeClockIpController;
 use App\Http\Controllers\TimekeepingController;
@@ -56,6 +57,8 @@ Route::middleware('auth')->group(function () {
         Route::get('me/payslips/{payslip}', [SelfServiceController::class, 'payslip'])->name('me.payslips.show');
         Route::get('me/leave', [SelfServiceController::class, 'leave'])->name('me.leave');
         Route::post('me/leave', [SelfServiceController::class, 'storeLeave'])->name('me.leave.store');
+        Route::get('me/swaps', [ShiftSwapController::class, 'mine'])->name('me.swaps');
+        Route::post('me/swaps', [ShiftSwapController::class, 'store'])->name('me.swaps.store');
         Route::get('me/profile', [ProfileController::class, 'edit'])->name('me.profile');
         Route::put('me/profile', [ProfileController::class, 'update'])->name('me.profile.update');
         Route::put('me/password', [ProfileController::class, 'updatePassword'])->name('me.password');
@@ -96,6 +99,9 @@ Route::middleware('auth')->group(function () {
         Route::get('leave-requests/export', [LeaveRequestController::class, 'export'])->name('leave-requests.export');
         Route::resource('leave-requests', LeaveRequestController::class)->only(['index', 'store', 'destroy']);
         Route::post('leave-requests/{leaveRequest}/decide', [LeaveRequestController::class, 'approve'])->name('leave-requests.decide');
+
+        Route::get('swaps', [ShiftSwapController::class, 'index'])->name('swaps.index');
+        Route::post('swaps/{swap}/decide', [ShiftSwapController::class, 'decide'])->name('swaps.decide');
     });
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_PAYROLL]))->group(function () {

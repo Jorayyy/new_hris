@@ -39,6 +39,7 @@
                 <a href="{{ route('me.tk') }}" class="{{ request()->routeIs('me.tk*') ? 'active' : '' }}"><span class="ico">⌚</span> Timekeeping</a>
                 <a href="{{ route('me.payslips') }}" class="{{ request()->routeIs('me.payslips*') ? 'active' : '' }}"><span class="ico">₱</span> My Payslips</a>
                 <a href="{{ route('me.leave') }}" class="{{ request()->routeIs('me.leave') ? 'active' : '' }}"><span class="ico">☖</span> My Leave</a>
+                <a href="{{ route('me.swaps') }}" class="{{ request()->routeIs('me.swaps*') ? 'active' : '' }}"><span class="ico">⇄</span> Shift Swaps</a>
                 <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
             </div>
         @endif
@@ -68,6 +69,7 @@
                     <a href="{{ route('roster.index') }}" class="{{ request()->routeIs('roster.*') ? 'active' : '' }}"><span class="ico">▦</span> Roster</a>
                     <a href="{{ route('holidays.index') }}" class="{{ request()->routeIs('holidays.*') ? 'active' : '' }}"><span class="ico">✷</span> Holidays</a>
                 @endif
+                <a href="{{ route('swaps.index') }}" class="{{ request()->routeIs('swaps.*') ? 'active' : '' }}"><span class="ico">⇄</span> Shift Swaps</a>
             </div>
         @endif
 

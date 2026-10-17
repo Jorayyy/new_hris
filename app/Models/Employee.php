@@ -117,14 +117,19 @@ class Employee extends Model
         return $this->hasMany(EmployeeShift::class);
     }
 
+    public function shiftSwapRequests(): HasMany
+    {
+        return $this->hasMany(ShiftSwapRequest::class, 'requester_id');
+    }
+
     public function shiftForDate(\DateTimeInterface|string $date): ?Shift
     {
         $date = is_string($date) ? $date : $date->format('Y-m-d');
 
         return EmployeeShift::query()
             ->where('employee_id', $this->id)
-            ->where('effective_from', '<=', $date)
-            ->where(fn ($q) => $q->whereNull('effective_to')->orWhere('effective_to', '>=', $date))
+            ->whereDate('effective_from', '<=', $date)
+            ->where(fn ($q) => $q->whereNull('effective_to')->orWhereDate('effective_to', '>=', $date))
             ->latest('effective_from')
             ->first()?->shift;
     }
