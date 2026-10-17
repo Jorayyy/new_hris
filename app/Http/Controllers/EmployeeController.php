@@ -10,6 +10,8 @@ use App\Models\Position;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
@@ -93,21 +95,157 @@ class EmployeeController extends Controller
             ->orderBy('last_name')
             ->get();
 
-        $rows = [['Employee No', 'Name', 'Branch', 'Department', 'Position', 'Status', 'Date Hired', 'Basic Salary']];
+        $rows = [['employee_no', 'first_name', 'middle_name', 'last_name', 'suffix', 'branch', 'department', 'position', 'employment_status', 'date_hired', 'basic_salary', 'monthly_allowance', 'tax_status', 'contact_no', 'personal_email', 'sss_no', 'philhealth_no', 'pagibig_no', 'tin', 'bank_name', 'bank_account_no']];
         foreach ($employees as $employee) {
             $rows[] = [
                 $employee->employee_no,
-                $employee->full_name,
+                $employee->first_name,
+                $employee->middle_name,
+                $employee->last_name,
+                $employee->suffix,
                 $employee->branch?->name,
                 $employee->department?->name,
                 $employee->position?->title,
                 $employee->employment_status,
                 optional($employee->date_hired)->toDateString(),
                 number_format((float) $employee->basic_salary, 2, '.', ''),
+                number_format((float) $employee->monthly_allowance, 2, '.', ''),
+                $employee->tax_status,
+                $employee->contact_no,
+                $employee->personal_email,
+                $employee->sss_no,
+                $employee->philhealth_no,
+                $employee->pagibig_no,
+                $employee->tin,
+                $employee->bank_name,
+                $employee->bank_account_no,
             ];
         }
 
         return $this->csv($rows, 'employees.csv');
+    }
+
+    public function importForm(): View
+    {
+        return view('employees.import');
+    }
+
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate(['file' => ['required', 'file', 'mimes:csv,txt']]);
+
+        $branches = $this->nameMap(Branch::all(), 'name');
+        $departments = $this->nameMap(Department::all(), 'name');
+        $positions = $this->nameMap(Position::all(), 'title');
+
+        $preview = $request->boolean('preview');
+        $handle = fopen($request->file('file')->getRealPath(), 'r');
+        $header = null;
+        $line = 1;
+        $created = 0;
+        $updated = 0;
+        $skipped = 0;
+        $errors = [];
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $line++;
+
+            if ($header === null) {
+                $header = array_map(fn ($name) => (string) Str::of((string) $name)->trim()->lower()->replace([' ', '-'], '_'), $row);
+
+                continue;
+            }
+
+            if (implode('', $row) === '') {
+                continue;
+            }
+
+            $values = [];
+            foreach ($header as $index => $key) {
+                $values[$key] = trim((string) ($row[$index] ?? ''));
+            }
+
+            foreach (['employee_number' => 'employee_no', 'emp_no' => 'employee_no', 'branch_name' => 'branch', 'department_name' => 'department', 'job_title' => 'position', 'title' => 'position', 'email' => 'personal_email', 'mobile' => 'contact_no'] as $alias => $field) {
+                if (! isset($values[$field]) && isset($values[$alias])) {
+                    $values[$field] = $values[$alias];
+                }
+            }
+
+            $payload = [
+                'employee_no' => $values['employee_no'] ?? '',
+                'first_name' => $values['first_name'] ?? '',
+                'middle_name' => ($values['middle_name'] ?? '') ?: null,
+                'last_name' => $values['last_name'] ?? '',
+                'suffix' => ($values['suffix'] ?? '') ?: null,
+                'branch_id' => $branches[mb_strtolower($values['branch'] ?? '')] ?? null,
+                'department_id' => $departments[mb_strtolower($values['department'] ?? '')] ?? null,
+                'position_id' => $positions[mb_strtolower($values['position'] ?? '')] ?? null,
+                'employment_status' => ($values['employment_status'] ?? '') ?: 'probationary',
+                'date_hired' => ($values['date_hired'] ?? '') ?: null,
+                'basic_salary' => ($values['basic_salary'] ?? '') ?: 0,
+                'monthly_allowance' => ($values['monthly_allowance'] ?? '') ?: 0,
+                'tax_status' => ($values['tax_status'] ?? '') ?: 'S',
+                'contact_no' => ($values['contact_no'] ?? '') ?: null,
+                'personal_email' => ($values['personal_email'] ?? '') ?: null,
+                'sss_no' => ($values['sss_no'] ?? '') ?: null,
+                'philhealth_no' => ($values['philhealth_no'] ?? '') ?: null,
+                'pagibig_no' => ($values['pagibig_no'] ?? '') ?: null,
+                'tin' => ($values['tin'] ?? '') ?: null,
+                'bank_name' => ($values['bank_name'] ?? '') ?: null,
+                'bank_account_no' => ($values['bank_account_no'] ?? '') ?: null,
+                'is_active' => true,
+            ];
+
+            $validator = Validator::make($payload, [
+                'employee_no' => ['required', 'string', 'max:50'],
+                'first_name' => ['required', 'string', 'max:100'],
+                'last_name' => ['required', 'string', 'max:100'],
+                'employment_status' => ['required', 'string', 'max:30'],
+                'date_hired' => ['nullable', 'date'],
+                'basic_salary' => ['nullable', 'numeric', 'min:0'],
+                'monthly_allowance' => ['nullable', 'numeric', 'min:0'],
+                'personal_email' => ['nullable', 'email', 'max:255'],
+            ]);
+
+            if ($validator->fails()) {
+                $skipped++;
+                $errors[] = 'Row '.$line.': '.implode(' ', $validator->errors()->all());
+
+                continue;
+            }
+
+            $existing = Employee::where('employee_no', $payload['employee_no'])->first();
+
+            if ($existing) {
+                if (! $preview) {
+                    $existing->update($payload);
+                }
+                $updated++;
+            } else {
+                if (! $preview) {
+                    Employee::create($payload);
+                }
+                $created++;
+            }
+        }
+        fclose($handle);
+
+        if (! $preview) {
+            AuditLog::record('create', "Imported employees from CSV ({$created} created, {$updated} updated, {$skipped} skipped)");
+        }
+
+        return redirect()->route('employees.import.form')->with('import_result', [
+            'created' => $created,
+            'updated' => $updated,
+            'skipped' => $skipped,
+            'errors' => array_slice($errors, 0, 25),
+            'preview' => $preview,
+        ]);
+    }
+
+    private function nameMap($records, string $column): array
+    {
+        return $records->mapWithKeys(fn ($record) => [mb_strtolower(trim((string) $record->{$column})) => $record->id])->all();
     }
 
     private function csv(array $rows, string $filename): Response

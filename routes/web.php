@@ -90,6 +90,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('departments', DepartmentController::class)->except('show');
         Route::resource('positions', PositionController::class)->except('show');
         Route::get('employees/export', [EmployeeController::class, 'export'])->name('employees.export');
+        Route::get('employees/import', [EmployeeController::class, 'importForm'])->name('employees.import.form');
+        Route::post('employees/import', [EmployeeController::class, 'import'])->name('employees.import');
         Route::resource('employees', EmployeeController::class);
         Route::post('employees/{employee}/documents', [EmployeeDocumentController::class, 'store'])->name('employees.documents.store');
         Route::delete('documents/{document}', [EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');

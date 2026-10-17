@@ -5,7 +5,11 @@
     <div class="card">
         <div class="card-head">
             <h2>Employees</h2>
-            <a class="btn primary sm" href="{{ route('employees.create') }}">+ New employee</a>
+            <div class="btn-row">
+                <a class="btn sm" href="{{ route('employees.import.form') }}">Import CSV</a>
+                <a class="btn sm" href="{{ route('employees.export', request()->query()) }}">Export CSV</a>
+                <a class="btn primary sm" href="{{ route('employees.create') }}">+ New employee</a>
+            </div>
         </div>
         <div class="card-body" style="padding-bottom:0">
             <form method="GET" class="filters">
