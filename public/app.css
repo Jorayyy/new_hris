@@ -141,11 +141,11 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--primary); outli
 
 .nav-group { padding: 0; margin-bottom: 4px; }
 .nav-group .label {
-    font-size: 12px;
+    font-size: 14px;
     text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--muted);
-    padding: 15px 10px 7px;
+    letter-spacing: .05em;
+    color: var(--sidebar-ink-strong);
+    padding: 17px 10px 8px;
     font-weight: 700;
 }
 
