@@ -44,6 +44,7 @@
                 <a href="{{ route('me.ot') }}" class="{{ request()->routeIs('me.ot*') ? 'active' : '' }}"><span class="ico">↑</span> Overtime</a>
                 <a href="{{ route('me.schedule') }}" class="{{ request()->routeIs('me.schedule*') ? 'active' : '' }}"><span class="ico">↻</span> Schedule Change</a>
                 <a href="{{ route('me.cases') }}" class="{{ request()->routeIs('me.cases*') ? 'active' : '' }}"><span class="ico">⚑</span> My Cases</a>
+                <a href="{{ route('me.scorecards') }}" class="{{ request()->routeIs('me.scorecards') ? 'active' : '' }}"><span class="ico">◎</span> My Scorecards</a>
                 <a href="{{ route('me.profile') }}" class="{{ request()->routeIs('me.profile') ? 'active' : '' }}"><span class="ico">✎</span> My Profile</a>
             </div>
         @endif
@@ -86,6 +87,13 @@
             <div class="nav-group">
                 <div class="label">Employee Relations</div>
                 <a href="{{ route('cases.index') }}" class="{{ request()->routeIs('cases.*') ? 'active' : '' }}"><span class="ico">⚑</span> Cases</a>
+            </div>
+            <div class="nav-group">
+                <div class="label">Performance</div>
+                <a href="{{ route('qa.index') }}" class="{{ request()->routeIs('qa.index', 'qa.show', 'qa.create', 'qa.edit') ? 'active' : '' }}"><span class="ico">◎</span> QA Scorecards</a>
+                @if($isHr)
+                    <a href="{{ route('qa.criteria') }}" class="{{ request()->routeIs('qa.criteria') ? 'active' : '' }}"><span class="ico">≡</span> QA Criteria</a>
+                @endif
             </div>
         @endif
 

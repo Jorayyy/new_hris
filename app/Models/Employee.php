@@ -148,6 +148,11 @@ class Employee extends Model
         return $this->hasMany(ClearanceItem::class)->orderBy('sort')->orderBy('id');
     }
 
+    public function qaEvaluations(): HasMany
+    {
+        return $this->hasMany(QaEvaluation::class);
+    }
+
     public function regularizationDueOn(): ?Carbon
     {
         return $this->date_hired?->copy()->addMonths($this->probation_months ?: 6);

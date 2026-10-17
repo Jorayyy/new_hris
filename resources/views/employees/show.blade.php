@@ -196,6 +196,31 @@
     </div>
 
     <div class="card">
+        <div class="card-head">
+            <h2>QA Scorecards</h2>
+            <span class="muted">Average: {{ $qaAverage !== null ? number_format((float) $qaAverage, 2).'%' : '—' }} · passing {{ $qaPassing }}%</span>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Date</th><th class="num">Score</th><th>Rating</th><th>Reference</th><th></th></tr></thead>
+                <tbody>
+                @forelse($qaEvaluations as $evaluation)
+                    <tr>
+                        <td>{{ $evaluation->evaluated_on->format('M d, Y') }}</td>
+                        <td class="num">{{ $evaluation->score !== null ? number_format((float) $evaluation->score, 2) : '—' }}</td>
+                        <td><span class="badge {{ $evaluation->statusTone() }}">{{ $evaluation->statusLabel() }}</span></td>
+                        <td class="muted small">{{ $evaluation->reference ?: '—' }}</td>
+                        <td><a class="btn sm ghost" href="{{ route('qa.show', $evaluation) }}">View</a></td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5" class="muted">No scorecards yet.</td></tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
         <div class="card-head"><h2>Recent Payslips</h2></div>
         <div class="table-wrap">
             <table>

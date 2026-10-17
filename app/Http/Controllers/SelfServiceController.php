@@ -7,6 +7,7 @@ use App\Models\DisciplinaryCase;
 use App\Models\DisciplinaryCaseAction;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Models\QaEvaluation;
 use App\Support\Notify;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -168,5 +169,17 @@ class SelfServiceController extends Controller
         Notify::hr('Employee response', $employee->full_name.' responded on: '.$record->subject, route('cases.show', $record), '⚑');
 
         return back()->with('ok', 'Response submitted.');
+    }
+
+    public function scorecards(Request $request): View
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404);
+
+        return view('me.scorecards', [
+            'evaluations' => $employee->qaEvaluations()->with('scores.criterion')->latest('evaluated_on')->paginate(15),
+            'average' => $employee->qaEvaluations()->avg('score'),
+            'passing' => QaEvaluation::passingScore(),
+        ]);
     }
 }

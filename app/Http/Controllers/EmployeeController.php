@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\DocumentType;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Models\QaEvaluation;
 use App\Support\Notify;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -61,6 +62,9 @@ class EmployeeController extends Controller
             'payslips' => $employee->payslips()->with('run.period')->latest()->take(8)->get(),
             'attendances' => $employee->attendances()->latest('work_date')->take(15)->get(),
             'leaveBalances' => $employee->leaveBalances()->where('year', now()->year)->with('leaveType')->get(),
+            'qaEvaluations' => $employee->qaEvaluations()->latest('evaluated_on')->take(6)->get(),
+            'qaAverage' => $employee->qaEvaluations()->avg('score'),
+            'qaPassing' => QaEvaluation::passingScore(),
         ]);
     }
 

@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             OrganizationSeeder::class,
             LoanTypeSeeder::class,
             DocumentTypeSeeder::class,
+            QaCriteriaSeeder::class,
             LeaveSeeder::class,
             UserSeeder::class,
             EmployeeSeeder::class,

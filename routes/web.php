@@ -33,6 +33,8 @@ use App\Http\Controllers\PayslipController;
 use App\Http\Controllers\PinController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QaCriterionController;
+use App\Http\Controllers\QaEvaluationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RosterController;
 use App\Http\Controllers\ScheduleChangeRequestController;
@@ -87,6 +89,7 @@ Route::middleware('auth')->group(function () {
         Route::put('me/profile', [ProfileController::class, 'update'])->name('me.profile.update');
         Route::put('me/password', [ProfileController::class, 'updatePassword'])->name('me.password');
         Route::get('me/cases', [SelfServiceController::class, 'cases'])->name('me.cases');
+        Route::get('me/scorecards', [SelfServiceController::class, 'scorecards'])->name('me.scorecards');
         Route::get('me/cases/{case}', [SelfServiceController::class, 'case'])->name('me.cases.show');
         Route::post('me/cases/{case}/respond', [SelfServiceController::class, 'respondCase'])->name('me.cases.respond');
     });
@@ -154,6 +157,19 @@ Route::middleware('auth')->group(function () {
         Route::get('cases/{case}', [DisciplinaryCaseController::class, 'show'])->name('cases.show');
         Route::post('cases/{case}/notes', [DisciplinaryCaseController::class, 'storeAction'])->name('cases.actions.store');
         Route::post('cases/{case}/decide', [DisciplinaryCaseController::class, 'decide'])->name('cases.decide');
+
+        Route::get('qa', [QaEvaluationController::class, 'index'])->name('qa.index');
+        Route::get('qa/create', [QaEvaluationController::class, 'create'])->name('qa.create');
+        Route::post('qa', [QaEvaluationController::class, 'store'])->name('qa.store');
+        Route::get('qa/criteria', [QaCriterionController::class, 'index'])->name('qa.criteria');
+        Route::put('qa/settings', [QaCriterionController::class, 'updateSettings'])->name('qa.settings');
+        Route::post('qa/criteria', [QaCriterionController::class, 'store'])->name('qa-criteria.store');
+        Route::put('qa/criteria/{qa_criterion}', [QaCriterionController::class, 'update'])->name('qa-criteria.update');
+        Route::delete('qa/criteria/{qa_criterion}', [QaCriterionController::class, 'destroy'])->name('qa-criteria.destroy');
+        Route::get('qa/{qa_evaluation}/edit', [QaEvaluationController::class, 'edit'])->name('qa.edit');
+        Route::put('qa/{qa_evaluation}', [QaEvaluationController::class, 'update'])->name('qa.update');
+        Route::delete('qa/{qa_evaluation}', [QaEvaluationController::class, 'destroy'])->name('qa.destroy');
+        Route::get('qa/{qa_evaluation}', [QaEvaluationController::class, 'show'])->name('qa.show');
     });
 
     Route::middleware('role:'.implode(',', [User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN, User::ROLE_HR, User::ROLE_PAYROLL]))->group(function () {
