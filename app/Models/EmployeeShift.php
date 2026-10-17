@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['employee_id', 'shift_id', 'effective_from', 'effective_to'])]
+#[Fillable(['employee_id', 'shift_id', 'effective_from', 'effective_to', 'published_at'])]
 class EmployeeShift extends Model
 {
     protected function casts(): array
     {
-        return ['effective_from' => 'date', 'effective_to' => 'date'];
+        return ['effective_from' => 'date', 'effective_to' => 'date', 'published_at' => 'datetime'];
     }
 
     public function employee(): BelongsTo

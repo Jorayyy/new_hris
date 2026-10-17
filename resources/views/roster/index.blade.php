@@ -33,10 +33,14 @@
     <div class="card">
         <div class="card-head">
             <h2>Roster</h2>
+            <form method="POST" action="{{ route('roster.publish') }}" onsubmit="return confirm('Publish the roster to employees?')">
+                @csrf
+                <button class="btn sm primary" @disabled($pending === 0)>Publish{{ $pending ? ' ('.$pending.')' : '' }}</button>
+            </form>
         </div>
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Employee</th><th>Shift</th><th>From</th><th>To</th><th></th></tr></thead>
+                <thead><tr><th>Employee</th><th>Shift</th><th>From</th><th>To</th><th>Status</th><th></th></tr></thead>
                 <tbody>
                 @forelse($assignments as $assignment)
                     <tr>
@@ -44,6 +48,7 @@
                         <td>{{ $assignment->shift?->name }}</td>
                         <td>{{ $assignment->effective_from?->format('M d, Y') }}</td>
                         <td>{{ $assignment->effective_to?->format('M d, Y') ?? 'Open' }}</td>
+                        <td><span class="badge {{ $assignment->published_at ? 'green' : 'gray' }}">{{ $assignment->published_at ? 'Published' : 'Draft' }}</span></td>
                         <td class="btn-row">
                             <form method="POST" action="{{ route('roster.destroy', $assignment) }}" onsubmit="return confirm('Remove this shift assignment?')">
                                 @csrf @method('DELETE')
@@ -52,7 +57,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="muted">No shift assignments yet.</td></tr>
+                    <tr><td colspan="6" class="muted">No shift assignments yet.</td></tr>
                 @endforelse
                 </tbody>
             </table>

@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:'.User::ROLE_EMPLOYEE)->group(function () {
         Route::get('me/dtr', [SelfServiceController::class, 'dtr'])->name('me.dtr');
+        Route::get('me/roster', [SelfServiceController::class, 'roster'])->name('me.roster');
         Route::get('me/tk', [TimekeepingController::class, 'index'])->name('me.tk');
         Route::post('me/tk', [TimekeepingController::class, 'store'])->name('me.tk.store');
         Route::get('me/payslips', [SelfServiceController::class, 'payslips'])->name('me.payslips');
@@ -74,6 +75,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('roster', [RosterController::class, 'index'])->name('roster.index');
         Route::post('roster', [RosterController::class, 'store'])->name('roster.store');
+        Route::post('roster/publish', [RosterController::class, 'publish'])->name('roster.publish');
         Route::delete('roster/{assignment}', [RosterController::class, 'destroy'])->name('roster.destroy');
 
         Route::get('attendance/corrections', [AttendanceCorrectionController::class, 'index'])->name('attendance.corrections.index');

@@ -38,6 +38,20 @@ class SelfServiceController extends Controller
         return view('me.dtr', compact('employee', 'attendances', 'from', 'to', 'totals'));
     }
 
+    public function roster(Request $request): View
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404, 'No employee record linked to your account.');
+
+        $assignments = $employee->shifts()
+            ->with('shift')
+            ->whereNotNull('published_at')
+            ->orderByDesc('effective_from')
+            ->get();
+
+        return view('me.roster', compact('employee', 'assignments'));
+    }
+
     public function payslips(Request $request): View
     {
         $employee = $request->user()->employee;

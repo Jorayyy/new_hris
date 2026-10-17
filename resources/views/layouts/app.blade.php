@@ -35,6 +35,7 @@
             <div class="nav-group">
                 <div class="label">My Space</div>
                 <a href="{{ route('me.dtr') }}" class="{{ request()->routeIs('me.dtr') ? 'active' : '' }}"><span class="ico">⏱</span> My DTR</a>
+                <a href="{{ route('me.roster') }}" class="{{ request()->routeIs('me.roster') ? 'active' : '' }}"><span class="ico">◔</span> My Roster</a>
                 <a href="{{ route('me.tk') }}" class="{{ request()->routeIs('me.tk*') ? 'active' : '' }}"><span class="ico">⌚</span> Timekeeping</a>
                 <a href="{{ route('me.payslips') }}" class="{{ request()->routeIs('me.payslips*') ? 'active' : '' }}"><span class="ico">₱</span> My Payslips</a>
                 <a href="{{ route('me.leave') }}" class="{{ request()->routeIs('me.leave') ? 'active' : '' }}"><span class="ico">☖</span> My Leave</a>

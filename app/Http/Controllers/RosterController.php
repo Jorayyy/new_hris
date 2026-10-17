@@ -23,6 +23,7 @@ class RosterController extends Controller
                 ->paginate(20),
             'employees' => Employee::where('is_active', true)->orderBy('last_name')->get(),
             'shifts' => Shift::where('is_active', true)->orderBy('name')->get(),
+            'pending' => EmployeeShift::whereNull('published_at')->count(),
         ]);
     }
 
@@ -43,6 +44,13 @@ class RosterController extends Controller
         EmployeeShift::create($data);
 
         return back()->with('ok', 'Shift assigned.');
+    }
+
+    public function publish(): RedirectResponse
+    {
+        $count = EmployeeShift::whereNull('published_at')->update(['published_at' => now()]);
+
+        return back()->with('ok', "Published {$count} shift assignment(s).");
     }
 
     public function destroy(EmployeeShift $assignment): RedirectResponse

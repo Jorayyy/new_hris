@@ -71,4 +71,45 @@ class RosterTest extends TestCase
 
         $this->assertDatabaseMissing('employee_shifts', ['id' => $assignment->id]);
     }
+
+    public function test_publishing_stamps_unpublished_assignments(): void
+    {
+        $employee = $this->employee();
+        $assignment = EmployeeShift::create([
+            'employee_id' => $employee->id,
+            'shift_id' => $this->shift('Day')->id,
+            'effective_from' => '2026-01-01',
+        ]);
+
+        $this->assertNull($assignment->published_at);
+
+        $this->actingAs($this->hr())->post('/roster/publish')->assertRedirect();
+
+        $this->assertNotNull($assignment->fresh()->published_at);
+    }
+
+    public function test_employee_sees_only_published_shifts(): void
+    {
+        $user = User::create([
+            'name' => 'Emp', 'email' => 'emp@test.local',
+            'password' => 'password', 'role' => User::ROLE_EMPLOYEE, 'is_active' => true,
+        ]);
+        $employee = Employee::create([
+            'employee_no' => 'E-002', 'first_name' => 'Juan', 'last_name' => 'Cruz', 'user_id' => $user->id,
+        ]);
+
+        EmployeeShift::create([
+            'employee_id' => $employee->id, 'shift_id' => $this->shift('Published Shift')->id,
+            'effective_from' => '2026-01-01', 'published_at' => now(),
+        ]);
+        EmployeeShift::create([
+            'employee_id' => $employee->id, 'shift_id' => $this->shift('Draft Shift')->id,
+            'effective_from' => '2026-02-01',
+        ]);
+
+        $this->actingAs($user)->get('/me/roster')
+            ->assertOk()
+            ->assertSee('Published Shift')
+            ->assertDontSee('Draft Shift');
+    }
 }

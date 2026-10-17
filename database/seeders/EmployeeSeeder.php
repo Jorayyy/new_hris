@@ -80,6 +80,7 @@ class EmployeeSeeder extends Seeder
                     'employee_id' => $employee->id,
                     'shift_id' => $shifts[$index % $shifts->count()]->id,
                     'effective_from' => now()->startOfYear()->toDateString(),
+                    'published_at' => now(),
                 ]);
             }
 
