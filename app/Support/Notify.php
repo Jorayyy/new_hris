@@ -38,7 +38,7 @@ class Notify
 
     public static function employee(?Employee $employee, string $title, string $body, ?string $url = null, string $icon = '•'): void
     {
-        $employee?->user?->notify(new HrisNotification($title, $body, $url, $icon));
+        $employee?->user?->notify(new HrisNotification($title, $body, $url, $icon, mail: true));
     }
 
     private static function send(Collection $recipients, string $title, string $body, ?string $url, string $icon): void

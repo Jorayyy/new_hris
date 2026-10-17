@@ -44,7 +44,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::post('time-clock/punch', [TimeClockController::class, 'punch'])
-    ->middleware('throttle:20,1')
+    ->middleware('throttle:60,1')
     ->name('time-clock.punch');
 
 Route::middleware('guest')->group(function () {
