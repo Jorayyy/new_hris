@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') · {{ config('app.name') }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="font" type="font/woff2" href="{{ asset('fonts/inter-latin-wght-normal.woff2') }}" crossorigin>
     <link rel="stylesheet" href="{{ asset('app.css') }}">
     <script>try{var t=localStorage.getItem('hris.theme');if(t){document.documentElement.dataset.theme=t;}}catch(e){}</script>
 </head>
