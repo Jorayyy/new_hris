@@ -23,6 +23,7 @@
                         <select name="frequency">
                             <option value="semi_monthly" @selected(old('frequency', $period->frequency) === 'semi_monthly')>Semi-monthly</option>
                             <option value="monthly" @selected(old('frequency', $period->frequency) === 'monthly')>Monthly</option>
+                            <option value="weekly" @selected(old('frequency', $period->frequency) === 'weekly')>Weekly</option>
                         </select>
                     </div>
                     <div class="field"><label>Status</label>

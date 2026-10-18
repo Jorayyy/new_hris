@@ -70,7 +70,7 @@ class PayrollPeriodController extends Controller
             'date_from' => ['required', 'date'],
             'date_to' => ['required', 'date', 'after_or_equal:date_from'],
             'pay_date' => ['required', 'date'],
-            'frequency' => ['required', 'in:semi_monthly,monthly'],
+            'frequency' => ['required', 'in:semi_monthly,monthly,weekly'],
             'status' => ['required', 'in:open,closed,processed'],
         ]);
     }

@@ -29,7 +29,7 @@ class SelfServiceController extends Controller
 
         $attendances = $employee->attendances()
             ->with('shift')
-            ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()])
+            ->workDateBetween($from, $to)
             ->orderByDesc('work_date')
             ->get();
 

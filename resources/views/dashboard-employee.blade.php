@@ -36,6 +36,28 @@
             </div>
         </div>
 
+        <div class="card" style="margin-bottom:20px">
+            <div class="card-head"><h2>Announcements</h2></div>
+            <div class="card-body">
+                <div class="widget-list">
+                    @forelse($announcements as $announcement)
+                        <div class="widget-row">
+                            <div class="who">
+                                <span class="pill-avatar"><x-icon name="megaphone" /></span>
+                                <div>
+                                    <div style="font-weight:600">{{ $announcement->title }}</div>
+                                    <div class="small muted">{{ \Illuminate\Support\Str::limit($announcement->body, 140) }}</div>
+                                </div>
+                            </div>
+                            <div class="small muted">{{ $announcement->published_at?->diffForHumans() }}</div>
+                        </div>
+                    @empty
+                        <div class="empty">No announcements yet.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
         <div class="grid cols-2">
             <div class="card">
                 <div class="card-head">

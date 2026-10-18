@@ -32,7 +32,7 @@ class PayrollService
 
         abort_if($period->status === 'closed', 403, 'This pay period is closed and cannot be processed.');
 
-        $divisor = ($period->frequency ?? 'semi_monthly') === 'monthly' ? 1 : 2;
+        $divisor = PhContributionService::periodsPerMonth($period->frequency ?? 'semi_monthly');
 
         $employees = Employee::query()
             ->where('is_active', true)
@@ -102,7 +102,7 @@ class PayrollService
     public function computePayslip(Employee $employee, PayrollPeriod $period): array
     {
         $frequency = $period->frequency ?? 'semi_monthly';
-        $divisor = $frequency === 'monthly' ? 1 : 2;
+        $divisor = PhContributionService::periodsPerMonth($frequency);
 
         $from = $period->date_from->toDateString();
         $to = $period->date_to->toDateString();
@@ -112,7 +112,7 @@ class PayrollService
         $hourly = $employee->hourlyRate();
 
         $premium = $this->premium->summarize(
-            Attendance::query()->where('employee_id', $employee->id)->whereBetween('work_date', [$from, $to])->get(),
+            Attendance::query()->where('employee_id', $employee->id)->workDateBetween($from, $to)->get(),
             $this->periodHolidays($employee, $period),
             array_map('intval', $employee->rest_days ?? []),
             $daily,

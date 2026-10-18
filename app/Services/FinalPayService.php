@@ -36,7 +36,7 @@ class FinalPayService
             ? Attendance::query()
                 ->where('employee_id', $employee->id)
                 ->where('status', Attendance::STATUS_PRESENT)
-                ->whereBetween('work_date', [$start->toDateString(), $asOfDate->toDateString()])
+                ->workDateBetween($start, $asOfDate)
                 ->count()
             : 0;
 

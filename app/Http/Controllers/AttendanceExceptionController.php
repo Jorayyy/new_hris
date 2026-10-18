@@ -18,7 +18,7 @@ class AttendanceExceptionController extends Controller
         $user = $request->user();
 
         $scope = TeamScope::apply(Attendance::query(), $user)
-            ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()])
+            ->workDateBetween($from, $to)
             ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')));
 

@@ -22,7 +22,7 @@ class OrganizationSeeder extends Seeder
             ['name' => 'Recruitment', 'code' => 'REC', 'branch_id' => $hq->id],
             ['name' => 'Human Resources', 'code' => 'HR', 'branch_id' => $hq->id],
             ['name' => 'Finance', 'code' => 'FIN', 'branch_id' => $hq->id],
-            ['name' => 'IT Support', 'code' => 'IT', 'branch_id' => $ormoc->id],
+            ['name' => 'IT Support', 'code' => 'IT', 'branch_id' => $hq->id],
         ];
         foreach ($departments as $department) {
             Department::create($department + ['is_active' => true]);
@@ -42,12 +42,13 @@ class OrganizationSeeder extends Seeder
         }
 
         foreach ([
-            ['name' => 'Day Shift', 'time_in' => '08:00', 'time_out' => '17:00', 'is_night_diff' => false],
-            ['name' => 'Mid Shift', 'time_in' => '14:00', 'time_out' => '23:00', 'is_night_diff' => true],
-            ['name' => 'Night Shift', 'time_in' => '22:00', 'time_out' => '07:00', 'is_night_diff' => true],
+            ['name' => 'Graveyard 8PM-6AM', 'time_in' => '20:00', 'time_out' => '06:00', 'is_night_diff' => true],
+            ['name' => 'Graveyard 9PM-6AM', 'time_in' => '21:00', 'time_out' => '06:00', 'is_night_diff' => true],
         ] as $shift) {
             Shift::create($shift + ['break_minutes' => 60, 'grace_minutes' => 10, 'required_hours' => 8, 'is_active' => true]);
         }
+
+        // Ormoc Site stays as a branch for dropdowns but has no staff (Tacloban-only demo).
 
         foreach ([
             ['date' => now()->year.'-01-01', 'name' => "New Year's Day", 'type' => 'regular', 'rate_multiplier' => 2],

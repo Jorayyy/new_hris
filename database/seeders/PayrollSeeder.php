@@ -2,50 +2,66 @@
 
 namespace Database\Seeders;
 
+use App\Models\Attendance;
 use App\Models\PayrollPeriod;
 use App\Models\PayrollRun;
 use App\Services\PayrollService;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
+/**
+ * Weekly payroll runs covering the same six months as the attendance seed,
+ * so pay trends and payslips have data.
+ */
 class PayrollSeeder extends Seeder
 {
     public function run(): void
     {
-        $prev = Carbon::now()->subMonthNoOverflow();
+        $payroll = new PayrollService;
+        $firstDay = Attendance::min('work_date');
+        $start = $firstDay
+            ? Carbon::parse($firstDay)->startOfWeek(Carbon::MONDAY)
+            : Carbon::now()->subMonths(6)->startOfWeek(Carbon::MONDAY);
+        $today = Carbon::now();
 
-        $periods = [
-            [
-                'name' => $prev->format('M').' 1-15',
-                'date_from' => $prev->copy()->startOfMonth()->toDateString(),
-                'date_to' => $prev->copy()->day(15)->toDateString(),
-                'pay_date' => $prev->copy()->day(20)->toDateString(),
-            ],
-            [
-                'name' => $prev->format('M').' 16-30',
-                'date_from' => $prev->copy()->day(16)->toDateString(),
-                'date_to' => $prev->copy()->endOfMonth()->toDateString(),
-                'pay_date' => $prev->copy()->endOfMonth()->addDays(5)->toDateString(),
-            ],
-            [
-                'name' => now()->format('M').' 1-15',
-                'date_from' => now()->copy()->startOfMonth()->toDateString(),
-                'date_to' => now()->copy()->day(15)->toDateString(),
-                'pay_date' => now()->copy()->day(20)->toDateString(),
-            ],
-        ];
+        $this->command?->info('PayrollSeeder: weekly runs from '.$start->toDateString().'...');
 
-        $created = [];
-        foreach ($periods as $period) {
-            $created[] = PayrollPeriod::create($period + ['frequency' => 'semi_monthly', 'status' => 'open', 'branch_id' => null]);
+        $runs = 0;
+        $cursor = $start->copy();
+
+        while ($cursor->lessThanOrEqualTo($today)) {
+            $from = $cursor->copy();
+            $to = $cursor->copy()->endOfWeek(Carbon::SUNDAY);
+
+            // Skip weeks with no attendance: statutory deductions alone would make net pay negative.
+            if (! Attendance::workDateBetween($from, $to)->exists()) {
+                $cursor->addWeek();
+
+                continue;
+            }
+
+            $period = PayrollPeriod::create([
+                'name' => 'Week of '.$from->format('M j, Y'),
+                'date_from' => $from->toDateString(),
+                'date_to' => $to->toDateString(),
+                'pay_date' => $to->copy()->addDays(5)->toDateString(),
+                'frequency' => 'weekly',
+                'status' => 'open',
+                'branch_id' => null,
+            ]);
+
+            $run = PayrollRun::create([
+                'payroll_period_id' => $period->id,
+                'branch_id' => null,
+                'status' => PayrollRun::STATUS_DRAFT,
+            ]);
+
+            $payroll->processRun($run);
+            $runs++;
+
+            $cursor->addWeek();
         }
 
-        $run = PayrollRun::create([
-            'payroll_period_id' => $created[0]->id,
-            'branch_id' => null,
-            'status' => 'draft',
-        ]);
-
-        (new PayrollService)->processRun($run);
+        $this->command?->info("PayrollSeeder: {$runs} weekly runs processed.");
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\AuditLog;
 use App\Models\Branch;
@@ -13,6 +14,7 @@ use App\Models\PayrollRun;
 use App\Models\User;
 use App\Support\TeamScope;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -33,6 +35,7 @@ class DashboardController extends Controller
         $isAdmin = $user->hasRole([User::ROLE_SUPER_ADMIN, User::ROLE_ADMIN]);
 
         $data = compact('user', 'isHr', 'isPayroll', 'isManager', 'isAdmin');
+        $data['announcements'] = $this->latestAnnouncements($user->branch_id, ! TeamScope::limited($user));
 
         $today = now();
         $date = $today->toDateString();
@@ -59,7 +62,7 @@ class DashboardController extends Controller
                 ->select('employee_id',
                     DB::raw('SUM(late_minutes) as late_total'),
                     DB::raw('SUM(undertime_minutes) as undertime_total'))
-                ->whereBetween('work_date', [$monthStart, $date])
+                ->workDateBetween($monthStart, $date)
                 ->groupBy('employee_id')
                 ->havingRaw('SUM(late_minutes) > 0 OR SUM(undertime_minutes) > 0')
                 ->orderByDesc('late_total')
@@ -128,6 +131,16 @@ class DashboardController extends Controller
         ];
     }
 
+    private function latestAnnouncements(?int $branchId, bool $allBranches = false): Collection
+    {
+        return Announcement::query()
+            ->where('published_at', '<=', now())
+            ->when(! $allBranches, fn ($q) => $q->where(fn ($inner) => $inner->whereNull('branch_id')->orWhere('branch_id', $branchId)))
+            ->latest('published_at')
+            ->take(5)
+            ->get();
+    }
+
     private function employeeDashboard(User $user): View
     {
         $employee = $user->employee;
@@ -136,7 +149,8 @@ class DashboardController extends Controller
         $attendance = $employee?->attendances()->whereDate('work_date', $today)->first();
         $payslips = $employee ? $employee->payslips()->with('run.period')->latest()->take(5)->get() : collect();
         $leaveBalances = $employee ? $employee->leaveBalances()->where('year', now()->year)->with('leaveType')->get() : collect();
+        $announcements = $this->latestAnnouncements($employee?->branch_id);
 
-        return view('dashboard-employee', compact('employee', 'attendance', 'payslips', 'leaveBalances'));
+        return view('dashboard-employee', compact('employee', 'attendance', 'payslips', 'leaveBalances', 'announcements'));
     }
 }

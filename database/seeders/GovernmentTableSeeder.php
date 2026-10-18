@@ -59,8 +59,18 @@ class GovernmentTableSeeder extends Seeder
             [166667, 666666.99, 33541.80, 0.30, 166667],
             [666667, null, 183541.80, 0.35, 666667],
         ];
+        // Weekly brackets are the semi-monthly ones scaled to 26 pays/year (approximation).
+        $scale = 12 / 26;
+        $weekly = array_map(fn ($b) => [
+            round($b[0] * $scale, 2),
+            $b[1] === null ? null : round($b[1] * $scale, 2),
+            round($b[2] * $scale, 2),
+            $b[3],
+            round($b[4] * $scale, 2),
+        ], $semi);
+
         $rows = [];
-        foreach (['semi_monthly' => $semi, 'monthly' => $monthly] as $period => $brackets) {
+        foreach (['weekly' => $weekly, 'semi_monthly' => $semi, 'monthly' => $monthly] as $period => $brackets) {
             foreach ($brackets as [$min, $max, $base, $rate, $excess]) {
                 $rows[] = [
                     'year' => $year, 'period' => $period,

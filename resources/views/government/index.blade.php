@@ -144,6 +144,7 @@
             <div class="field"><label>Year</label><input type="number" min="2000" max="2100" name="year" value="{{ $taxYear }}" required></div>
             <div class="field"><label>Period</label>
                 <select name="period">
+                    <option value="weekly">Weekly</option>
                     <option value="semi_monthly">Semi-monthly</option>
                     <option value="monthly">Monthly</option>
                 </select>
@@ -166,6 +167,7 @@
                                 @csrf @method('PUT')
                                 <input type="number" min="2000" max="2100" name="year" value="{{ $row->year }}" style="width:90px">
                                 <select name="period" style="width:130px">
+                                    <option value="weekly" @selected($row->period === 'weekly')>Weekly</option>
                                     <option value="semi_monthly" @selected($row->period === 'semi_monthly')>Semi-monthly</option>
                                     <option value="monthly" @selected($row->period === 'monthly')>Monthly</option>
                                 </select>

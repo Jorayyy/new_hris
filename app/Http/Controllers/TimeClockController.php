@@ -48,16 +48,29 @@ class TimeClockController extends Controller
         $now = now();
         $label = strtoupper(str_replace('_', ' ', $data['punch']));
 
+        $column = Attendance::PUNCHES[$data['punch']];
+
+        $shift = $employee->shiftForDate($now->toDateString());
+
         $attendance = Attendance::where('employee_id', $employee->id)
             ->whereDate('work_date', $now->toDateString())
             ->first() ?? new Attendance([
                 'employee_id' => $employee->id,
                 'work_date' => $now->toDateString(),
+                'branch_id' => $employee->branch_id,
+                'source' => 'kiosk',
+                'shift_id' => $shift?->id,
             ]);
 
+        if ($attendance->{$column} !== null) {
+            return back()->withInput($request->only('employee_no'))
+                ->with('punch_error', 'Already punched: '.$label.' is already recorded for today.');
+        }
+
         $attendance->branch_id ??= $employee->branch_id;
+        $attendance->shift_id ??= $shift?->id;
         $attendance->source = 'kiosk';
-        $attendance->{Attendance::PUNCHES[$data['punch']]} = $now;
+        $attendance->{$column} = $now;
         $attendance->save();
 
         (new DtrService)->process($attendance->fresh(['employee', 'shift']));

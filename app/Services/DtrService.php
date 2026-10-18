@@ -132,7 +132,7 @@ class DtrService
     {
         $rows = Attendance::query()
             ->where('employee_id', $employee->id)
-            ->whereBetween('work_date', [$from, $to])
+            ->workDateBetween($from, $to)
             ->get();
 
         return [

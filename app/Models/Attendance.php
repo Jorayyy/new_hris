@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -51,6 +52,12 @@ class Attendance extends Model
             'night_diff_hours' => 'decimal:2',
             'is_manual' => 'boolean',
         ];
+    }
+
+    /** Inclusive day range. whereDate, not whereBetween: SQLite stores work_date with a time. */
+    public function scopeWorkDateBetween(Builder $query, mixed $from, mixed $to): Builder
+    {
+        return $query->whereDate('work_date', '>=', $from)->whereDate('work_date', '<=', $to);
     }
 
     public function employee(): BelongsTo

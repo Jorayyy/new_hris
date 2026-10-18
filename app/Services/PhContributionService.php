@@ -103,14 +103,24 @@ class PhContributionService
         return round($tax, 2);
     }
 
+    /** Periods per month a monthly figure is split across. shortcut: weekly uses 4, not 52/12≈4.33. */
+    public static function periodsPerMonth(string $frequency): int
+    {
+        return match ($frequency) {
+            'monthly' => 1,
+            'weekly' => 4,
+            default => 2,
+        };
+    }
+
     /**
      * Employee-side statutory contributions for one payroll period.
-     * Monthly figures are split across periods_per_month (2 for semi-monthly).
+     * Monthly figures are split across periods_per_month.
      */
     public function employeePeriodShares(Employee $employee, string $frequency = 'semi_monthly', ?int $year = null): array
     {
         $monthly = (float) $employee->basic_salary;
-        $divisor = $frequency === 'monthly' ? 1 : 2;
+        $divisor = self::periodsPerMonth($frequency);
 
         $sss = $this->sssMonthly($monthly);
         $ph = $this->philhealthMonthly($monthly, $year);

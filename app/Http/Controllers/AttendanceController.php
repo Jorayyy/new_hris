@@ -31,7 +31,7 @@ class AttendanceController extends Controller
         $base = TeamScope::apply(Attendance::query(), $user)
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
             ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
-            ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()]);
+            ->workDateBetween($from, $to);
 
         $attendances = (clone $base)
             ->with(['employee', 'shift'])
@@ -72,7 +72,7 @@ class AttendanceController extends Controller
             ->with(['employee', 'shift'])
             ->when($request->filled('employee'), fn ($q) => $q->where('employee_id', $request->integer('employee')))
             ->when($request->filled('branch'), fn ($q) => $q->where('branch_id', $request->integer('branch')))
-            ->whereBetween('work_date', [$from->toDateString(), $to->toDateString()])
+            ->workDateBetween($from, $to)
             ->orderByDesc('work_date')
             ->get();
 

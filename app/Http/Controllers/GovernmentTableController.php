@@ -219,7 +219,7 @@ class GovernmentTableController extends Controller
     {
         $data = $request->validate([
             'year' => ['required', 'integer', 'min:2000', 'max:2100'],
-            'period' => ['required', Rule::in(['semi_monthly', 'monthly'])],
+            'period' => ['required', Rule::in(['weekly', 'semi_monthly', 'monthly'])],
             'min_taxable' => ['required', 'numeric', 'min:0'],
             'max_taxable' => ['nullable', 'numeric', 'gt:min_taxable'],
             'base_tax' => ['required', 'numeric', 'min:0'],
