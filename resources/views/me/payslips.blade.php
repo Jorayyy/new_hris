@@ -15,7 +15,10 @@
                         <td class="num">{{ peso($payslip->gross_pay) }}</td>
                         <td class="num">{{ peso($payslip->total_deductions) }}</td>
                         <td class="num" style="font-weight:600">{{ peso($payslip->net_pay) }}</td>
-                        <td><a class="btn sm" href="{{ route('me.payslips.show', $payslip) }}">View</a></td>
+                        <td class="btn-row">
+                            <a class="btn sm" href="{{ route('me.payslips.show', $payslip) }}">View</a>
+                            <a class="btn sm" href="{{ route('me.payslips.pdf', $payslip) }}">PDF</a>
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="muted">No payslips yet.</td></tr>

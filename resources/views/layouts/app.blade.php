@@ -6,7 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') · {{ config('app.name') }}</title>
     <link rel="preload" as="font" type="font/woff2" href="{{ asset('fonts/inter-latin-wght-normal.woff2') }}" crossorigin>
-    <link rel="stylesheet" href="{{ asset('app.css') }}">
+    <link rel="stylesheet" href="{{ asset('app.css') }}?v={{ filemtime(public_path('app.css')) }}">
+    @include('partials.branding-head')
     <script>try{var t=localStorage.getItem('hris.theme');if(t){document.documentElement.dataset.theme=t;}}catch(e){}</script>
 </head>
 <body>
@@ -18,11 +19,19 @@
     $isManager = $u->hasRole(\App\Models\User::ROLE_MANAGER);
     $isAdmin = $u->hasRole([\App\Models\User::ROLE_SUPER_ADMIN, \App\Models\User::ROLE_ADMIN]);
     $unread = $u->unreadNotifications()->count();
+    $brandLogo = \App\Support\Branding::url();
 @endphp
 <div class="layout">
     <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden>
     <aside class="sidebar">
-        <div class="brand"><span class="dot"></span> {{ config('app.name') }}</div>
+        <div class="brand">
+            @if($brandLogo)
+                <img class="brand-logo" src="{{ $brandLogo }}" alt="{{ config('app.name') }}">
+            @else
+                <span class="dot"></span>
+            @endif
+            <span class="brand-name">MEBS HIYAS</span>
+        </div>
 
         <nav class="nav-scroll">
         <div class="nav-group">
@@ -157,6 +166,9 @@
                 <a href="{{ route('audit.index') }}" class="{{ request()->routeIs('audit.*') ? 'active' : '' }}"><x-icon name="scroll-text" /> Audit Log</a>
                 <a href="{{ route('operations.index') }}" class="{{ request()->routeIs('operations.*') ? 'active' : '' }}"><x-icon name="activity" /> Operations</a>
                 <a href="{{ route('time-clock.ips.index') }}" class="{{ request()->routeIs('time-clock.ips.*') ? 'active' : '' }}"><x-icon name="monitor-smartphone" /> Kiosk Access</a>
+                @if($u->hasRole(\App\Models\User::ROLE_SUPER_ADMIN))
+                    <a href="{{ route('branding.edit') }}" class="{{ request()->routeIs('branding.*') ? 'active' : '' }}"><x-icon name="upload" /> Branding</a>
+                @endif
             </div>
         @endif
 

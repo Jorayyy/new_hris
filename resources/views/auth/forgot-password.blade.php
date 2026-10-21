@@ -4,12 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Reset password · {{ config('app.name') }}</title>
-    <link rel="stylesheet" href="{{ asset('app.css') }}">
+    <link rel="stylesheet" href="{{ asset('app.css') }}?v={{ filemtime(public_path('app.css')) }}">
+    @include('partials.branding-head')
 </head>
 <body class="kiosk-body">
+@php($brandLogo = \App\Support\Branding::url())
 <main class="kiosk-card">
     <div class="kiosk-head">
-        <span class="kiosk-logo">HR</span>
+        <span class="kiosk-logo">
+            @if($brandLogo)
+                <img src="{{ $brandLogo }}" alt="{{ config('app.name') }}">
+            @else
+                HR
+            @endif
+        </span>
         <div>
             <div class="kiosk-title">{{ config('app.name') }}</div>
             <div class="kiosk-sub">Reset password</div>

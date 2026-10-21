@@ -508,3 +508,9 @@ td > .btn + .btn, td > form + form, td > .btn + form, td > form + .btn { margin-
 .due { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .due:last-child { border-bottom: 0; }
 .empty { padding: 12px 0; color: var(--muted); font-size: 13px; }
+
+/* ---- Branding logo ---- */
+.sidebar .brand-name { font-size: 13px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--sidebar-ink-strong); white-space: nowrap; line-height: 1.1; }
+.sidebar .brand-logo { height: 28px; width: auto; max-width: 120px; object-fit: contain; display: block; background: #fff; padding: 4px 6px; border-radius: 6px; }
+.kiosk-logo { width: auto; min-width: 44px; height: 44px; padding: 5px 7px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: none; }
+.kiosk-logo img { height: 34px; width: auto; max-width: none; display: block; }

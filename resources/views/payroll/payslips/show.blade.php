@@ -15,9 +15,7 @@
             </div>
             <div class="btn-row">
                 <span class="badge green">Net {{ peso($payslip->net_pay) }}</span>
-                @unless($readonly)
-                    <a class="btn sm" href="{{ route('payslips.pdf', $payslip) }}">Download PDF</a>
-                @endunless
+                <a class="btn sm" href="{{ $readonly ? route('me.payslips.pdf', $payslip) : route('payslips.pdf', $payslip) }}">Download PDF</a>
             </div>
         </div>
         <div class="card-body">

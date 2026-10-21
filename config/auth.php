@@ -21,6 +21,14 @@ return [
     ],
 
     /*
+    | When enabled, staff sign-in requires a 6-digit code emailed to the
+    | account address. TOTP authenticator 2FA takes precedence if a user
+    | has one configured.
+    */
+
+    'email_otp' => env('AUTH_EMAIL_OTP', false),
+
+    /*
     |--------------------------------------------------------------------------
     | Authentication Guards
     |--------------------------------------------------------------------------

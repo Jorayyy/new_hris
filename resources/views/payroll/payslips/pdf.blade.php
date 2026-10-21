@@ -19,7 +19,13 @@
     </style>
 </head>
 <body>
-    <h1>{{ config('app.name') }} — Payslip</h1>
+    @php($brandLogo = \App\Support\Branding::dataUri())
+    <div style="overflow:hidden">
+        @if($brandLogo)
+            <img src="{{ $brandLogo }}" alt="" style="float:right;height:46px;max-width:150px;object-fit:contain">
+        @endif
+        <h1 style="float:left">{{ config('app.name') }} — Payslip</h1>
+    </div>
     <div class="muted">
         {{ $payslip->employee?->full_name }} ({{ $payslip->employee?->employee_no }})<br>
         {{ $payslip->employee?->position?->title }} — {{ $payslip->employee?->branch?->name }}<br>

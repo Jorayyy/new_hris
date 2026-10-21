@@ -14,6 +14,7 @@ use App\Support\PrivateFile;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -77,6 +78,16 @@ class SelfServiceController extends Controller
         $model = $employee->payslips()->with(['run.period', 'items'])->findOrFail($payslip);
 
         return view('payroll.payslips.show', ['payslip' => $model, 'readonly' => true]);
+    }
+
+    public function payslipPdf(Request $request, int $payslip): Response
+    {
+        $employee = $request->user()->employee;
+        abort_unless($employee, 404);
+
+        $model = $employee->payslips()->findOrFail($payslip);
+
+        return app(PayslipController::class)->pdf($model);
     }
 
     public function leave(Request $request): View

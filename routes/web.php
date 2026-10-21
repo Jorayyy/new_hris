@@ -9,8 +9,10 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use App\Http\Controllers\BiometricDeviceController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\BrandingController;
 use App\Http\Controllers\ClearanceItemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
@@ -55,6 +57,14 @@ Route::post('time-clock/punch', [TimeClockController::class, 'punch'])
     ->middleware('throttle:60,1')
     ->name('time-clock.punch');
 
+Route::get('/two-factor', [TwoFactorChallengeController::class, 'show'])->name('two-factor.challenge');
+Route::post('/two-factor', [TwoFactorChallengeController::class, 'verify'])->name('two-factor.verify');
+Route::post('/two-factor/resend', [TwoFactorChallengeController::class, 'resend'])
+    ->middleware('throttle:10,1')
+    ->name('two-factor.resend');
+
+Route::get('branding/logo', [BrandingController::class, 'logo'])->name('branding.logo');
+
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
@@ -80,6 +90,7 @@ Route::middleware('auth')->group(function () {
         Route::post('me/tk', [TimekeepingController::class, 'store'])->name('me.tk.store');
         Route::get('me/payslips', [SelfServiceController::class, 'payslips'])->name('me.payslips');
         Route::get('me/payslips/{payslip}', [SelfServiceController::class, 'payslip'])->name('me.payslips.show');
+        Route::get('me/payslips/{payslip}/pdf', [SelfServiceController::class, 'payslipPdf'])->name('me.payslips.pdf');
         Route::get('me/leave', [SelfServiceController::class, 'leave'])->name('me.leave');
         Route::post('me/leave', [SelfServiceController::class, 'storeLeave'])->name('me.leave.store');
         Route::get('me/swaps', [ShiftSwapController::class, 'mine'])->name('me.swaps');
@@ -239,6 +250,12 @@ Route::middleware('auth')->group(function () {
         Route::get('reports/pagibig-mcrf', [ReportController::class, 'pagibigMcrf'])->name('reports.pagibig-mcrf');
         Route::get('reports/bir-1601c', [ReportController::class, 'bir1601c'])->name('reports.bir-1601c');
         Route::get('reports/bir-2316', [ReportController::class, 'bir2316'])->name('reports.bir-2316');
+    });
+
+    Route::middleware('role:'.User::ROLE_SUPER_ADMIN)->group(function () {
+        Route::get('branding', [BrandingController::class, 'edit'])->name('branding.edit');
+        Route::post('branding', [BrandingController::class, 'update'])->name('branding.update');
+        Route::delete('branding', [BrandingController::class, 'destroy'])->name('branding.destroy');
     });
 
     Route::middleware('role:'.User::ROLE_SUPER_ADMIN.','.User::ROLE_ADMIN)->group(function () {
