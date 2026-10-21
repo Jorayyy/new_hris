@@ -467,9 +467,18 @@ td > .btn + .btn, td > form + form, td > .btn + form, td > form + .btn { margin-
 .kiosk-secs { font-size: 30px; color: var(--accent); margin-left: 6px; font-weight: 700; }
 .kiosk-date { text-align: center; color: #a8bccd; font-size: 13.5px; margin: 8px 0 20px; }
 
-.kiosk-toast { border-radius: 8px; padding: 10px 12px; font-size: 12.5px; font-weight: 600; margin-bottom: 14px; text-align: center; }
+.kiosk-toast {
+    border-radius: 8px; padding: 10px 12px; font-size: 12.5px; font-weight: 600;
+    margin-bottom: 14px; text-align: center; animation: kiosk-toast-in .24s ease-out;
+}
 .kiosk-toast.ok { background: rgba(21, 128, 61, .22); color: #9ce0b4; border: 1px solid rgba(21, 128, 61, .4); }
+.kiosk-toast.notice { background: rgba(234, 179, 8, .16); color: #fde68a; border: 1px solid rgba(234, 179, 8, .4); }
 .kiosk-toast.err { background: rgba(180, 35, 24, .22); color: #f3b3ac; border: 1px solid rgba(180, 35, 24, .4); }
+@keyframes kiosk-toast-in {
+    from { opacity: 0; transform: translateY(-6px) scale(.98); }
+    to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { .kiosk-toast { animation: none; } }
 
 .kiosk-grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
 .kiosk-grid-inputs label { color: #a8bccd; font-size: 12px; font-weight: 600; }

@@ -150,17 +150,48 @@
         var busy = false;
         var punch = null;
         var attempt = 0;
-        var hideTimer = null;
+        var audio = null;
 
         function show(kind, message) {
-            clearTimeout(hideTimer);
             toast.hidden = false;
             toast.className = 'kiosk-toast' + (kind ? ' ' + kind : '');
             toast.textContent = message;
+            toast.style.animation = 'none';
+            void toast.offsetWidth;
+            toast.style.animation = '';
+            if (kind === 'ok' || kind === 'notice' || kind === 'err') { chirp(kind); }
         }
-        function hideLater(ms) {
-            clearTimeout(hideTimer);
-            hideTimer = setTimeout(function () { toast.hidden = true; }, ms);
+
+        // Short confirmation tone: rising chime on success, low buzz on error.
+        function chirp(kind) {
+            try {
+                var Ctx = window.AudioContext || window.webkitAudioContext;
+                if (!Ctx) { return; }
+                if (!audio) { audio = new Ctx(); }
+                if (audio.state === 'suspended') { audio.resume(); }
+
+                var start = audio.currentTime;
+                var notes = kind === 'ok'
+                    ? [[880, 0, .12], [1318.5, .13, .18]]
+                    : kind === 'notice'
+                        ? [[660, 0, .14]]
+                        : [[220, 0, .16], [185, .18, .22]];
+                var volume = kind === 'ok' ? .07 : (kind === 'notice' ? .05 : .045);
+
+                notes.forEach(function (n) {
+                    var osc = audio.createOscillator();
+                    var gain = audio.createGain();
+                    osc.type = kind === 'err' ? 'square' : 'sine';
+                    osc.frequency.value = n[0];
+                    gain.gain.setValueAtTime(0.0001, start + n[1]);
+                    gain.gain.linearRampToValueAtTime(volume, start + n[1] + .01);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, start + n[1] + n[2]);
+                    osc.connect(gain);
+                    gain.connect(audio.destination);
+                    osc.start(start + n[1]);
+                    osc.stop(start + n[1] + n[2] + .02);
+                });
+            } catch (e) {}
         }
         function setBusy(state) {
             busy = state;
@@ -208,18 +239,22 @@
                 });
             }).then(function (r) {
                 if (r.res.ok && r.data.ok !== false) {
-                    show('ok', r.data.message || 'Punch recorded.');
+                    show(r.data.duplicate ? 'notice' : 'ok', r.data.message || 'Punch recorded.');
                     punchView.reset();
                     punch = null;
                     setBusy(false);
-                    hideLater(9000);
                     return;
                 }
                 if (r.res.status === 419) {
                     location.reload();
                     return;
                 }
-                if (r.res.status === 422 || r.res.status === 403 || r.res.status === 409) {
+                if (r.res.status === 409) {
+                    show('notice', r.data.message || 'This punch is already recorded today.');
+                    setBusy(false);
+                    return;
+                }
+                if (r.res.status === 422 || r.res.status === 403) {
                     show('err', r.data.message || 'Punch was not recorded.');
                     setBusy(false);
                     return;
