@@ -9,7 +9,7 @@
             <p class="small" style="margin-top:10px">Your current IP: <strong>{{ $currentIp }}</strong></p>
 
             @if($ips->isEmpty())
-                <div class="alert err">No rules yet — the kiosk currently accepts punches from any network.</div>
+                <div class="alert err">No rules yet — the time clock currently accepts punches from any network.</div>
             @endif
 
             <form method="POST" action="{{ route('time-clock.ips.store') }}" class="filters" style="margin-bottom:6px">

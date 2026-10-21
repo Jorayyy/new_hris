@@ -120,7 +120,7 @@ class AttendanceSeeder extends Seeder
                     'time_in' => $in,
                     'time_out' => $forgotOut ? null : $out,
                     'status' => Attendance::STATUS_PRESENT,
-                    'source' => random_int(1, 100) <= 70 ? 'biometric' : 'kiosk',
+                    'source' => random_int(1, 100) <= 70 ? 'biometric' : 'web',
                 ]);
 
                 $dtr->process($attendance);

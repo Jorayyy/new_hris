@@ -16,7 +16,7 @@ class TimeClockIp extends Model
         return ['is_active' => 'boolean'];
     }
 
-    /** Whether the kiosk may be punched from this IP. No active rules = unrestricted. */
+    /** Whether the time clock may be punched from this IP. No active rules = unrestricted. */
     public static function allows(?string $ip): bool
     {
         $rules = Cache::remember(self::CACHE_KEY, now()->addMinute(), fn () => static::query()->where('is_active', true)->pluck('cidr')->all());

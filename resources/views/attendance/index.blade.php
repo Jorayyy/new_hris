@@ -5,7 +5,7 @@
     @php
         $t = fn ($value) => $value?->format('h:i A') ?? '—';
         $pair = fn ($out, $in) => $t($out).' / '.$t($in);
-        $src = ['kiosk' => 'blue', 'biometric' => 'gray', 'import' => 'gray', 'manual' => 'amber', 'correction' => 'cyan'];
+        $src = ['web' => 'blue', 'kiosk' => 'blue', 'biometric' => 'gray', 'import' => 'gray', 'manual' => 'amber', 'correction' => 'cyan'];
     @endphp
 
     <div class="grid cols-4" style="margin-bottom:18px">

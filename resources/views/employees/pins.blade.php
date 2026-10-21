@@ -16,7 +16,7 @@
     <div class="card" style="max-width:1000px">
         <div class="card-head"><h2>Time-clock PINs</h2></div>
         <div class="card-body">
-            <p class="muted small">Employees punch in at the kiosk with their employee number and this 4-digit PIN. PINs are stored hashed and cannot be viewed — they can only be replaced. Saving a blank PIN clears it. Use Generate when an employee forgets their PIN.</p>
+            <p class="muted small">Employees punch in on the web time clock with their employee number and this 4-digit PIN. PINs are stored hashed and cannot be viewed — they can only be replaced. Saving a blank PIN clears it. Use Generate when an employee forgets their PIN.</p>
             <form method="GET" class="filters">
                 <div class="field" style="min-width:220px"><label>Search</label><input type="text" name="q" value="{{ request('q') }}" placeholder="Name or employee no."></div>
                 <div class="field" style="min-width:180px"><label>Branch</label>

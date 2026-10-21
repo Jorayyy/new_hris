@@ -59,7 +59,7 @@ class TimeClockController extends Controller
                     'employee_id' => $employee->id,
                     'work_date' => $now->toDateString(),
                     'branch_id' => $employee->branch_id,
-                    'source' => 'kiosk',
+                    'source' => 'web',
                     'shift_id' => $shift?->id,
                 ]);
 
@@ -69,7 +69,7 @@ class TimeClockController extends Controller
 
             $attendance->branch_id ??= $employee->branch_id;
             $attendance->shift_id ??= $shift?->id;
-            $attendance->source = 'kiosk';
+            $attendance->source = 'web';
             $attendance->{$column} = $now;
             $attendance->save();
         } catch (QueryException $e) {

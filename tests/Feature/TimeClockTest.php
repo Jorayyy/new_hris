@@ -26,7 +26,7 @@ class TimeClockTest extends TestCase
         ]);
     }
 
-    public function test_kiosk_sits_on_login_page(): void
+    public function test_time_clock_sits_on_login_page(): void
     {
         $this->get('/login')->assertOk()->assertSee('Time Clock')->assertSee('Staff sign in');
     }
@@ -43,7 +43,7 @@ class TimeClockTest extends TestCase
 
         $attendance = Attendance::where('employee_id', $employee->id)->sole();
         $this->assertNotNull($attendance->time_in);
-        $this->assertSame('kiosk', $attendance->source);
+        $this->assertSame('web', $attendance->source);
     }
 
     public function test_wrong_pin_is_rejected(): void
