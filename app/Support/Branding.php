@@ -72,6 +72,8 @@ final class Branding
     public static function clear(): void
     {
         Setting::query()->whereIn('key', [self::PATH_KEY, self::VERSION_KEY])->delete();
+        Setting::forget(self::PATH_KEY);
+        Setting::forget(self::VERSION_KEY);
         self::$loaded = false;
     }
 

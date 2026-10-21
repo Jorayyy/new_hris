@@ -9,12 +9,12 @@
                 This logo replaces the default branding on the sign-in card, the sidebar, the browser favicon, payslip PDFs and sign-in emails. Only a super admin can change it.
             </p>
 
-            <div style="margin:18px 0;padding:22px;border-radius:12px;background:#0f3b36;border:1px solid rgba(127,184,178,.18);display:flex;align-items:center;justify-content:center;min-height:130px">
+            <div style="margin:18px 0;padding:22px;border-radius:12px;background:#14181d;border:1px solid rgba(180,214,236,.16);display:flex;align-items:center;justify-content:center;min-height:130px">
                 @if($logoUrl)
                     <img src="{{ $logoUrl }}" alt="Current logo" style="max-height:96px;max-width:100%;object-fit:contain;background:#fff;padding:14px 18px;border-radius:12px">
                 @else
-                    <div style="text-align:center;color:#8fb9b4;font-size:13px">
-                        <span style="display:inline-grid;place-items:center;width:44px;height:44px;border-radius:10px;background:#e7f2f0;color:#0b2b28;font-weight:800;font-size:13px;margin-bottom:8px">HR</span>
+                    <div style="text-align:center;color:#9fb1c2;font-size:13px">
+                        <span style="display:inline-grid;place-items:center;width:44px;height:44px;border-radius:10px;background:#ffffff;color:#0b0e11;font-weight:800;font-size:13px;margin-bottom:8px">HR</span>
                         <div>No logo uploaded — default branding is in use.</div>
                     </div>
                 @endif

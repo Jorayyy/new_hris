@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 
 #[Fillable([
     'employee_no', 'pin', 'user_id', 'branch_id', 'department_id', 'position_id',
@@ -47,9 +48,39 @@ class Employee extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (Employee $employee) {
+            if ($employee->isDirty('pin')) {
+                $employee->pin_fast = null;
+            }
+        });
+    }
+
     public function isPinLocked(): bool
     {
         return $this->pin_locked_until !== null && $this->pin_locked_until->isFuture();
+    }
+
+    public function checkPin(string $pin): bool
+    {
+        $fast = hash_hmac('sha256', $pin, (string) config('app.key'));
+
+        if (is_string($this->pin_fast) && $this->pin_fast !== '' && hash_equals($this->pin_fast, $fast)) {
+            return true;
+        }
+
+        if (! $this->pin || ! Hash::check($pin, $this->pin)) {
+            return false;
+        }
+
+        if (Hash::needsRehash($this->pin)) {
+            $this->forceFill(['pin' => Hash::make($pin)])->save();
+        }
+
+        $this->forceFill(['pin_fast' => $fast])->save();
+
+        return true;
     }
 
     public function registerFailedPin(): void

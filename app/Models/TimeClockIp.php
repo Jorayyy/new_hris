@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 #[Fillable(['cidr', 'label', 'is_active'])]
 class TimeClockIp extends Model
 {
+    public const CACHE_KEY = 'timeclock.ip_rules';
+
     protected function casts(): array
     {
         return ['is_active' => 'boolean'];
@@ -16,9 +19,9 @@ class TimeClockIp extends Model
     /** Whether the kiosk may be punched from this IP. No active rules = unrestricted. */
     public static function allows(?string $ip): bool
     {
-        $rules = static::query()->where('is_active', true)->pluck('cidr');
+        $rules = Cache::remember(self::CACHE_KEY, now()->addMinute(), fn () => static::query()->where('is_active', true)->pluck('cidr')->all());
 
-        if ($rules->isEmpty()) {
+        if ($rules === []) {
             return true;
         }
 
@@ -26,7 +29,18 @@ class TimeClockIp extends Model
             return false;
         }
 
-        return $rules->contains(fn ($cidr) => static::matches($ip, $cidr));
+        foreach ($rules as $cidr) {
+            if (static::matches($ip, $cidr)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function flushCache(): void
+    {
+        Cache::forget(self::CACHE_KEY);
     }
 
     public static function matches(string $ip, string $cidr): bool

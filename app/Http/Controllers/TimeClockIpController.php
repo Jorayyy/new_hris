@@ -31,6 +31,7 @@ class TimeClockIpController extends Controller
 
         $cidr = trim($data['cidr']);
         TimeClockIp::updateOrCreate(['cidr' => $cidr], ['label' => $data['label'] ?? null, 'is_active' => true]);
+        TimeClockIp::flushCache();
         AuditLog::record('time-clock', 'Allowed punch IP added: '.$cidr);
 
         return back()->with('ok', 'Allowed IP saved.');
@@ -39,6 +40,7 @@ class TimeClockIpController extends Controller
     public function update(Request $request, TimeClockIp $ip): RedirectResponse
     {
         $ip->update(['is_active' => $request->boolean('is_active')]);
+        TimeClockIp::flushCache();
         AuditLog::record('time-clock', 'Punch IP '.$ip->cidr.' '.($ip->is_active ? 'enabled' : 'disabled'), $ip);
 
         return back()->with('ok', 'IP updated.');
@@ -48,6 +50,7 @@ class TimeClockIpController extends Controller
     {
         AuditLog::record('time-clock', 'Allowed punch IP removed: '.$ip->cidr);
         $ip->delete();
+        TimeClockIp::flushCache();
 
         return back()->with('ok', 'IP removed.');
     }
