@@ -69,7 +69,7 @@
         <button type="button" class="kiosk-link" id="staff-toggle">Staff sign in</button>
     </form>
 
-    <form method="POST" action="{{ route('login') }}" class="kiosk-staff" id="staff-view" @if(! $errors->any()) hidden @endif>
+    <form method="POST" action="{{ route('login') }}" class="kiosk-staff" id="staff-view" @if(! $errors->any() && ! request()->boolean('staff')) hidden @endif>
         @csrf
         <div class="kiosk-sub">Staff sign in</div>
         @if($errors->any())
@@ -77,11 +77,17 @@
         @endif
         <div class="field">
             <label for="email">Email</label>
-            <input id="email" type="email" name="email" value="{{ old('email') }}" required>
+            <input id="email" type="email" name="email" value="{{ old('email') }}" placeholder="you@mebshiyas.com" autocomplete="email" required>
         </div>
         <div class="field">
             <label for="password">Password</label>
-            <input id="password" type="password" name="password" required>
+            <div class="kiosk-password">
+                <input id="password" type="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                <button type="button" class="kiosk-eye" data-toggle-password="password" aria-label="Show password" aria-pressed="false">
+                    <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+            </div>
         </div>
         <label class="kiosk-remember"><input type="checkbox" name="remember" value="1"> Remember me</label>
         <button type="submit" class="btn primary" style="width:100%;justify-content:center">Sign in</button>
@@ -122,6 +128,19 @@
         var staffView = document.getElementById('staff-view');
         toggle.addEventListener('click', function () { punchView.hidden = true; staffView.hidden = false; });
         back.addEventListener('click', function () { staffView.hidden = true; punchView.hidden = false; });
+        if (!staffView.hidden) { punchView.hidden = true; }
+
+        staffView.querySelectorAll('[data-toggle-password]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var input = document.getElementById(btn.dataset.togglePassword);
+                if (!input) return;
+                var show = input.type === 'password';
+                input.type = show ? 'text' : 'password';
+                btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+                btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                input.focus();
+            });
+        });
 
         // Keep the kiosk session (and its CSRF token) alive between punches.
         setInterval(function () { fetch(location.pathname, { credentials: 'same-origin' }); }, 20 * 60 * 1000);
